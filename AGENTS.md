@@ -166,8 +166,11 @@ para ejecutar la demostración local.
 ## 10. Estructura documental
 
 - AGENTS.md: contexto y reglas para agentes.
+- CLAUDE.md: referencia @AGENTS.md para Claude Code.
 - README.md: instalación y ejecución en una computadora limpia.
 - .github/pull_request_template.md: plantilla de PR.
+- specs/_plantilla/: plantillas de spec.md, plan.md y
+  verificacion.md. Cada spec nueva se crea copiando esta carpeta.
 - specs/S-NNN-nombre/spec.md: comportamiento y aceptación.
 - specs/S-NNN-nombre/plan.md: implementación aprobada.
 - specs/S-NNN-nombre/verificacion.md: pruebas y evidencia.
