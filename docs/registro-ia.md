@@ -36,3 +36,8 @@ Esta entrada no constituye aprobación ni verificación funcional.
 Costo o cuota:
 No se han registrado llamadas a la API de IA del producto
 durante esta preparación documental.
+
+- Se dividió RF-05 entre S-007, generación de ejercicios,
+  y S-009, respuestas y retroalimentación.
+  El plan de estudio RF-07 quedó fuera del alcance obligatorio,
+  para que cada integrante tenga dos specs obligatorias asignadas.
