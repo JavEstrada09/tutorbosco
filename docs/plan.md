@@ -24,6 +24,8 @@ Entrega final: 11 de noviembre de 2026.
   y dos como verificador de otros integrantes.
 - Cada spec tendrá un issue de GitHub.
 - Los números de issues se añadirán después de crearlos.
+  Los números #1 y #2 ya corresponden a los PR de S-000,
+  por lo que el primer issue de spec será #3 o posterior.
 - S-000 corresponde a la preparación documental y no cuenta
   como una funcionalidad para las contribuciones mínimas.
 
@@ -154,6 +156,28 @@ y sus dependencias disponibles.
 
 El modo demo comienza en S-001 y se amplía con S-006,
 S-007 y S-009 para demostrar RF-04 y RF-05 sin red.
+
+## Calendario propuesto
+
+Propuesta pendiente de confirmar por el equipo.
+Quedan 15 días hasta la entrega y cerca de 20 PR
+(uno de spec y uno de implementación por cada spec).
+
+| Fecha límite | Hito |
+| --- | --- |
+| 28-10-2026 | Issues creados y confirmadas las decisiones D-002 a D-007 |
+| 30-10-2026 | Las 10 specs fusionadas en main |
+| 02-11-2026 | S-001 y S-002 fusionadas; estructura de apps definida en AGENTS.md |
+| 09-11-2026 | S-003 a S-010 implementadas, verificadas y fusionadas |
+| 10-11-2026 | Recorrido completo desde main en otra computadora, con modo demo sin red |
+| 11-11-2026 | Etiqueta v1.0 en main antes de la hora de entrega |
+
+Las specs no requieren código: todos los autores pueden
+redactarlas en paralelo mientras se implementa S-001.
+
+El plan de S-001 debe fijar la estructura de apps de Django
+para que S-002 y las demás specs no generen migraciones
+incompatibles.
 
 ## Trabajo en paralelo
 
