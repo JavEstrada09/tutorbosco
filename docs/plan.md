@@ -41,9 +41,9 @@ specs/S-NNN-nombre/plan.md.
 | S-004 | Gestión académica del docente: temas y asignación | RF-03 parcial | Brayan11Hernandez | AlexDLG1 | Pendiente | Por especificar |
 | S-005 | Registro y corrección de notas | RF-03 parcial | AlexDLG1 | ramosdeleon555 | Pendiente | Por especificar |
 | S-006 | Tutor personalizado: contexto académico e historial | RF-04; RNF-05 | JavEstrada09 | douglas-yasser | Pendiente | Por especificar |
-| S-007 | Práctica sobre temas débiles y retroalimentación | RF-05 | ramosdeleon555 | Brayan11Hernandez | Pendiente | Por especificar |
+| S-007 | Identificación de temas débiles y generación de ejercicios | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | Pendiente | Por especificar |
 | S-008 | Panel del docente | RF-06 | douglas-yasser | JavEstrada09 | Pendiente | Por especificar |
-| S-009 | Plan de estudio persistente: deseable | RF-07 | ramosdeleon555 | Brayan11Hernandez | Pendiente | Por especificar |
+| S-009 | Respuestas a ejercicios y retroalimentación personalizada | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | Pendiente | Por especificar |
 | S-010 | Control de acceso, seguridad e interfaz en español | RF-01; RNF-07 | Brayan11Hernandez | AlexDLG1 | Pendiente | Por especificar |
 
 ## Distribución por integrante
@@ -55,6 +55,43 @@ specs/S-NNN-nombre/plan.md.
 | AlexDLG1 | S-003 y S-005 | S-004 y S-010 |
 | Brayan11Hernandez | S-004 y S-010 | S-007 y S-009 |
 | ramosdeleon555 | S-007 y S-009 | S-003 y S-005 |
+
+## Alcance de S-007 y S-009
+
+### S-007 — Temas débiles y generación de ejercicios
+
+Autor: ramosdeleon555.
+Verificador: Brayan11Hernandez.
+
+Responsabilidades:
+- Permitir solicitar práctica de un curso del estudiante.
+- Identificar temas con nota menor al umbral configurable.
+- Generar ejercicios únicamente de esos temas mediante IA.
+- Mostrar un aviso cuando no existan temas débiles.
+- Permitir generar la práctica mediante respuestas grabadas
+  cuando esté activo el modo demo.
+
+La recepción de respuestas y su retroalimentación
+corresponden a S-009.
+
+### S-009 — Respuestas y retroalimentación
+
+Autor: ramosdeleon555.
+Verificador: Brayan11Hernandez.
+
+Responsabilidades:
+- Permitir responder los ejercicios generados en S-007.
+- Relacionar cada respuesta con su ejercicio y estudiante.
+- Obtener retroalimentación de IA sobre las respuestas.
+- Mostrar la retroalimentación en español y con trato de usted.
+- Permitir completar este recorrido sin red en modo demo.
+
+Dependencia: S-007.
+
+Ambas specs deben acordar cómo se identifican y representan
+los ejercicios y las respuestas antes de implementar.
+Cada spec tendrá sus propios criterios de aceptación,
+plan, verificación e issue.
 
 ## Arranque: S-001 y S-002
 
@@ -100,24 +137,23 @@ para evitar estructuras duplicadas o migraciones incompatibles.
 La numeración identifica las specs; no obliga a desarrollarlas
 en orden numérico.
 
-1. Revisar y fusionar la preparación documental.
-2. Especificar S-001 y S-002 y acordar su integración.
-3. Implementar y verificar el recorrido mínimo de S-001.
-4. Completar y verificar S-002.
-5. Abordar S-010 desde las primeras entregas.
+1. Completar la preparación documental.
+2. Coordinar S-001 y S-002 para establecer el modelo mínimo.
+3. Implementar y verificar el esqueleto de S-001.
+4. Completar el modelo y los datos sintéticos de S-002.
+5. Incorporar los controles de S-010 desde las primeras entregas.
 6. Desarrollar S-003, S-004 y S-005 según sus dependencias.
-7. Completar S-006 y S-007.
-8. Completar S-008.
-9. Verificar todos los requisitos obligatorios.
-10. Implementar S-009 únicamente si los obligatorios
-    están completos y verificados.
+7. Completar el tutor de S-006.
+8. Implementar S-007 y después integrar S-009.
+9. Completar S-008 cuando estén disponibles los datos académicos.
+10. Verificar todos los requisitos obligatorios desde main.
 
-La seguridad, los permisos y los textos en español
-se aplican desde la primera implementación.
-S-010 completa y comprueba esos controles.
+Las actividades independientes pueden avanzar en paralelo
+cuando sus specs estén fusionadas, sus planes aprobados
+y sus dependencias disponibles.
 
-El modo demo comienza en S-001 y se amplía junto con
-el tutor y la práctica para cubrir RF-04 y RF-05 sin red.
+El modo demo comienza en S-001 y se amplía con S-006,
+S-007 y S-009 para demostrar RF-04 y RF-05 sin red.
 
 ## Trabajo en paralelo
 
@@ -143,19 +179,19 @@ utilizar git worktree para mantener separados los cambios.
 
 Cada spec debe incluir las restricciones que le correspondan.
 
-## Requisito deseable y contribución mínima
+## Requisito deseable
 
-S-009 corresponde a RF-07 y sigue siendo opcional.
+RF-07, plan de estudio persistente, queda fuera
+de las diez specs obligatorias de este plan.
 
-Si se decide no implementarla, el equipo deberá dividir
-una funcionalidad obligatoria en una nueva spec verificable
-y asignarla a ramosdeleon555.
+Podrá incorporarse mediante una nueva spec cuando todos
+los requisitos obligatorios estén completos y verificados.
 
-También se ajustará su verificador para mantener al menos
-dos autorías y dos verificaciones completas por integrante.
+Los cinco integrantes tienen asignadas dos specs obligatorias
+como autores y dos como verificadores.
 
-No dar por cumplida la contribución mínima con una spec
-que solo fue propuesta o que quedó sin terminar.
+Las asignaciones cuentan para la contribución mínima
+solo cuando las specs estén terminadas y exista evidencia.
 
 ## Proceso por spec
 
