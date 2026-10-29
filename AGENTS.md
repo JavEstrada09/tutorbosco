@@ -21,7 +21,7 @@ El modelo de datos debe admitir varios cursos.
 - SQLite local.
 - Plantillas Django, HTML, CSS y JavaScript básico.
 - Bootstrap 5.3 almacenado localmente.
-- Gemini API como proveedor inicial propuesto.
+- ChatGPT API como proveedor inicial propuesto.
 - Proveedor local de respuestas grabadas para el modo demo.
 
 La elección y sus alternativas se documentan en:
