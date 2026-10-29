@@ -2,8 +2,10 @@
 
 ## Estado
 
-Propuesto para revisión en el PR de preparación.
-La aceptación se registrará después de la revisión del equipo.
+Aceptado. Revisado y fusionado en el PR #1 (27-10-2026).
+
+La elección del modelo de Gemini sigue pendiente de confirmar
+en S-001 según disponibilidad, cuota gratuita y calidad.
 
 ## Contexto
 
