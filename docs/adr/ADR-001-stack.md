@@ -4,7 +4,7 @@
 
 Aceptado. Revisado y fusionado en el PR #1 (27-10-2026).
 
-La elección del modelo de Gemini sigue pendiente de confirmar
+La elección del modelo de ChatGPT sigue pendiente de confirmar
 en S-001 según disponibilidad, cuota gratuita y calidad.
 
 ## Contexto
@@ -79,9 +79,9 @@ estudiantes, temas, inscripciones y notas.
 
 ### Integración con IA
 
-Usar Gemini API como proveedor inicial propuesto.
+Usar ChatGPT API como proveedor inicial propuesto.
 
-Evaluar inicialmente Gemini 2.5 Flash con perfiles sintéticos.
+Evaluar inicialmente ChatGPT 2.5 Flash con perfiles sintéticos.
 Confirmar disponibilidad, cuota y calidad antes de fijar el modelo.
 
 El nombre del modelo y la clave se configurarán mediante
@@ -185,4 +185,4 @@ el sistema siguiendo únicamente el README en menos de 30 minutos.
 - https://docs.djangoproject.com/en/5.2/topics/auth/default/
 - https://docs.djangoproject.com/en/5.2/intro/tutorial02/
 - https://getbootstrap.com/docs/5.3/getting-started/download/
-- https://ai.google.dev/gemini-api/docs/pricing
+- https://ai.google.dev/ChatGPT-api/docs/pricing
