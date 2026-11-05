@@ -4,8 +4,9 @@
 
 Aceptado. Revisado y fusionado en el PR #1 (27-10-2026).
 
-La elección del modelo de Gemini sigue pendiente de confirmar
-en S-001 según disponibilidad, cuota gratuita y calidad.
+El modelo seleccionado es Gemini 3.8 Flash (`gemini-3.8-flash`).
+Su disponibilidad, cuota y calidad en la cuenta del equipo se
+comprobarán en S-001 antes de declarar verificada la integración.
 
 ## Contexto
 
@@ -34,7 +35,7 @@ La elección tecnológica debe considerar:
 Se busca facilitar la instalación, la integración del trabajo
 y la comprensión del código por todos los integrantes.
 
-## Decisión propuesta
+## Decisión
 
 Desarrollar una aplicación Django con interfaz renderizada
 en el servidor y base de datos SQLite local.
@@ -79,10 +80,13 @@ estudiantes, temas, inscripciones y notas.
 
 ### Integración con IA
 
-Usar Gemini API como proveedor inicial propuesto.
+Usar Google Gemini API con Gemini 3.8 Flash (`gemini-3.8-flash`).
 
-Evaluar inicialmente Gemini 2.5 Flash con perfiles sintéticos.
-Confirmar disponibilidad, cuota y calidad antes de fijar el modelo.
+Priorizar el nivel gratuito y no habilitar facturación de pago
+en la etapa inicial. El costo definitivo se evaluará según el
+consumo real y los límites disponibles, sin superar el presupuesto
+global de USD 10. Al agotarse la cuota o faltar conexión se
+utilizará el modo demo.
 
 El nombre del modelo y la clave se configurarán mediante
 variables de entorno. La clave solo se utilizará en el backend.
@@ -160,6 +164,9 @@ y la demostración debe poder realizarse sin red.
 - Las interacciones dinámicas requieren JavaScript adicional.
 - Django exige aprender y respetar sus convenciones.
 - La cuota gratuita de IA tiene límites y puede cambiar.
+- En el nivel gratuito, Google puede utilizar el contenido enviado
+  para mejorar sus productos; por eso solo se enviarán datos
+  sintéticos.
 - El modo demo requiere mantener casos grabados coherentes.
 - Las herramientas integradas no sustituyen la implementación
   y verificación de los permisos propios de TutoBosco.
@@ -185,4 +192,5 @@ el sistema siguiendo únicamente el README en menos de 30 minutos.
 - https://docs.djangoproject.com/en/5.2/topics/auth/default/
 - https://docs.djangoproject.com/en/5.2/intro/tutorial02/
 - https://getbootstrap.com/docs/5.3/getting-started/download/
+- https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash
 - https://ai.google.dev/gemini-api/docs/pricing

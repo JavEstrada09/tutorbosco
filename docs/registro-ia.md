@@ -3,6 +3,10 @@
 Registrar una entrada por spec.
 No incluir claves, contraseñas ni datos reales de estudiantes.
 
+Este archivo registra las herramientas y los modelos usados para
+desarrollar el proyecto. El modelo del producto es Gemini 3.8 Flash
+(`gemini-3.8-flash`) y se documenta en docs/adr/ADR-001-stack.md.
+
 Formato de cada entrada (plantilla 9.7 del enunciado):
 
 ```

@@ -21,7 +21,8 @@ El modelo de datos debe admitir varios cursos.
 - SQLite local.
 - Plantillas Django, HTML, CSS y JavaScript básico.
 - Bootstrap 5.3 almacenado localmente.
-- Gemini API como proveedor inicial propuesto.
+- Google Gemini API con Gemini 3.8 Flash (`gemini-3.8-flash`),
+  inicialmente en el nivel gratuito.
 - Proveedor local de respuestas grabadas para el modo demo.
 
 La elección y sus alternativas se documentan en:
@@ -129,10 +130,17 @@ Los datos completos deben incluir como mínimo:
 - Manejar errores de conexión, cuota y respuestas inválidas.
 - Validar la salida de IA antes de utilizarla o mostrarla.
 - No ejecutar contenido generado por el modelo como código.
+- Utilizar Google Gemini API con Gemini 3.8 Flash
+  (`gemini-3.8-flash`).
+- Priorizar el nivel gratuito y no habilitar facturación de pago
+  en la etapa inicial.
+- Activar el modo demo cuando no haya conexión o se agote la cuota.
 
 El presupuesto máximo del servicio de IA del producto es
 USD 10 para todo el equipo durante el proyecto.
 Registrar el gasto real en docs/gasto.md.
+Cualquier uso pagado requiere aprobación previa del equipo y
+debe respetar ese tope global.
 
 ## 8. Modo demo
 

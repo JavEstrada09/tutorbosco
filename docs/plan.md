@@ -2,14 +2,14 @@
 
 ## Estado
 
-Plan inicial con las 10 specs seleccionadas.
+Plan inicial con las 10 specs seleccionadas. Los issues ya están
+creados; todavía no existe ninguna spec funcional fusionada en main.
 
 El reparto comienza con:
 - JavEstrada09: S-001, esqueleto funcional.
 - douglas-yasser: S-002, modelo y datos sintéticos.
 
-Las asignaciones se revisarán con el equipo en el PR
-de preparación documental.
+Las asignaciones iniciales se confirman al aprobar cada spec.
 
 Entrega final: 11 de noviembre de 2026.
 
@@ -22,10 +22,9 @@ Entrega final: 11 de noviembre de 2026.
   y registra resultados y evidencia.
 - Cada integrante debe completar al menos dos specs como autor
   y dos como verificador de otros integrantes.
-- Cada spec tendrá un issue de GitHub.
-- Los números de issues se añadirán después de crearlos.
-  Los números #1 y #2 ya corresponden a los PR de S-000,
-  por lo que el primer issue de spec será #3 o posterior.
+- Cada spec tiene un issue de GitHub, con autor y verificador
+  distintos asignados.
+- Los issues de S-001 a S-010 ya están creados.
 - S-000 corresponde a la preparación documental y no cuenta
   como una funcionalidad para las contribuciones mínimas.
 
@@ -37,16 +36,16 @@ specs/S-NNN-nombre/plan.md.
 
 | Spec | Nombre | Requisito | Autor | Verificador | Issue | Estado |
 | --- | --- | --- | --- | --- | --- | --- |
-| S-001 | Esqueleto: login, dato de perfil, respuesta IA y modo demo | RF-01, RF-02 y RF-04 parciales; RNF-04 y RNF-06 parciales | JavEstrada09 | douglas-yasser | Pendiente | Por especificar |
-| S-002 | Modelo de datos y script de datos sintéticos | RNF-01; soporte de RF-02 y RF-03 | douglas-yasser | JavEstrada09 | Pendiente | Por especificar |
-| S-003 | Perfil académico | RF-02 | AlexDLG1 | ramosdeleon555 | Pendiente | Por especificar |
-| S-004 | Gestión académica del docente: temas y asignación | RF-03 parcial | Brayan11Hernandez | AlexDLG1 | Pendiente | Por especificar |
-| S-005 | Registro y corrección de notas | RF-03 parcial | AlexDLG1 | ramosdeleon555 | Pendiente | Por especificar |
-| S-006 | Tutor personalizado: contexto académico e historial | RF-04; RNF-05 | JavEstrada09 | douglas-yasser | Pendiente | Por especificar |
-| S-007 | Identificación de temas débiles y generación de ejercicios | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | Pendiente | Por especificar |
-| S-008 | Panel del docente | RF-06 | douglas-yasser | JavEstrada09 | Pendiente | Por especificar |
-| S-009 | Respuestas a ejercicios y retroalimentación personalizada | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | Pendiente | Por especificar |
-| S-010 | Control de acceso, seguridad e interfaz en español | RF-01; RNF-07 | Brayan11Hernandez | AlexDLG1 | Pendiente | Por especificar |
+| S-001 | Esqueleto: login, dato de perfil, respuesta IA y modo demo | RF-01, RF-02 y RF-04 parciales; RNF-04 y RNF-06 parciales | JavEstrada09 | douglas-yasser | #4 | Por especificar |
+| S-002 | Modelo de datos y script de datos sintéticos | RNF-01; soporte de RF-02 y RF-03 | douglas-yasser | JavEstrada09 | #6 | Por especificar |
+| S-003 | Perfil académico | RF-02 | AlexDLG1 | ramosdeleon555 | #7 | Por especificar |
+| S-004 | Gestión académica del docente: temas y asignación | RF-03 parcial | Brayan11Hernandez | AlexDLG1 | #8 | Por especificar |
+| S-005 | Registro y corrección de notas | RF-03 parcial | AlexDLG1 | ramosdeleon555 | #9 | Por especificar |
+| S-006 | Tutor personalizado: contexto académico e historial | RF-04; RNF-05 | JavEstrada09 | douglas-yasser | #10 | Por especificar |
+| S-007 | Identificación de temas débiles y generación de ejercicios | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | #11 | Por especificar |
+| S-008 | Panel del docente | RF-06 | douglas-yasser | JavEstrada09 | #12 | Por especificar |
+| S-009 | Respuestas a ejercicios y retroalimentación personalizada | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | #13 | Por especificar |
+| S-010 | Control de acceso, seguridad e interfaz en español | RF-01; RNF-07 | Brayan11Hernandez | AlexDLG1 | #14 | Por especificar |
 
 ## Distribución por integrante
 
@@ -159,9 +158,11 @@ S-007 y S-009 para demostrar RF-04 y RF-05 sin red.
 
 ## Calendario propuesto
 
-Propuesta pendiente de confirmar por el equipo.
-Quedan 15 días hasta la entrega y cerca de 20 PR
-(uno de spec y uno de implementación por cada spec).
+Calendario inicial pendiente de revisión y actualización por el
+equipo antes de iniciar las specs. Los hitos iniciales no deben
+considerarse cumplidos sin evidencia en main.
+
+Entrega final: 11 de noviembre de 2026.
 
 | Fecha límite | Hito |
 | --- | --- |

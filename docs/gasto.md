@@ -7,6 +7,17 @@ Tope global: USD 10 durante todo el proyecto.
 El límite corresponde al servicio de IA utilizado por TutoBosco
 y se comparte entre los cinco integrantes.
 
+## Modalidad inicial
+
+Se utilizará Gemini 3.8 Flash (`gemini-3.8-flash`) mediante
+Google Gemini API, priorizando el nivel gratuito.
+
+No se habilitará facturación de pago en la etapa inicial.
+Si el equipo evalúa habilitarla posteriormente, requerirá
+acuerdo previo y el tope global de USD 10 seguirá vigente.
+Al agotarse la cuota se utilizará el modo demo, sin activar
+pagos automáticos.
+
 ## Registro
 
 | Fecha | Responsable | Proveedor y modelo | Uso | Consumo o cuota | Costo USD | Evidencia |
