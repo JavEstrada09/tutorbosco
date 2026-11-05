@@ -103,3 +103,27 @@ Qué se corrigió o descartó, y por qué: pendiente de la revisión del PR.
 
 Costo o cuota consumida: ninguna llamada a la API de IA
 del producto.
+
+## S-001 · 05-11-2026
+
+Herramienta y modelo: ChatGPT · GPT-6.1 Sol.
+Usado por: JavEstrada09.
+
+Fases en que se usó: spec.
+
+Instrucción clave:
+Redactar la especificación del esqueleto funcional siguiendo
+AGENTS.md, el plan del equipo y la plantilla del repositorio,
+sin implementar código.
+
+Qué se aceptó sin cambios:
+El borrador con el problema, comportamiento esperado,
+siete criterios de aceptación, exclusiones y restricciones.
+
+Qué se corrigió o descartó, y por qué:
+No se han registrado correcciones de contenido al borrador.
+La revisión de douglas-yasser está pendiente.
+
+Costo o cuota consumida:
+No se realizaron llamadas a la API de IA del producto.
+El consumo de esta conversación no se cuantificó.
