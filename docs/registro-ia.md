@@ -127,3 +127,22 @@ La revisión de douglas-yasser está pendiente.
 Costo o cuota consumida:
 No se realizaron llamadas a la API de IA del producto.
 El consumo de esta conversación no se cuantificó.
+
+## S-005 · 05-11-2026
+
+Herramienta y modelo: Claude (app de Claude) · Claude Sonnet 5.5.
+Usado por: AlexDLG1.
+
+Fases en que se usó: spec.
+
+Instrucción clave:
+Redactar la spec del registro y corrección de notas (RF-03 parcial)
+con criterios Dado/Cuando/Entonces, incluyendo el rechazo en el
+servidor de notas que el docente no puede registrar.
+
+Qué se aceptó sin cambios: La estructura de la spec y los 8 criterios de aceptación.
+
+Qué se corrigió o descartó, y por qué: Ninguna corrección; leí la spec completa y la contrasté con el enunciado (RF-03), AGENTS.md y la spec de S-002 antes de aceptarla.
+
+Costo o cuota consumida: ninguna llamada a la API de IA
+del producto.
