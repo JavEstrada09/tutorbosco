@@ -51,6 +51,32 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida: ninguna llamada a la API de IA
 del producto.
 
+## S-007 · 05-11-2026 · Borrador de especificación
+
+Herramienta y modelo: OpenCode · GPT-6.1 Sol (openai/gpt-6.1-sol).
+
+Fases en que se usó: spec y preparación de la estructura documental.
+No se elaboró el plan técnico ni se implementó la funcionalidad.
+
+Instrucción clave:
+Preparar S-007 siguiendo docs/plan.md y docs/guia-trabajo.md,
+crear la estructura propuesta e indicar los pasos humanos pendientes.
+
+Qué se aceptó sin cambios:
+- El usuario autorizó crear la estructura documental propuesta y
+  preparar el borrador con el alcance presentado en la conversación.
+- El contenido final de los archivos queda pendiente de revisión;
+  no se registra aprobación de la spec ni del plan técnico.
+
+Qué se corrigió o descartó, y por qué:
+- Se dejó el plan técnico pendiente hasta la fusión de la spec,
+  para respetar el orden obligatorio del repositorio.
+- Se dejaron los resultados y la evidencia de verificación pendientes,
+  porque todavía no existe implementación de S-007.
+
+Costo o cuota consumida: ninguna llamada a la API de IA del producto.
+El costo de la herramienta de desarrollo no está disponible en la sesión.
+
 ## S-000 · 27-10-2026 · Ajustes de estructura
 
 Herramienta y modelo: Claude Code · Claude Opus 5.5.
