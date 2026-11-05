@@ -159,3 +159,22 @@ Costo o cuota consumida:
 No se realizaron llamadas a la API de IA del producto.
 El consumo de esta conversación no se cuantificó.
 
+]633;E;echo;65469bf1-3e3d-44cc-bb99-92783a4d9c7d]633;C
+## S-003 · 05-11-2026
+
+Herramienta y modelo: Claude (app de Claude) · Claude Sonnet 5.5.
+Usado por: AlexDLG1.
+
+Fases en que se usó: spec.
+
+Instrucción clave:
+Redactar la spec del perfil académico (RF-02) con criterios
+Dado/Cuando/Entonces, a partir del enunciado, de docs/plan.md
+y de las decisiones D-003, D-004 y D-007.
+
+Qué se aceptó sin cambios: La estructura de la spec y los 8 criterios de aceptación.
+
+Qué se corrigió o descartó, y por qué: Ninguna corrección; leí la spec completa y la contrasté con D-003, D-004 y D-007 antes de aceptarla.
+
+Costo o cuota consumida: ninguna llamada a la API de IA
+del producto.
