@@ -127,3 +127,20 @@ Por qué: la escala entera de 0 a 100 evita ambigüedades al registrar
 y al comparar con el umbral de tema débil (D-002), y un único
 registro por estudiante y tema asegura que el perfil, el tutor y
 el panel lean siempre la nota vigente.
+
+## D-009 · 05-11-2026
+
+Requisito: RF-01, RF-04 y RF-06.
+
+Duda: el enunciado exige dos roles, estudiante y docente, pero no
+indica cómo representarlos en el modelo de usuario.
+
+Decisión: el rol se determina por el perfil asociado. Un usuario con
+StudentProfile es estudiante; uno con TeacherProfile es docente.
+No se agrega un campo de rol a User. El sistema asume un perfil por
+cuenta; si se necesitara una cuenta con ambos, se registrará una nueva
+decisión. Un usuario sin perfil no accede a vistas de rol y los
+permisos se verifican en el servidor.
+
+Por qué: conserva User sin campos adicionales, usa los perfiles que
+S-001 y S-002 ya necesitan y permite verificar el rol en cada operación.
