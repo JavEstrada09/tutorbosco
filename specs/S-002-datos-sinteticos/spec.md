@@ -2,7 +2,7 @@
 
 Requisito: RNF-01; soporte de RF-02 y RF-03
 Autor: douglas-yasser · Verificador: JavEstrada09 · Issue: #6
-Estado: borrador
+Estado: aprobada
 
 ## Problema
 
@@ -37,6 +37,11 @@ CA-4 Dado que el modelo admite varios cursos,
      entonces se asocian docentes, estudiantes, temas, asignaciones
      y notas.
 
+CA-5 Dado que ejecuto la reconstrucción más de una vez,
+     cuando el conjunto sintético ya existe,
+     entonces el comando lo reconstruye de forma idempotente,
+     sin alterar migraciones ni usuarios ajenos al conjunto.
+
 ## Fuera de alcance
 
 Pantalla de perfil (S-003), tutor (S-006), panel del docente (S-008)
@@ -47,10 +52,17 @@ y acceso por rol (S-001/S-010). El script no inserta datos reales.
 - Solo datos sintéticos (RNF-01).
 - No versionar la base SQLite; versionar migraciones y el script.
 - Reconstrucción con un único comando documentado en el README.
+- Base acordada con S-001: `accounts.User`, `academics.StudentProfile`,
+  `academics.Course` con código único y `academics.Enrollment` con
+  unicidad estudiante-curso.
+- S-002 amplía la base con `TeacherProfile`, temas, notas y el conjunto
+  completo de datos sintéticos mediante migraciones posteriores.
 - Dependencias: estructura de apps definida en S-001;
-  decisiones D-003, D-004 y D-007.
+  decisiones D-003, D-004, D-007 y D-009.
 - No usa IA.
 
 ## Registro de cambios
 
-[se completa en cada cambio]
+05-11-2026 · Se acuerda con S-001 la base de modelos, el código único
+de curso y el alcance idempotente de `rebuild_synthetic_data` · Evitar
+migraciones incompatibles y precisar el comando compartido.
