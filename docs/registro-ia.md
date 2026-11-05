@@ -104,7 +104,7 @@ Qué se corrigió o descartó, y por qué: pendiente de la revisión del PR.
 Costo o cuota consumida: ninguna llamada a la API de IA
 del producto.
 
-<<<<<<< HEAD
+
 ## S-009 · 05-11-2026 · Borrador de especificación
 
 Herramienta y modelo: OpenCode · GPT-6.1 Sol (openai/gpt-6.1-sol).
@@ -134,7 +134,7 @@ Qué se corrigió o descartó, y por qué:
 
 Costo o cuota consumida: ninguna llamada a la API de IA del producto.
 El costo de la herramienta de desarrollo no está disponible en la sesión.
-=======
+
 ## S-001 · 05-11-2026
 
 Herramienta y modelo: ChatGPT · GPT-6.1 Sol.
@@ -158,4 +158,4 @@ La revisión de douglas-yasser está pendiente.
 Costo o cuota consumida:
 No se realizaron llamadas a la API de IA del producto.
 El consumo de esta conversación no se cuantificó.
->>>>>>> origin/main
+
