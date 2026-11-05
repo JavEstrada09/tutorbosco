@@ -21,8 +21,8 @@ Costo o cuota consumida (si aplica):
 
 ## S-000 · 27-10-2026 · Preparación documental
 
-Herramienta y modelo: ChatGPT. Modelo pendiente de confirmar
-por JavEstrada09 en la interfaz utilizada.
+Herramienta y modelo: ChatGPT · GPT-6.1 Sol.
+Usado por: JavEstrada09.
 
 Fases en que se usó: organización, propuesta de stack
 y redacción de documentación.
