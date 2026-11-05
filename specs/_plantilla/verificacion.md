@@ -11,3 +11,6 @@ Verificador: [usuario] · Computadora: [de quién] · Commit: [hash corto]
 
 Describir fallos encontrados, el commit que los corrigió
 y el resultado de la nueva prueba.
+
+El verificador debe ser distinto del autor y ejecutar cada criterio
+en su computadora con el commit indicado.

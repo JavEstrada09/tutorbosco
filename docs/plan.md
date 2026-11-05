@@ -156,25 +156,16 @@ y sus dependencias disponibles.
 El modo demo comienza en S-001 y se amplía con S-006,
 S-007 y S-009 para demostrar RF-04 y RF-05 sin red.
 
-## Calendario propuesto
+## Calendario
 
-Calendario inicial pendiente de revisión y actualización por el
-equipo antes de iniciar las specs. Los hitos iniciales no deben
-considerarse cumplidos sin evidencia en main.
+El calendario inicial no se cumplió y no se registra uno nuevo sin
+acuerdo del equipo. Antes de iniciar las specs, el equipo debe
+actualizar este apartado con fechas reales.
 
 Entrega final: 11 de noviembre de 2026.
 
-| Fecha límite | Hito |
-| --- | --- |
-| 28-10-2026 | Issues creados y confirmadas las decisiones D-002 a D-007 |
-| 30-10-2026 | Las 10 specs fusionadas en main |
-| 02-11-2026 | S-001 y S-002 fusionadas; estructura de apps definida en AGENTS.md |
-| 09-11-2026 | S-003 a S-010 implementadas, verificadas y fusionadas |
-| 10-11-2026 | Recorrido completo desde main en otra computadora, con modo demo sin red |
-| 11-11-2026 | Etiqueta v1.0 en main antes de la hora de entrega |
-
 Las specs no requieren código: todos los autores pueden
-redactarlas en paralelo mientras se implementa S-001.
+redactarlas en paralelo cuando sus dependencias estén claras.
 
 El plan de S-001 debe fijar la estructura de apps de Django
 para que S-002 y las demás specs no generen migraciones
@@ -220,7 +211,7 @@ solo cuando las specs estén terminadas y exista evidencia.
 
 ## Proceso por spec
 
-1. Crear el issue y registrar autor y verificador.
+1. Usar el issue ya creado y confirmar autor y verificador.
 2. Redactar spec.md con criterios Dado/Cuando/Entonces.
 3. Revisar y fusionar la spec mediante PR antes del código.
 4. Solicitar al agente un plan en modo de solo lectura.
