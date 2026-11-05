@@ -135,6 +135,25 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida: ninguna llamada a la API de IA del producto.
 El costo de la herramienta de desarrollo no está disponible en la sesión.
 
+## S-005 · 05-11-2026
+
+Herramienta y modelo: Claude (app de Claude) · Claude Sonnet 5.5.
+Usado por: AlexDLG1.
+
+Fases en que se usó: spec.
+
+Instrucción clave:
+Redactar la spec del registro y corrección de notas (RF-03 parcial)
+con criterios Dado/Cuando/Entonces, incluyendo el rechazo en el
+servidor de notas que el docente no puede registrar.
+
+Qué se aceptó sin cambios: La estructura de la spec y los 8 criterios de aceptación.
+
+Qué se corrigió o descartó, y por qué: Ninguna corrección; leí la spec completa y la contrasté con el enunciado (RF-03), AGENTS.md y la spec de S-002 antes de aceptarla.
+
+Costo o cuota consumida: ninguna llamada a la API de IA
+del producto.
+
 ## S-001 · 05-11-2026
 
 Herramienta y modelo: ChatGPT · GPT-6.1 Sol.
