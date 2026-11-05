@@ -16,7 +16,7 @@ Describir brevemente el problema y el cambio realizado.
 
 Indicar requisitos de configuración, comandos y pasos concretos.
 
-## Uso de inteligencia artificial
+## Uso de inteligencia artificial (obligatorio, N6)
 
 - Herramienta:
 - Modelo:
@@ -38,11 +38,12 @@ Si no hubo desviaciones, indicarlo.
 - Computadora utilizada:
 - Commit probado:
 - Criterios ejecutados:
+- Ejecuté cada criterio antes de aprobar: [sí/no]
 - Ubicación de verificacion.md y evidencias:
 - Resultado y correcciones pendientes:
 
-El verificador debe ejecutar cada criterio antes de aprobar
-un PR de implementación.
+El verificador debe ser distinto del autor y ejecutar cada
+criterio antes de aprobar un PR de implementación.
 
 En un PR de especificación o documentación inicial,
 describir la revisión documental realizada.
