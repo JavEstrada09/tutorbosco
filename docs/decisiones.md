@@ -109,3 +109,21 @@ de 1 a 10.
 
 Por qué: son datos claramente sintéticos y suficientes para
 distinguir perfiles en RF-02.
+
+## D-008 · 05-11-2026
+
+Estado: propuesta, pendiente de confirmar por el equipo.
+
+Requisito: RF-03.
+
+Duda: el enunciado no dice si la nota admite decimales ni qué
+ocurre cuando el docente corrige una nota ya registrada.
+
+Decisión propuesta: la nota es un número entero de 0 a 100.
+Cada estudiante tiene una sola nota por tema; corregirla reemplaza
+la anterior y no se guarda historial.
+
+Por qué: la escala entera de 0 a 100 evita ambigüedades al registrar
+y al comparar con el umbral de tema débil (D-002), y un único
+registro por estudiante y tema asegura que el perfil, el tutor y
+el panel lean siempre la nota vigente.
