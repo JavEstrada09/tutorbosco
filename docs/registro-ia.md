@@ -77,3 +77,33 @@ Qué se corrigió o descartó, y por qué: pendiente de la revisión del PR.
 
 Costo o cuota consumida: ninguna llamada a la API de IA
 del producto.
+
+## S-009 · 05-11-2026 · Borrador de especificación
+
+Herramienta y modelo: OpenCode · GPT-6.1 Sol (openai/gpt-6.1-sol).
+Usado por: Jeffersson Ramos (ramosdeleon555).
+
+Fases en que se usó: spec y preparación de la estructura documental.
+No se elaboró el plan técnico ni se implementó la funcionalidad.
+
+Instrucción clave:
+Preparar S-009 siguiendo el plan y la guía, con Jeffersson Ramos
+(ramosdeleon555) como autor, y utilizar git worktree para trabajar
+simultáneamente en S-007 y S-009.
+
+Qué se aceptó sin cambios:
+- Jeffersson confirmó la estructura y el alcance documental
+  propuestos y autorizó utilizar un worktree independiente.
+- El contenido final queda pendiente de revisión en PR; no se
+  registra aprobación técnica ni verificación de funcionalidad.
+
+Qué se corrigió o descartó, y por qué:
+- Se explicitó el nombre del autor junto a su usuario de GitHub,
+  conforme a la aclaración del usuario.
+- Se dejó el plan técnico pendiente hasta fusionar la spec,
+  para respetar el proceso obligatorio del repositorio.
+- Se dejaron resultados y evidencia pendientes, porque no existe
+  implementación de S-009.
+
+Costo o cuota consumida: ninguna llamada a la API de IA del producto.
+El costo de la herramienta de desarrollo no está disponible en la sesión.
