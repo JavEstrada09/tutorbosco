@@ -188,6 +188,8 @@ para ejecutar la demostración local.
 - docs/registro-ia.md: uso real de IA por spec.
 - docs/gasto.md: gasto y consumo del servicio de IA.
 - docs/incidentes.md: incidentes reportados.
+- docs/guia-trabajo.md: referencia rápida de ramas, carpetas y
+  responsables. No es normativa; prevalecen este archivo y docs/plan.md.
 
 La estructura de código se definirá en el primer plan aprobado.
 Actualizar este archivo en el mismo PR que cambie una convención.
