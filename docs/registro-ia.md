@@ -95,9 +95,58 @@ El borrador con el problema, comportamiento esperado,
 siete criterios de aceptación, exclusiones y restricciones.
 
 Qué se corrigió o descartó, y por qué:
-No se han registrado correcciones de contenido al borrador.
-La revisión de douglas-yasser está pendiente.
+No se registraron correcciones de contenido a la spec. La especificación
+fue fusionada en `main` mediante PR #24; esto no registra todavía una
+verificación de implementación.
 
 Costo o cuota consumida:
 No se realizaron llamadas a la API de IA del producto.
 El consumo de esta conversación no se cuantificó.
+
+## S-001 · 06-11-2026
+
+Herramienta y modelo: OpenCode · GPT-5.6 Sol.
+Usado por: JavEstrada09.
+
+Fases en que se usó: plan y actualización documental.
+
+Instrucción clave:
+Revisar y completar el plan técnico de S-001 sin implementar código,
+conservar el modelo coordinado para S-002, registrar D-008 y actualizar
+los estados documentales después de la fusión de la spec en PR #24.
+
+Qué se aceptó sin cambios:
+- Los siete criterios de aceptación de la spec.
+- La separación entre proveedor Gemini y proveedor demo local.
+- El manejo explícito de configuración, conexión, cuota y respuesta
+  inválida.
+- Las pruebas automatizadas y la futura verificación independiente de
+  Douglas.
+- Cuatro entregas revisables dentro de `s-001-esqueleto`.
+
+Qué se corrigió o descartó, y por qué:
+- Se conservó `StudentProfile` con `user`, `student_id`, `career` y
+  `semester`; S-001 solo mostrará `career`.
+- Se asignó la creación de `User` a `accounts/0001_initial.py` y la de
+  `StudentProfile`, `Course` y `Enrollment` a
+  `academics/0001_initial.py`, según la coordinación previa con S-002.
+- Se mantuvieron `Course.code` único y una sola inscripción por pareja
+  estudiante-curso.
+- D-008 dejó de posponerse a S-002: JavEstrada09 la aprobó antes de la
+  implementación de S-001 con roles mediante perfiles y sin imponer
+  exclusividad.
+- Se separaron las responsabilidades entre S-001 y S-002 de las
+  entregas internas de S-001 para evitar tratarlas como specs nuevas.
+- Se restauró `rebuild_synthetic_data` como comando mínimo que S-001
+  crea y S-002 amplía.
+- La revisión del diff restauró `AI_MODE=real` o `AI_MODE=demo`,
+  `AI_MODEL`, `GEMINI_API_KEY` y `DEMO_STUDENT_PASSWORD`; el código
+  `PROG-COM`; la ejecución idempotente; y la protección de registros
+  ajenos.
+- También restauró los controles CSRF, las comprobaciones de perfil e
+  inscripción, la ausencia de permisos académicos por `is_staff`, las
+  dependencias aprobadas y los PR secuenciales de cada entrega.
+
+Costo o cuota consumida:
+No se realizaron llamadas a la API de IA del producto.
+El consumo de esta conversación de OpenCode no se cuantificó.

@@ -109,3 +109,27 @@ de 1 a 10.
 
 Por qué: son datos claramente sintéticos y suficientes para
 distinguir perfiles en RF-02.
+
+## D-008 · 06-11-2026
+
+Requisito: RF-01.
+
+Estado: aprobada por JavEstrada09 el 06-11-2026, antes de implementar
+S-001.
+
+Duda: cómo representar los roles de estudiante y docente sin acoplar
+la autenticación a un único rol ni impedir casos futuros en los que una
+misma cuenta necesite ambos.
+
+Decisión: `accounts.User` representa la cuenta de autenticación. Cada
+rol se representa mediante un perfil relacionado, comenzando con
+`academics.StudentProfile` para el estudiante. Los perfiles no son
+mutuamente excluyentes: una cuenta puede tener más de uno.
+
+La existencia de un perfil habilita la identificación del rol, pero no
+sustituye las comprobaciones de permisos sobre cursos y estudiantes que
+deben realizarse en el servidor.
+
+Por qué: separar cuenta y perfiles permite compartir autenticación sin
+duplicar usuarios, ampliar los datos propios de cada rol y evitar una
+restricción de exclusividad que el equipo no ha requerido.
