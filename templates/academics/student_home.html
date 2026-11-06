@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Su espacio | TutoBosco{% endblock %}
+
+{% block content %}
+<section class="student-layout" aria-labelledby="student-title">
+    <div>
+        <p class="eyebrow">Programación Comercial</p>
+        <h1 id="student-title">Su espacio académico</h1>
+        <p class="lead">Esta información corresponde a su cuenta autenticada.</p>
+    </div>
+
+    <article class="panel career-card">
+        <p class="card-label">Su carrera</p>
+        <p class="career-value">{{ career }}</p>
+    </article>
+
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="button button-secondary" type="submit">Cerrar sesión</button>
+    </form>
+</section>
+{% endblock %}

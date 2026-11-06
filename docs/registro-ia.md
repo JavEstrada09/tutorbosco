@@ -282,6 +282,47 @@ Costo o cuota consumida:
 No se realizaron llamadas a Gemini ni a la API de IA del producto.
 El consumo de esta conversación de OpenCode no se cuantificó.
 
+## S-001 · 06-11-2026 · Implementación de Entrega 2
+
+Herramienta y modelo: OpenCode · GPT-5.6 Sol.
+Usado por: JavEstrada09.
+
+Fases en que se usó: implementación, pruebas y documentación.
+
+Instrucción clave:
+Implementar únicamente el acceso del estudiante, la pantalla protegida
+de carrera y el cierre de sesión de la Entrega 2, conservando la Entrega
+1 y sin crear formularios del tutor ni integrar Gemini.
+
+Qué se aceptó sin cambios:
+- Autenticación mediante `LoginView`, `LogoutView` y
+  `AuthenticationForm` de Django.
+- Perfil obtenido exclusivamente desde `request.user` y autorización
+  condicionada por la inscripción en `PROG-COM`.
+- Protección CSRF activa y cierre de sesión disponible solo mediante POST.
+- Mensaje genérico para credenciales incorrectas o cuentas inactivas.
+
+Qué se corrigió o descartó, y por qué:
+- No se aceptan identificadores enviados por el navegador para elegir el
+  perfil; las pruebas intentan seleccionar otro carné y confirman que se
+  mantiene la carrera de la cuenta autenticada.
+- Se conservó la validación segura de redirecciones de `LoginView` y se
+  añadió una prueba que rechaza un destino externo en `next`.
+- No se modificaron modelos, migraciones ni el comando de datos.
+
+Resultado registrado por el autor:
+- `manage.py check`: sin problemas.
+- Pruebas de `accounts` y `academics`: 23 pruebas superadas.
+- `makemigrations --check --dry-run`: no detectó cambios.
+- `/acceso/` y el CSS local respondieron HTTP 200; `/` respondió 302 hacia
+  `/acceso/?next=/` para una visita anónima.
+- La verificación independiente de Douglas sigue pendiente.
+- S-001 no se considera terminada.
+
+Costo o cuota consumida:
+No se realizaron llamadas a Gemini ni a la API de IA del producto.
+El consumo de esta conversación de OpenCode no se cuantificó.
+
 ## S-003 · 05-11-2026
 
 Herramienta y modelo: Claude (app de Claude) · Claude Sonnet 5.5.

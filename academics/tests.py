@@ -8,7 +8,8 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import IntegrityError, transaction
-from django.test import TestCase
+from django.test import Client, TestCase
+from django.urls import reverse
 
 from academics.management.commands.rebuild_synthetic_data import (
     DEMO_CAREER,
@@ -78,6 +79,120 @@ class AcademicModelTests(TestCase):
 
         with self.assertRaises(IntegrityError), transaction.atomic():
             Enrollment.objects.create(student=self.profile, course=self.course)
+
+
+class StudentAccessTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        self.course = Course.objects.create(
+            code=PILOT_COURSE_CODE,
+            name=PILOT_COURSE_NAME,
+        )
+        self.student_number = 0
+
+    def create_student(self, career, *, enrolled=True, **user_fields):
+        self.student_number += 1
+        user = get_user_model().objects.create_user(
+            username=f"estudiante_{self.student_number}",
+            password=secrets.token_urlsafe(24),
+            **user_fields,
+        )
+        profile = StudentProfile.objects.create(
+            user=user,
+            student_id=f"2026-{self.student_number:05d}",
+            career=career,
+            semester=2,
+        )
+        if enrolled:
+            Enrollment.objects.create(student=profile, course=self.course)
+        return user, profile
+
+    def test_anonymous_access_redirects_to_login_with_safe_next(self):
+        response = self.client.get(reverse("student_home"))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('student_home')}",
+        )
+
+    def test_account_without_profile_is_denied_in_spanish(self):
+        user = get_user_model().objects.create_user(username="sin_perfil")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(
+            response,
+            "Su cuenta no tiene autorización académica",
+            status_code=403,
+        )
+
+    def test_student_without_pilot_enrollment_is_denied(self):
+        user, _ = self.create_student("Carrera sin inscripción", enrolled=False)
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertNotContains(response, "Carrera sin inscripción", status_code=403)
+
+    def test_staff_status_alone_does_not_grant_academic_access(self):
+        user = get_user_model().objects.create_user(
+            username="personal_tecnico",
+            is_staff=True,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "Acceso denegado", status_code=403)
+
+    def test_each_student_only_sees_career_from_authenticated_account(self):
+        first_user, first_profile = self.create_student("Carrera Primera")
+        second_user, second_profile = self.create_student("Carrera Segunda")
+
+        self.client.force_login(first_user)
+        first_response = self.client.get(
+            reverse("student_home"),
+            {"student_id": second_profile.student_id},
+        )
+        self.assertContains(first_response, first_profile.career)
+        self.assertNotContains(first_response, second_profile.career)
+        self.assertNotContains(first_response, first_profile.student_id)
+        self.assertNotContains(first_response, "Semestre")
+
+        self.client.force_login(second_user)
+        second_response = self.client.get(
+            reverse("student_home"),
+            {"student_id": first_profile.student_id},
+        )
+        self.assertContains(second_response, second_profile.career)
+        self.assertNotContains(second_response, first_profile.career)
+        self.assertNotContains(second_response, second_profile.student_id)
+        self.assertNotContains(second_response, "Semestre")
+
+    def test_logout_is_post_only_and_requires_valid_csrf(self):
+        user, _ = self.create_student("Carrera para cerrar sesión")
+        self.client.force_login(user)
+
+        self.assertEqual(self.client.get(reverse("logout")).status_code, 405)
+        self.assertEqual(self.client.post(reverse("logout")).status_code, 403)
+        self.assertIn("_auth_user_id", self.client.session)
+
+        home_response = self.client.get(reverse("student_home"))
+        csrf_token = home_response.cookies["csrftoken"].value
+        response = self.client.post(
+            reverse("logout"),
+            {
+                "csrfmiddlewaretoken": csrf_token,
+                "next": "https://sitio-no-permitido.example/",
+            },
+        )
+
+        self.assertRedirects(response, reverse("login"))
+        self.assertNotIn("_auth_user_id", self.client.session)
 
 
 class RebuildSyntheticDataTests(TestCase):

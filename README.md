@@ -15,10 +15,12 @@ Proyecto final de Programación Comercial — UMES.
 
 ## Estado
 
-La Entrega 1 de S-001 incorpora la base ejecutable de Django, el modelo
-académico mínimo y datos sintéticos mínimos. Sigue pendiente su revisión
-y todavía no existen las pantallas, autenticación ni proveedores del
-tutor de las entregas posteriores.
+Las Entregas 1 y 2 de S-001 incorporan la base ejecutable de Django, el
+modelo académico mínimo, datos sintéticos mínimos, inicio de sesión y la
+pantalla protegida que muestra la carrera del estudiante.
+
+Los proveedores del tutor, el modo demo y la integración con Gemini
+siguen pendientes de las entregas posteriores. S-001 no está terminada.
 
 ## Requisitos
 
@@ -75,7 +77,7 @@ contenga:
   aceptados por Django.
 
 `.env` está excluido de Git. No guarde contraseñas ni claves en README,
-código, registros o commits. La Entrega 1 no necesita `GEMINI_API_KEY`
+código, registros o commits. La Entrega 2 no necesita `GEMINI_API_KEY`
 ni realiza llamadas a Gemini.
 
 ## Base y datos mínimos
@@ -95,7 +97,7 @@ solo su manifiesto sintético, que incluye:
 El comando exige `DEMO_STUDENT_PASSWORD`, guarda su hash mediante Django
 y no borra registros ajenos.
 
-## Comprobaciones de la Entrega 1
+## Comprobaciones de las Entregas 1 y 2
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py check
@@ -104,7 +106,8 @@ y no borra registros ajenos.
 ```
 
 Estas pruebas cubren los modelos, sus restricciones, el hash de la
-contraseña y la reconstrucción idempotente sin modificar datos ajenos.
+contraseña, la reconstrucción idempotente, autenticación, autorización,
+aislamiento entre estudiantes, CSRF y cierre de sesión mediante POST.
 No verifican todavía los siete criterios completos de S-001.
 
 ## Inicio del servidor
@@ -113,9 +116,12 @@ No verifican todavía los siete criterios completos de S-001.
 & ".\.venv\Scripts\python.exe" manage.py runserver
 ```
 
-La base de Django puede iniciarse, pero las pantallas del producto, el
-recorrido de acceso y los proveedores del tutor siguen pendientes de las
-entregas posteriores de S-001.
+Abra `http://127.0.0.1:8000/acceso/`. Use el usuario sintético
+`estudiante_demo` y la contraseña definida localmente en
+`DEMO_STUDENT_PASSWORD`. Después del acceso verá únicamente la carrera
+asociada a esa cuenta y podrá cerrar sesión mediante el formulario.
+
+La pantalla del tutor y sus formularios todavía no están implementados.
 
 ## Versiones comprobadas
 
