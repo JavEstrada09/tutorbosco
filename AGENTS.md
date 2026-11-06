@@ -33,8 +33,12 @@ y verificar el esqueleto del proyecto.
 
 ## 3. Estado actual
 
-El repositorio está en preparación documental.
-Todavía no existe una aplicación ejecutable.
+La Entrega 1 de S-001 está en implementación. Existe una base ejecutable
+de Django con el usuario personalizado, el modelo académico mínimo y el
+comando de datos sintéticos mínimos.
+
+Todavía no están implementadas las pantallas, el recorrido de acceso ni
+los proveedores real y demo de las siguientes entregas de S-001.
 
 No presentar como implementadas funcionalidades pendientes.
 No ejecutar generadores de código para adelantar funcionalidades
@@ -196,20 +200,24 @@ Actualizar este archivo en el mismo PR que cambie una convención.
 
 ## 11. Comandos de instalación y ejecución
 
-Todavía no están disponibles: el repositorio es documental.
+Comandos comprobados para la Entrega 1 de S-001 en PowerShell:
 
-La primera implementación deberá documentar y verificar:
-- Creación del entorno virtual.
-- Instalación de dependencias con versiones fijadas.
-- Configuración local de variables de entorno.
-- Aplicación de migraciones.
-- Generación de datos sintéticos.
-- Reconstrucción de datos con un único comando.
-- Ejecución del servidor.
-- Ejecución de pruebas.
+```powershell
+py -3.12 -m venv .venv
+& ".\.venv\Scripts\python.exe" -m pip install -r requirements.txt
+& ".\.venv\Scripts\python.exe" manage.py migrate
+& ".\.venv\Scripts\python.exe" manage.py rebuild_synthetic_data
+& ".\.venv\Scripts\python.exe" manage.py check
+& ".\.venv\Scripts\python.exe" manage.py test accounts academics
+& ".\.venv\Scripts\python.exe" manage.py makemigrations --check --dry-run
+```
 
-Actualizar esta sección y README.md con los comandos reales
-cuando existan. No afirmar que un comando funciona sin probarlo.
+Antes de los comandos de Django se debe configurar localmente
+`DJANGO_SECRET_KEY`. `rebuild_synthetic_data` también exige
+`DEMO_STUDENT_PASSWORD`. Los valores no se versionan ni se muestran.
+
+README.md contiene la preparación detallada. La ejecución del servidor
+y los recorridos de interfaz se documentarán cuando estén implementados.
 
 ## 12. Verificación y terminado
 

@@ -15,5 +15,110 @@ Proyecto final de Programación Comercial — UMES.
 
 ## Estado
 
-Preparación del repositorio y documentación inicial.
-La aplicación todavía no está implementada.
+La Entrega 1 de S-001 incorpora la base ejecutable de Django, el modelo
+académico mínimo y datos sintéticos mínimos. Sigue pendiente su revisión
+y todavía no existen las pantallas, autenticación ni proveedores del
+tutor de las entregas posteriores.
+
+## Requisitos
+
+- Python 3.12.
+- Git.
+- SQLite, incluido con Python.
+
+Las versiones exactas de Python y las dependencias comprobadas se
+encuentran en `requirements.txt` y al final de esta sección.
+
+## Instalación local en PowerShell
+
+Desde la raíz del repositorio:
+
+```powershell
+py -3.12 -m venv .venv
+& ".\.venv\Scripts\python.exe" -m pip install -r requirements.txt
+```
+
+El entorno `.venv` es local y está excluido de Git.
+
+## Configuración local
+
+Crear `.env` y generar `DJANGO_SECRET_KEY` sin mostrar su valor, solo si
+el archivo todavía no existe:
+
+```powershell
+if (-not (Test-Path -LiteralPath ".env")) {
+    Copy-Item -LiteralPath ".env.example" -Destination ".env"
+    $secret = (& ".\.venv\Scripts\python.exe" -c `
+        "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())").Trim()
+    $content = Get-Content -LiteralPath ".env"
+    $content = $content -replace '^DJANGO_SECRET_KEY=$', "DJANGO_SECRET_KEY=$secret"
+    $content = $content -replace '^DJANGO_DEBUG=$', "DJANGO_DEBUG=true"
+    $content = $content -replace '^DJANGO_ALLOWED_HOSTS=$', `
+        "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
+    $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+    [System.IO.File]::WriteAllLines(
+        (Resolve-Path -LiteralPath ".env"), $content, $utf8NoBom
+    )
+    Remove-Variable secret, content, utf8NoBom
+}
+```
+
+Si `.env` ya existe, el bloque no lo modifica. Revise localmente que
+contenga:
+
+- `DJANGO_SECRET_KEY`: valor aleatorio exclusivo de su instalación, sin
+  imprimirlo ni compartirlo.
+- `DEMO_STUDENT_PASSWORD`: contraseña fuerte para la cuenta sintética,
+  escrita únicamente en `.env`.
+- `DJANGO_DEBUG=true`: habilita ayudas de desarrollo local.
+- `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1`: limita los nombres locales
+  aceptados por Django.
+
+`.env` está excluido de Git. No guarde contraseñas ni claves en README,
+código, registros o commits. La Entrega 1 no necesita `GEMINI_API_KEY`
+ni realiza llamadas a Gemini.
+
+## Base y datos mínimos
+
+```powershell
+& ".\.venv\Scripts\python.exe" manage.py migrate
+& ".\.venv\Scripts\python.exe" manage.py rebuild_synthetic_data
+```
+
+`rebuild_synthetic_data` puede repetirse sin duplicar datos. Administra
+solo su manifiesto sintético, que incluye:
+
+- Usuario: `estudiante_demo`.
+- Carné: `2026-00001`.
+- Curso: `PROG-COM`, Programación Comercial.
+
+El comando exige `DEMO_STUDENT_PASSWORD`, guarda su hash mediante Django
+y no borra registros ajenos.
+
+## Comprobaciones de la Entrega 1
+
+```powershell
+& ".\.venv\Scripts\python.exe" manage.py check
+& ".\.venv\Scripts\python.exe" manage.py test accounts academics
+& ".\.venv\Scripts\python.exe" manage.py makemigrations --check --dry-run
+```
+
+Estas pruebas cubren los modelos, sus restricciones, el hash de la
+contraseña y la reconstrucción idempotente sin modificar datos ajenos.
+No verifican todavía los siete criterios completos de S-001.
+
+## Inicio del servidor
+
+```powershell
+& ".\.venv\Scripts\python.exe" manage.py runserver
+```
+
+La base de Django puede iniciarse, pero las pantallas del producto, el
+recorrido de acceso y los proveedores del tutor siguen pendientes de las
+entregas posteriores de S-001.
+
+## Versiones comprobadas
+
+- Python 3.12.10.
+- Django 5.2.19.
+- python-dotenv 1.2.4.

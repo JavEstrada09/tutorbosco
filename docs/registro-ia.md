@@ -150,3 +150,51 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida:
 No se realizaron llamadas a la API de IA del producto.
 El consumo de esta conversación de OpenCode no se cuantificó.
+
+## S-001 · 06-11-2026 · Implementación de Entrega 1
+
+Herramienta y modelo: OpenCode · GPT-5.6 Sol.
+Usado por: JavEstrada09.
+
+Fases en que se usó: implementación, pruebas y revisión técnica.
+
+Instrucción clave:
+Implementar únicamente la base ejecutable, los modelos y los datos
+sintéticos mínimos de la Entrega 1 conforme a la spec y el plan aprobados,
+sin avanzar las pantallas ni los proveedores del tutor.
+
+Qué se aceptó sin cambios:
+- La separación en las aplicaciones `accounts`, `academics` y `tutor`.
+- `accounts.User` basado en `AbstractUser` y los tres modelos académicos
+  acordados.
+- El comando `rebuild_synthetic_data`, sus identificadores exactos y la
+  contraseña obtenida desde `DEMO_STUDENT_PASSWORD`.
+- Django 5.2 LTS y `python-dotenv` como dependencias necesarias para esta
+  entrega. `google-genai` no se instaló porque aún no se integra Gemini.
+
+Qué se corrigió o descartó, y por qué:
+- Django dividió inicialmente la migración académica en dos archivos. Se
+  consolidó en `academics/0001_initial.py` con dependencia del usuario,
+  como exige el plan, y se comprobó que no quedan migraciones pendientes.
+- La revisión técnica detectó que un perfil con el usuario manifiesto y
+  otro carné podía sobrescribirse. El comando ahora aborta la transacción
+  ante colisiones por usuario o carné, y las pruebas comprueban que los
+  registros ajenos permanecen intactos.
+- Una revisión posterior detectó que `update_or_create` modificaba la
+  cuenta `estudiante_demo` antes de comprobar su pertenencia al
+  manifiesto. Todas las colisiones se validan ahora antes de escribir. El
+  comando también rechaza cuentas sin el perfil exacto o con privilegios
+  `is_staff` o `is_superuser`, conservando contraseña, nombre y permisos.
+- Se añadieron pruebas para una cuenta sin perfil y para cada privilegio,
+  y se completó la preparación segura de `.env` y el inicio local en el
+  README.
+
+Resultado registrado por el autor:
+- `manage.py check`: sin problemas.
+- Pruebas de `accounts` y `academics`: 12 pruebas superadas.
+- No se declaran cumplidos los criterios de aceptación completos de S-001.
+- La verificación independiente de Douglas sigue pendiente.
+
+Costo o cuota consumida:
+No se realizaron llamadas a Gemini ni a la API de IA del producto.
+El consumo de esta conversación de OpenCode no se cuantificó.

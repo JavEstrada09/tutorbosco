@@ -2,7 +2,7 @@
 
 Propuesto por: OpenCode · GPT-5.6 Sol · modo Plan.
 Revisado y aprobado por: JavEstrada09 · 06-11-2026.
-Estado: aprobado; implementación no iniciada.
+Estado: aprobado; Entrega 1 en implementación.
 Spec de referencia: fusionada en `main` mediante PR #24.
 
 ## Enfoque
