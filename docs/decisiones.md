@@ -144,3 +144,37 @@ permisos se verifican en el servidor.
 
 Por qué: conserva User sin campos adicionales, usa los perfiles que
 S-001 y S-002 ya necesitan y permite verificar el rol en cada operación.
+
+Actualización: D-010 sustituye únicamente la suposición de un perfil por
+cuenta. La representación de roles mediante perfiles y la verificación
+de permisos en el servidor continúan vigentes.
+
+## D-010 · 06-11-2026
+
+Requisito: RF-01.
+
+Estado: aprobada por JavEstrada09 el 06-11-2026, antes de implementar
+S-001.
+
+Antecedente: esta decisión se registró inicialmente como D-008 en la
+rama de S-001. Al integrar `main`, se renumeró como D-010 porque D-008
+y D-009 ya estaban ocupadas. La renumeración no cambia su fecha,
+aprobación ni contenido.
+
+Duda: cómo representar los roles de estudiante y docente sin acoplar
+la autenticación a un único rol ni impedir casos en los que una misma
+cuenta necesite ambos.
+
+Decisión: `accounts.User` representa la cuenta de autenticación. Cada
+rol se representa mediante un perfil relacionado, comenzando con
+`academics.StudentProfile` para el estudiante. Los perfiles no son
+mutuamente excluyentes: una cuenta puede tener más de uno.
+
+D-010 sustituye únicamente la suposición de un perfil por cuenta de
+D-009. La existencia de un perfil identifica el rol, pero no concede por
+sí sola acceso a cursos o estudiantes. Los permisos se comprueban en el
+servidor en cada operación.
+
+Por qué: separar cuenta y perfiles permite compartir autenticación sin
+duplicar usuarios, ampliar los datos propios de cada rol y evitar una
+restricción de exclusividad que el equipo no ha requerido.

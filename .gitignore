@@ -4,6 +4,7 @@
 !.env.example
 
 # Entornos virtuales
+.python312/
 .venv/
 venv/
 

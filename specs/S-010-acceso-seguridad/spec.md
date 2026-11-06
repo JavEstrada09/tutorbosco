@@ -1,9 +1,13 @@
 # S-010 — Acceso, seguridad e interfaz
 
-**Requisitos:** RF-01 y RNF-07  
-**Issue:** #14  
-**Autor:** Brayan11Hernandez  
-**Verificador:** AlexDLG1  
+**Requisitos:** RF-01 y RNF-07
+
+**Issue:** #14
+
+**Autor:** Brayan11Hernandez
+
+**Verificador:** AlexDLG1
+
 **Estado:** Borrador de especificación
 
 ## Problema
