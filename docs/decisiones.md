@@ -110,25 +110,70 @@ de 1 a 10.
 Por qué: son datos claramente sintéticos y suficientes para
 distinguir perfiles en RF-02.
 
-## D-008 · 06-11-2026
+## D-008 · 05-11-2026
+
+Estado: propuesta, pendiente de confirmar por el equipo.
+
+Requisito: RF-03.
+
+Duda: el enunciado no dice si la nota admite decimales ni qué
+ocurre cuando el docente corrige una nota ya registrada.
+
+Decisión propuesta: la nota es un número entero de 0 a 100.
+Cada estudiante tiene una sola nota por tema; corregirla reemplaza
+la anterior y no se guarda historial.
+
+Por qué: la escala entera de 0 a 100 evita ambigüedades al registrar
+y al comparar con el umbral de tema débil (D-002), y un único
+registro por estudiante y tema asegura que el perfil, el tutor y
+el panel lean siempre la nota vigente.
+
+## D-009 · 05-11-2026
+
+Requisito: RF-01, RF-04 y RF-06.
+
+Duda: el enunciado exige dos roles, estudiante y docente, pero no
+indica cómo representarlos en el modelo de usuario.
+
+Decisión: el rol se determina por el perfil asociado. Un usuario con
+StudentProfile es estudiante; uno con TeacherProfile es docente.
+No se agrega un campo de rol a User. El sistema asume un perfil por
+cuenta; si se necesitara una cuenta con ambos, se registrará una nueva
+decisión. Un usuario sin perfil no accede a vistas de rol y los
+permisos se verifican en el servidor.
+
+Por qué: conserva User sin campos adicionales, usa los perfiles que
+S-001 y S-002 ya necesitan y permite verificar el rol en cada operación.
+
+Actualización: D-010 sustituye únicamente la suposición de un perfil por
+cuenta. La representación de roles mediante perfiles y la verificación
+de permisos en el servidor continúan vigentes.
+
+## D-010 · 06-11-2026
 
 Requisito: RF-01.
 
 Estado: aprobada por JavEstrada09 el 06-11-2026, antes de implementar
 S-001.
 
+Antecedente: esta decisión se registró inicialmente como D-008 en la
+rama de S-001. Al integrar `main`, se renumeró como D-010 porque D-008
+y D-009 ya estaban ocupadas. La renumeración no cambia su fecha,
+aprobación ni contenido.
+
 Duda: cómo representar los roles de estudiante y docente sin acoplar
-la autenticación a un único rol ni impedir casos futuros en los que una
-misma cuenta necesite ambos.
+la autenticación a un único rol ni impedir casos en los que una misma
+cuenta necesite ambos.
 
 Decisión: `accounts.User` representa la cuenta de autenticación. Cada
 rol se representa mediante un perfil relacionado, comenzando con
 `academics.StudentProfile` para el estudiante. Los perfiles no son
 mutuamente excluyentes: una cuenta puede tener más de uno.
 
-La existencia de un perfil habilita la identificación del rol, pero no
-sustituye las comprobaciones de permisos sobre cursos y estudiantes que
-deben realizarse en el servidor.
+D-010 sustituye únicamente la suposición de un perfil por cuenta de
+D-009. La existencia de un perfil identifica el rol, pero no concede por
+sí sola acceso a cursos o estudiantes. Los permisos se comprueban en el
+servidor en cada operación.
 
 Por qué: separar cuenta y perfiles permite compartir autenticación sin
 duplicar usuarios, ampliar los datos propios de cada rol y evitar una

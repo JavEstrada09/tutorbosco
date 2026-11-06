@@ -26,7 +26,7 @@ en el servidor y no dependerán de ocultar elementos de la interfaz.
   renderizadas en el servidor, Gemini y un proveedor demo local.
 - D-007 define el formato de carné, las carreras sintéticas y el
   intervalo válido de semestre.
-- D-008 está aprobada antes de la implementación de S-001: la cuenta
+- D-010 está aprobada antes de la implementación de S-001: la cuenta
   se representa con `accounts.User` y cada rol mediante su perfil.
 - Los perfiles no serán mutuamente excluyentes. Una misma cuenta
   podrá tener más de un perfil cuando futuras specs lo necesiten.
@@ -140,7 +140,7 @@ incluirán donde Django los requiera, sin añadir lógica de negocio.
   de autenticación, sesiones y hash de contraseñas.
 - No tendrá un campo que obligue a escoger un único rol.
 - Se configurará `AUTH_USER_MODEL` antes de crear las migraciones.
-- Los roles se obtendrán mediante perfiles relacionados, según D-008.
+- Los roles se obtendrán mediante perfiles relacionados, según D-010.
 
 ### `academics.StudentProfile`
 
@@ -481,7 +481,7 @@ correcciones reales:
   iniciales en `academics/0001_initial.py`.
 - Mantener `Course.code` obligatorio y único, con `PROG-COM` para el
   curso piloto, y `Enrollment` único por estudiante y curso.
-- Aprobar D-008 antes de implementar: roles mediante perfiles, sin
+- Aprobar D-010 antes de implementar: roles mediante perfiles, sin
   imponer exclusividad entre ellos.
 - Distinguir el alcance de S-001 y S-002 de las entregas revisables
   internas de S-001.
@@ -498,6 +498,10 @@ agente: restauró el nombre `rebuild_synthetic_data`; las variables
 controles CSRF y de autorización; las tres dependencias aprobadas; y los
 PR secuenciales con `Ref #4` y `Closes #4`. Estas correcciones no agregan
 decisiones ni aprobaciones atribuidas a Douglas.
+
+Durante la integración de `main`, la decisión de roles se renumeró de
+D-008 a D-010 porque los identificadores D-008 y D-009 ya estaban
+ocupados. La renumeración no modifica el acuerdo aprobado.
 
 La aprobación registrada corresponde a JavEstrada09. No se atribuye a
 Douglas ninguna aprobación adicional ni una verificación todavía.

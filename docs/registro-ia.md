@@ -51,6 +51,32 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida: ninguna llamada a la API de IA
 del producto.
 
+## S-007 · 05-11-2026 · Borrador de especificación
+
+Herramienta y modelo: OpenCode · GPT-6.1 Sol (openai/gpt-6.1-sol).
+
+Fases en que se usó: spec y preparación de la estructura documental.
+No se elaboró el plan técnico ni se implementó la funcionalidad.
+
+Instrucción clave:
+Preparar S-007 siguiendo docs/plan.md y docs/guia-trabajo.md,
+crear la estructura propuesta e indicar los pasos humanos pendientes.
+
+Qué se aceptó sin cambios:
+- El usuario autorizó crear la estructura documental propuesta y
+  preparar el borrador con el alcance presentado en la conversación.
+- El contenido final de los archivos queda pendiente de revisión;
+  no se registra aprobación de la spec ni del plan técnico.
+
+Qué se corrigió o descartó, y por qué:
+- Se dejó el plan técnico pendiente hasta la fusión de la spec,
+  para respetar el orden obligatorio del repositorio.
+- Se dejaron los resultados y la evidencia de verificación pendientes,
+  porque todavía no existe implementación de S-007.
+
+Costo o cuota consumida: ninguna llamada a la API de IA del producto.
+El costo de la herramienta de desarrollo no está disponible en la sesión.
+
 ## S-000 · 27-10-2026 · Ajustes de estructura
 
 Herramienta y modelo: Claude Code · Claude Opus 5.5.
@@ -74,6 +100,56 @@ Propuesto por el agente:
 - Calendario propuesto en docs/plan.md.
 
 Qué se corrigió o descartó, y por qué: pendiente de la revisión del PR.
+
+Costo o cuota consumida: ninguna llamada a la API de IA
+del producto.
+
+
+## S-009 · 05-11-2026 · Borrador de especificación
+
+Herramienta y modelo: OpenCode · GPT-6.1 Sol (openai/gpt-6.1-sol).
+Usado por: Jeffersson Ramos (ramosdeleon555).
+
+Fases en que se usó: spec y preparación de la estructura documental.
+No se elaboró el plan técnico ni se implementó la funcionalidad.
+
+Instrucción clave:
+Preparar S-009 siguiendo el plan y la guía, con Jeffersson Ramos
+(ramosdeleon555) como autor, y utilizar git worktree para trabajar
+simultáneamente en S-007 y S-009.
+
+Qué se aceptó sin cambios:
+- Jeffersson confirmó la estructura y el alcance documental
+  propuestos y autorizó utilizar un worktree independiente.
+- El contenido final queda pendiente de revisión en PR; no se
+  registra aprobación técnica ni verificación de funcionalidad.
+
+Qué se corrigió o descartó, y por qué:
+- Se explicitó el nombre del autor junto a su usuario de GitHub,
+  conforme a la aclaración del usuario.
+- Se dejó el plan técnico pendiente hasta fusionar la spec,
+  para respetar el proceso obligatorio del repositorio.
+- Se dejaron resultados y evidencia pendientes, porque no existe
+  implementación de S-009.
+
+Costo o cuota consumida: ninguna llamada a la API de IA del producto.
+El costo de la herramienta de desarrollo no está disponible en la sesión.
+
+## S-005 · 05-11-2026
+
+Herramienta y modelo: Claude (app de Claude) · Claude Sonnet 5.5.
+Usado por: AlexDLG1.
+
+Fases en que se usó: spec.
+
+Instrucción clave:
+Redactar la spec del registro y corrección de notas (RF-03 parcial)
+con criterios Dado/Cuando/Entonces, incluyendo el rechazo en el
+servidor de notas que el docente no puede registrar.
+
+Qué se aceptó sin cambios: La estructura de la spec y los 8 criterios de aceptación.
+
+Qué se corrigió o descartó, y por qué: Ninguna corrección; leí la spec completa y la contrasté con el enunciado (RF-03), AGENTS.md y la spec de S-002 antes de aceptarla.
 
 Costo o cuota consumida: ninguna llamada a la API de IA
 del producto.
@@ -112,8 +188,9 @@ Fases en que se usó: plan y actualización documental.
 
 Instrucción clave:
 Revisar y completar el plan técnico de S-001 sin implementar código,
-conservar el modelo coordinado para S-002, registrar D-008 y actualizar
-los estados documentales después de la fusión de la spec en PR #24.
+conservar el modelo coordinado para S-002, registrar la decisión de roles
+y actualizar los estados documentales después de la fusión de la spec
+en PR #24.
 
 Qué se aceptó sin cambios:
 - Los siete criterios de aceptación de la spec.
@@ -132,9 +209,15 @@ Qué se corrigió o descartó, y por qué:
   `academics/0001_initial.py`, según la coordinación previa con S-002.
 - Se mantuvieron `Course.code` único y una sola inscripción por pareja
   estudiante-curso.
-- D-008 dejó de posponerse a S-002: JavEstrada09 la aprobó antes de la
-  implementación de S-001 con roles mediante perfiles y sin imponer
-  exclusividad.
+- La decisión de roles dejó de posponerse a S-002: JavEstrada09 la aprobó
+  antes de la implementación de S-001 con roles mediante perfiles y sin
+  imponer exclusividad.
+- Durante la integración de `main`, esa decisión se renumeró de D-008 a
+  D-010 porque D-008 y D-009 ya estaban ocupadas. No cambió el acuerdo
+  histórico ni se registró una aprobación adicional.
+- La resolución conservó las entradas documentales de ambas ramas y
+  eliminó los marcadores de conflicto y una secuencia de control de
+  terminal que provenía de `main`.
 - Se separaron las responsabilidades entre S-001 y S-002 de las
   entregas internas de S-001 para evitar tratarlas como specs nuevas.
 - Se restauró `rebuild_synthetic_data` como comando mínimo que S-001
@@ -198,3 +281,22 @@ Resultado registrado por el autor:
 Costo o cuota consumida:
 No se realizaron llamadas a Gemini ni a la API de IA del producto.
 El consumo de esta conversación de OpenCode no se cuantificó.
+
+## S-003 · 05-11-2026
+
+Herramienta y modelo: Claude (app de Claude) · Claude Sonnet 5.5.
+Usado por: AlexDLG1.
+
+Fases en que se usó: spec.
+
+Instrucción clave:
+Redactar la spec del perfil académico (RF-02) con criterios
+Dado/Cuando/Entonces, a partir del enunciado, de docs/plan.md
+y de las decisiones D-003, D-004 y D-007.
+
+Qué se aceptó sin cambios: La estructura de la spec y los 8 criterios de aceptación.
+
+Qué se corrigió o descartó, y por qué: Ninguna corrección; leí la spec completa y la contrasté con D-003, D-004 y D-007 antes de aceptarla.
+
+Costo o cuota consumida: ninguna llamada a la API de IA
+del producto.
