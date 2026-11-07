@@ -22,6 +22,9 @@ pantalla protegida que muestra la carrera del estudiante.
 Los proveedores del tutor, el modo demo y la integración con Gemini
 siguen pendientes de las entregas posteriores. S-001 no está terminada.
 
+La implementación de S-002 agrega docentes, temas y notas, y el conjunto
+completo de datos sintéticos. Queda pendiente su verificación independiente.
+
 ## Requisitos
 
 - Python 3.12.
@@ -80,24 +83,35 @@ contenga:
 código, registros o commits. La Entrega 2 no necesita `GEMINI_API_KEY`
 ni realiza llamadas a Gemini.
 
-## Base y datos mínimos
+## Base y datos sintéticos
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py migrate
 & ".\.venv\Scripts\python.exe" manage.py rebuild_synthetic_data
 ```
 
-`rebuild_synthetic_data` puede repetirse sin duplicar datos. Administra
-solo su manifiesto sintético, que incluye:
+`rebuild_synthetic_data` exige `DEMO_STUDENT_PASSWORD` y
+`DEMO_TEACHER_PASSWORD`, guarda sus hashes mediante Django, puede
+repetirse sin duplicar datos y no borra registros ajenos al manifiesto.
 
-- Usuario: `estudiante_demo`.
-- Carné: `2026-00001`.
-- Curso: `PROG-COM`, Programación Comercial.
+Genera:
 
-El comando exige `DEMO_STUDENT_PASSWORD`, guarda su hash mediante Django
-y no borra registros ajenos.
+- 30 estudiantes: `estudiante_demo` y `estudiante_01` a `estudiante_29`.
+- 3 docentes: `docente_01` a `docente_03`.
+- 4 cursos con 6 temas cada uno: `PROG-COM`, `BD-APL`, `DES-WEB` y
+  `REDES`.
+- Notas enteras de 0 a 100 con perfiles distintos, incluidos estudiantes
+  con dos temas débiles, sin temas débiles y sin notas.
 
-## Comprobaciones de las Entregas 1 y 2
+Todos los estudiantes están inscritos en Programación Comercial y se
+distribuyen además entre los otros tres cursos. Las cuentas docentes usan
+la contraseña local definida en `DEMO_TEACHER_PASSWORD`.
+
+Un tema se considera débil cuando su nota es estrictamente menor que 60.
+El umbral se configurará con `WEAK_TOPIC_THRESHOLD` en la spec de práctica
+sobre temas débiles.
+
+## Comprobaciones locales
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py check
@@ -105,10 +119,12 @@ y no borra registros ajenos.
 & ".\.venv\Scripts\python.exe" manage.py makemigrations --check --dry-run
 ```
 
-Estas pruebas cubren los modelos, sus restricciones, el hash de la
-contraseña, la reconstrucción idempotente, autenticación, autorización,
+Estas pruebas cubren los modelos, sus restricciones, los límites de las
+notas, el hash de las contraseñas, la reconstrucción idempotente y los
+perfiles sintéticos. También cubren autenticación, autorización,
 aislamiento entre estudiantes, CSRF y cierre de sesión mediante POST.
-No verifican todavía los siete criterios completos de S-001.
+No verifican todavía los siete criterios completos de S-001 ni sustituyen
+la verificación independiente de S-002.
 
 ## Inicio del servidor
 

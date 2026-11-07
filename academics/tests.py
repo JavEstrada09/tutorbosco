@@ -8,16 +8,20 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import IntegrityError, transaction
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from academics.management.commands.rebuild_synthetic_data import (
+    COURSE_BLUEPRINTS,
     DEMO_CAREER,
     DEMO_SEMESTER,
     DEMO_STUDENT_ID,
+    DEMO_TEACHER_USERNAMES,
     DEMO_USERNAME,
     PILOT_COURSE_CODE,
     PILOT_COURSE_NAME,
+    TEACHER_ASSIGNMENTS,
+    TOTAL_STUDENTS,
 )
 from academics.models import (
     Course,
@@ -301,12 +305,22 @@ class StudentAccessTests(TestCase):
         self.assertNotIn("_auth_user_id", self.client.session)
 
 
+@override_settings(
+    PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
+)
 class RebuildSyntheticDataTests(TestCase):
     password = secrets.token_urlsafe(24)
+    teacher_password = secrets.token_urlsafe(24)
 
     def run_command(self):
         stdout = StringIO()
-        with patch.dict(os.environ, {"DEMO_STUDENT_PASSWORD": self.password}):
+        with patch.dict(
+            os.environ,
+            {
+                "DEMO_STUDENT_PASSWORD": self.password,
+                "DEMO_TEACHER_PASSWORD": self.teacher_password,
+            },
+        ):
             call_command("rebuild_synthetic_data", stdout=stdout)
         return stdout.getvalue()
 
@@ -321,7 +335,24 @@ class RebuildSyntheticDataTests(TestCase):
         self.assertFalse(get_user_model().objects.filter(username=DEMO_USERNAME))
         self.assertFalse(Course.objects.filter(code=PILOT_COURSE_CODE))
 
-    def test_command_creates_exact_minimum_with_hashed_password(self):
+    def test_command_requires_teacher_password_without_creating_data(self):
+        with patch.dict(
+            os.environ,
+            {
+                "DEMO_STUDENT_PASSWORD": self.password,
+                "DEMO_TEACHER_PASSWORD": "",
+            },
+        ):
+            with self.assertRaisesMessage(
+                CommandError,
+                "DEMO_TEACHER_PASSWORD es obligatoria.",
+            ):
+                call_command("rebuild_synthetic_data")
+
+        self.assertFalse(get_user_model().objects.filter(username=DEMO_USERNAME))
+        self.assertFalse(Course.objects.filter(code=PILOT_COURSE_CODE))
+
+    def test_command_creates_full_synthetic_dataset(self):
         output = self.run_command()
 
         user = get_user_model().objects.get(username=DEMO_USERNAME)
@@ -340,6 +371,66 @@ class RebuildSyntheticDataTests(TestCase):
         self.assertNotEqual(user.password, self.password)
         self.assertTrue(user.check_password(self.password))
         self.assertNotIn(self.password, output)
+
+        self.assertEqual(StudentProfile.objects.count(), TOTAL_STUDENTS)
+        self.assertEqual(
+            TeacherProfile.objects.count(),
+            len(DEMO_TEACHER_USERNAMES),
+        )
+        self.assertEqual(Course.objects.count(), len(COURSE_BLUEPRINTS))
+        self.assertEqual(
+            Topic.objects.count(),
+            sum(
+                len(blueprint["topics"])
+                for blueprint in COURSE_BLUEPRINTS.values()
+            ),
+        )
+        for code, blueprint in COURSE_BLUEPRINTS.items():
+            self.assertEqual(
+                Topic.objects.filter(course__code=code).count(),
+                len(blueprint["topics"]),
+            )
+        self.assertEqual(
+            set(
+                Topic.objects.filter(course=course).values_list(
+                    "name",
+                    flat=True,
+                )
+            ),
+            set(COURSE_BLUEPRINTS[PILOT_COURSE_CODE]["topics"]),
+        )
+
+        for username in DEMO_TEACHER_USERNAMES:
+            teacher_user = get_user_model().objects.get(username=username)
+            self.assertTrue(teacher_user.check_password(self.teacher_password))
+            self.assertFalse(teacher_user.is_staff)
+            self.assertFalse(teacher_user.is_superuser)
+            self.assertEqual(
+                set(
+                    TeachingAssignment.objects.filter(
+                        teacher__user=teacher_user
+                    ).values_list("course__code", flat=True)
+                ),
+                set(TEACHER_ASSIGNMENTS[username]),
+            )
+            self.assertNotIn(self.teacher_password, output)
+
+    def test_command_generates_distinct_grade_profiles(self):
+        self.run_command()
+
+        demo = StudentProfile.objects.get(student_id=DEMO_STUDENT_ID)
+        no_weak = StudentProfile.objects.get(user__username="estudiante_01")
+        no_grades = StudentProfile.objects.get(user__username="estudiante_02")
+
+        self.assertEqual(
+            Grade.objects.filter(student=demo, value__lt=60).count(),
+            2,
+        )
+        self.assertEqual(
+            Grade.objects.filter(student=no_weak, value__lt=60).count(),
+            0,
+        )
+        self.assertFalse(Grade.objects.filter(student=no_grades).exists())
 
     def test_command_is_idempotent_and_preserves_unrelated_records(self):
         unrelated_user = get_user_model().objects.create_user(
@@ -379,10 +470,24 @@ class RebuildSyntheticDataTests(TestCase):
                 Course.objects.get(code=PILOT_COURSE_CODE).pk,
             ),
         )
-        self.assertEqual(get_user_model().objects.count(), 2)
-        self.assertEqual(StudentProfile.objects.count(), 2)
-        self.assertEqual(Course.objects.count(), 2)
-        self.assertEqual(Enrollment.objects.count(), 2)
+        self.assertEqual(get_user_model().objects.count(), TOTAL_STUDENTS + 3 + 1)
+        self.assertEqual(StudentProfile.objects.count(), TOTAL_STUDENTS + 1)
+        self.assertEqual(
+            TeacherProfile.objects.count(),
+            len(DEMO_TEACHER_USERNAMES),
+        )
+        self.assertEqual(Course.objects.count(), len(COURSE_BLUEPRINTS) + 1)
+        self.assertEqual(
+            Topic.objects.count(),
+            sum(
+                len(blueprint["topics"])
+                for blueprint in COURSE_BLUEPRINTS.values()
+            ),
+        )
+        self.assertEqual(
+            Enrollment.objects.count(),
+            1 + (TOTAL_STUDENTS - 1) * 2 + 1,
+        )
 
         unrelated_user.refresh_from_db()
         unrelated_profile.refresh_from_db()
