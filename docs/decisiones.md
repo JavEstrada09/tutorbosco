@@ -112,14 +112,14 @@ distinguir perfiles en RF-02.
 
 ## D-008 · 05-11-2026
 
-Estado: propuesta, pendiente de confirmar por el equipo.
+Estado: confirmada el 06-11-2026.
 
 Requisito: RF-03.
 
 Duda: el enunciado no dice si la nota admite decimales ni qué
 ocurre cuando el docente corrige una nota ya registrada.
 
-Decisión propuesta: la nota es un número entero de 0 a 100.
+Decisión: la nota es un número entero de 0 a 100.
 Cada estudiante tiene una sola nota por tema; corregirla reemplaza
 la anterior y no se guarda historial.
 
