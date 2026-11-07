@@ -19,7 +19,15 @@ from academics.management.commands.rebuild_synthetic_data import (
     PILOT_COURSE_CODE,
     PILOT_COURSE_NAME,
 )
-from academics.models import Course, Enrollment, StudentProfile
+from academics.models import (
+    Course,
+    Enrollment,
+    Grade,
+    StudentProfile,
+    TeacherProfile,
+    TeachingAssignment,
+    Topic,
+)
 
 
 class AcademicModelTests(TestCase):
@@ -79,6 +87,104 @@ class AcademicModelTests(TestCase):
 
         with self.assertRaises(IntegrityError), transaction.atomic():
             Enrollment.objects.create(student=self.profile, course=self.course)
+
+
+class S002AcademicModelTests(TestCase):
+    def setUp(self):
+        self.teacher_user = get_user_model().objects.create_user(
+            username="docente_modelo",
+            password=secrets.token_urlsafe(24),
+        )
+        self.teacher = TeacherProfile.objects.create(user=self.teacher_user)
+        self.course = Course.objects.create(
+            code="S002-CURSO",
+            name="Curso S-002",
+        )
+        self.student_user = get_user_model().objects.create_user(
+            username="estudiante_s002",
+            password=secrets.token_urlsafe(24),
+        )
+        self.student = StudentProfile.objects.create(
+            user=self.student_user,
+            student_id="2026-00999",
+            career="Carrera Sintética",
+            semester=1,
+        )
+        self.topic = Topic.objects.create(
+            course=self.course,
+            name="Tema de prueba",
+        )
+
+    def test_teacher_profile_is_unique_per_user(self):
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            TeacherProfile.objects.create(user=self.teacher_user)
+
+    def test_teaching_assignment_is_unique_per_teacher_and_course(self):
+        TeachingAssignment.objects.create(
+            teacher=self.teacher,
+            course=self.course,
+        )
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            TeachingAssignment.objects.create(
+                teacher=self.teacher,
+                course=self.course,
+            )
+
+    def test_topic_name_is_unique_only_within_the_same_course(self):
+        other_course = Course.objects.create(
+            code="S002-OTRO",
+            name="Otro curso",
+        )
+        Topic.objects.create(course=other_course, name=self.topic.name)
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Topic.objects.create(course=self.course, name=self.topic.name)
+
+    def test_grade_value_is_limited_to_0_and_100(self):
+        for invalid_value in (-1, 101):
+            grade = Grade(
+                student=self.student,
+                topic=self.topic,
+                value=invalid_value,
+            )
+            with self.assertRaises(ValidationError):
+                grade.full_clean()
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Grade.objects.create(
+                student=self.student,
+                topic=self.topic,
+                value=101,
+            )
+
+    def test_grade_is_unique_per_student_and_topic(self):
+        Grade.objects.create(
+            student=self.student,
+            topic=self.topic,
+            value=60,
+        )
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Grade.objects.create(
+                student=self.student,
+                topic=self.topic,
+                value=80,
+            )
+
+    def test_grade_accepts_the_valid_boundaries(self):
+        topic_zero = Topic.objects.create(course=self.course, name="Tema cero")
+        topic_hundred = Topic.objects.create(
+            course=self.course,
+            name="Tema cien",
+        )
+
+        Grade.objects.create(student=self.student, topic=topic_zero, value=0)
+        Grade.objects.create(
+            student=self.student,
+            topic=topic_hundred,
+            value=100,
+        )
 
 
 class StudentAccessTests(TestCase):

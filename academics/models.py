@@ -66,3 +66,89 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.student.student_id} - {self.course.code}"
+
+
+class TeacherProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="teacher_profile",
+    )
+
+    def __str__(self):
+        return self.user.get_username()
+
+
+class TeachingAssignment(models.Model):
+    teacher = models.ForeignKey(
+        TeacherProfile,
+        on_delete=models.CASCADE,
+        related_name="teaching_assignments",
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="teaching_assignments",
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["teacher", "course"],
+                name="unique_teacher_course_assignment",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.teacher} - {self.course.code}"
+
+
+class Topic(models.Model):
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="topics",
+    )
+    name = models.CharField(max_length=150)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["course", "name"],
+                name="unique_course_topic_name",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.course.code} - {self.name}"
+
+
+class Grade(models.Model):
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="grades",
+    )
+    topic = models.ForeignKey(
+        Topic,
+        on_delete=models.CASCADE,
+        related_name="grades",
+    )
+    value = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "topic"],
+                name="unique_student_topic_grade",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(value__gte=0, value__lte=100),
+                name="grade_value_between_0_and_100",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.student.student_id} - {self.topic.name}: {self.value}"
