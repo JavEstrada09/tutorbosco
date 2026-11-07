@@ -196,16 +196,13 @@ class Command(BaseCommand):
         managed_students = StudentProfile.objects.filter(
             user__username__in=student_usernames
         )
-        managed_courses = Course.objects.filter(code__in=COURSE_BLUEPRINTS)
         managed_teachers = TeacherProfile.objects.filter(
             user__username__in=DEMO_TEACHER_USERNAMES
         )
 
         Grade.objects.filter(student__in=managed_students).delete()
-        Grade.objects.filter(topic__course__in=managed_courses).delete()
         Enrollment.objects.filter(student__in=managed_students).delete()
         TeachingAssignment.objects.filter(teacher__in=managed_teachers).delete()
-        Topic.objects.filter(course__in=managed_courses).delete()
 
     def _rebuild_courses(self):
         courses = {}
@@ -218,10 +215,10 @@ class Command(BaseCommand):
             courses[code] = course
             topics[code] = {}
             for topic_name in blueprint["topics"]:
-                topics[code][topic_name] = Topic.objects.create(
+                topics[code][topic_name] = Topic.objects.update_or_create(
                     course=course,
                     name=topic_name,
-                )
+                )[0]
         return courses, topics
 
     def _rebuild_teachers(self, User, password, courses):

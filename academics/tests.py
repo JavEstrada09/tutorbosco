@@ -500,6 +500,49 @@ class RebuildSyntheticDataTests(TestCase):
         self.assertEqual(unrelated_enrollment.student, unrelated_profile)
         self.assertNotIn(self.password, output)
 
+    def test_command_preserves_unrelated_grade_on_managed_course(self):
+        self.run_command()
+
+        unrelated_user = get_user_model().objects.create_user(
+            username="estudiante_con_nota_ajena",
+            password=secrets.token_urlsafe(24),
+            first_name="Nota ajena",
+        )
+        unrelated_profile = StudentProfile.objects.create(
+            user=unrelated_user,
+            student_id="2024-77777",
+            career="Carrera ajena",
+            semester=3,
+        )
+        course = Course.objects.get(code=PILOT_COURSE_CODE)
+        topic = Topic.objects.filter(course=course).first()
+        Enrollment.objects.create(
+            student=unrelated_profile,
+            course=course,
+        )
+        unrelated_grade = Grade.objects.create(
+            student=unrelated_profile,
+            topic=topic,
+            value=77,
+        )
+
+        output = self.run_command()
+
+        unrelated_user.refresh_from_db()
+        unrelated_profile.refresh_from_db()
+        unrelated_grade.refresh_from_db()
+        self.assertEqual(unrelated_user.first_name, "Nota ajena")
+        self.assertEqual(unrelated_profile.career, "Carrera ajena")
+        self.assertTrue(
+            Enrollment.objects.filter(
+                student=unrelated_profile,
+                course=course,
+            ).exists()
+        )
+        self.assertTrue(Topic.objects.filter(pk=topic.pk).exists())
+        self.assertEqual(unrelated_grade.value, 77)
+        self.assertNotIn(self.password, output)
+
     def test_command_rejects_profile_outside_manifest_for_demo_user(self):
         user = get_user_model().objects.create_user(
             username=DEMO_USERNAME,

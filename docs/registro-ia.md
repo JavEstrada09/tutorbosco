@@ -366,6 +366,9 @@ Qué se corrigió o descartó, y por qué:
 - Se usó MD5 solo en las pruebas de reconstrucción para reducir el
   costo de generar 33 cuentas; la aplicación mantiene los hashers
   de Django.
+- Se corrigió el borrado accidental de notas de estudiantes ajenos al
+  reconstruir los temas del conjunto sintético; se agregó una prueba
+  de regresión.
 - No se modificó `accounts.User` ni las migraciones de S-001.
 
 Resultado registrado por el autor:
