@@ -33,12 +33,12 @@ y verificar el esqueleto del proyecto.
 
 ## 3. Estado actual
 
-La Entrega 1 de S-001 está en implementación. Existe una base ejecutable
-de Django con el usuario personalizado, el modelo académico mínimo y el
-comando de datos sintéticos mínimos.
+La Entrega 1 de S-001 fue fusionada. La Entrega 2 está en implementación
+con inicio de sesión, autorización académica, visualización de la carrera
+y cierre de sesión mediante POST.
 
-Todavía no están implementadas las pantallas, el recorrido de acceso ni
-los proveedores real y demo de las siguientes entregas de S-001.
+Todavía no están implementados el formulario del tutor ni los proveedores
+real y demo de las siguientes entregas de S-001.
 
 No presentar como implementadas funcionalidades pendientes.
 No ejecutar generadores de código para adelantar funcionalidades
@@ -200,7 +200,7 @@ Actualizar este archivo en el mismo PR que cambie una convención.
 
 ## 11. Comandos de instalación y ejecución
 
-Comandos comprobados para la Entrega 1 de S-001 en PowerShell:
+Comandos comprobados para las Entregas 1 y 2 de S-001 en PowerShell:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -216,8 +216,7 @@ Antes de los comandos de Django se debe configurar localmente
 `DJANGO_SECRET_KEY`. `rebuild_synthetic_data` también exige
 `DEMO_STUDENT_PASSWORD`. Los valores no se versionan ni se muestran.
 
-README.md contiene la preparación detallada. La ejecución del servidor
-y los recorridos de interfaz se documentarán cuando estén implementados.
+README.md contiene la preparación, la URL de acceso y el alcance pendiente.
 
 ## 12. Verificación y terminado
 

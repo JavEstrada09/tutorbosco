@@ -1,0 +1,21 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}TutoBosco{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/tutobosco.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{% url 'student_home' %}">
+            <span class="brand-mark" aria-hidden="true">TB</span>
+            <span>TutoBosco</span>
+        </a>
+    </header>
+    <main class="page-shell">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
