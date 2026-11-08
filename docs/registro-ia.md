@@ -369,11 +369,15 @@ Qué se corrigió o descartó, y por qué:
 - Se corrigió el borrado accidental de notas de estudiantes ajenos al
   reconstruir los temas del conjunto sintético; se agregó una prueba
   de regresión.
+- Se limitó la limpieza de la reconstrucción a las inscripciones, notas
+  y asignaciones que genera el manifiesto para cada cuenta, conservando
+  los registros agregados fuera de ese conjunto; se agregaron dos
+  pruebas de regresión.
 - No se modificó `accounts.User` ni las migraciones de S-001.
 
 Resultado registrado por el autor:
 - `manage.py check`: sin problemas.
-- Pruebas de `accounts` y `academics`: 31 superadas.
+- Pruebas de `accounts` y `academics`: 34 superadas.
 - `makemigrations --check --dry-run`: sin cambios.
 - La verificación independiente de JavEstrada09 sigue pendiente.
 

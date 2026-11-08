@@ -189,20 +189,43 @@ class Command(BaseCommand):
         if user.is_staff or user.is_superuser:
             raise CommandError("La cuenta sintética existente tiene privilegios.")
 
-    def _clear_managed_data(self):
-        student_usernames = [
-            spec["username"] for spec in self._student_specs()
-        ]
-        managed_students = StudentProfile.objects.filter(
-            user__username__in=student_usernames
-        )
-        managed_teachers = TeacherProfile.objects.filter(
-            user__username__in=DEMO_TEACHER_USERNAMES
-        )
+    def _student_course_codes(self, spec):
+        course_codes = [PILOT_COURSE_CODE]
+        if spec["additional_course"]:
+            course_codes.append(spec["additional_course"])
+        return course_codes
 
-        Grade.objects.filter(student__in=managed_students).delete()
-        Enrollment.objects.filter(student__in=managed_students).delete()
-        TeachingAssignment.objects.filter(teacher__in=managed_teachers).delete()
+    def _clear_managed_data(self):
+        specs = self._student_specs()
+        profiles = {
+            profile.user.username: profile
+            for profile in StudentProfile.objects.filter(
+                user__username__in=[spec["username"] for spec in specs]
+            ).select_related("user")
+        }
+
+        for spec in specs:
+            profile = profiles.get(spec["username"])
+            if profile is None:
+                continue
+            for course_code in self._student_course_codes(spec):
+                Enrollment.objects.filter(
+                    student=profile,
+                    course__code=course_code,
+                ).delete()
+                if spec["no_grades"]:
+                    continue
+                Grade.objects.filter(
+                    student=profile,
+                    topic__course__code=course_code,
+                    topic__name__in=COURSE_BLUEPRINTS[course_code]["topics"],
+                ).delete()
+
+        for username, course_codes in TEACHER_ASSIGNMENTS.items():
+            TeachingAssignment.objects.filter(
+                teacher__user__username=username,
+                course__code__in=course_codes,
+            ).delete()
 
     def _rebuild_courses(self):
         courses = {}
@@ -256,9 +279,7 @@ class Command(BaseCommand):
                 },
             )
 
-            course_codes = [PILOT_COURSE_CODE]
-            if spec["additional_course"]:
-                course_codes.append(spec["additional_course"])
+            course_codes = self._student_course_codes(spec)
 
             for course_code in course_codes:
                 Enrollment.objects.create(

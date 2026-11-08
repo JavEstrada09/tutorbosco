@@ -543,6 +543,79 @@ class RebuildSyntheticDataTests(TestCase):
         self.assertEqual(unrelated_grade.value, 77)
         self.assertNotIn(self.password, output)
 
+    def test_command_preserves_demo_records_outside_manifest(self):
+        self.run_command()
+
+        extra_course = Course.objects.create(
+            code="CURSO-EXTRA",
+            name="Curso fuera del manifiesto",
+        )
+        extra_topic = Topic.objects.create(
+            course=extra_course,
+            name="Tema fuera del manifiesto",
+        )
+        demo_profile = StudentProfile.objects.get(student_id=DEMO_STUDENT_ID)
+        extra_enrollment = Enrollment.objects.create(
+            student=demo_profile,
+            course=extra_course,
+        )
+        extra_grade = Grade.objects.create(
+            student=demo_profile,
+            topic=extra_topic,
+            value=88,
+        )
+        demo_teacher = TeacherProfile.objects.get(
+            user__username=DEMO_TEACHER_USERNAMES[0]
+        )
+        extra_assignment = TeachingAssignment.objects.create(
+            teacher=demo_teacher,
+            course=extra_course,
+        )
+
+        output = self.run_command()
+
+        self.assertTrue(
+            Enrollment.objects.filter(pk=extra_enrollment.pk).exists()
+        )
+        self.assertEqual(Grade.objects.get(pk=extra_grade.pk).value, 88)
+        self.assertTrue(
+            TeachingAssignment.objects.filter(pk=extra_assignment.pk).exists()
+        )
+        self.assertNotIn(self.password, output)
+
+    def test_command_preserves_records_outside_each_account_manifest(self):
+        self.run_command()
+
+        demo_profile = StudentProfile.objects.get(student_id=DEMO_STUDENT_ID)
+        course = Course.objects.get(code="BD-APL")
+        topic = Topic.objects.filter(course=course).first()
+        extra_enrollment = Enrollment.objects.create(
+            student=demo_profile,
+            course=course,
+        )
+        extra_grade = Grade.objects.create(
+            student=demo_profile,
+            topic=topic,
+            value=88,
+        )
+        demo_teacher = TeacherProfile.objects.get(
+            user__username=DEMO_TEACHER_USERNAMES[0]
+        )
+        extra_assignment = TeachingAssignment.objects.create(
+            teacher=demo_teacher,
+            course=course,
+        )
+
+        self.run_command()
+
+        self.assertTrue(
+            Enrollment.objects.filter(pk=extra_enrollment.pk).exists()
+        )
+        self.assertEqual(Grade.objects.get(pk=extra_grade.pk).value, 88)
+        self.assertTrue(
+            TeachingAssignment.objects.filter(pk=extra_assignment.pk).exists()
+        )
+
     def test_command_rejects_profile_outside_manifest_for_demo_user(self):
         user = get_user_model().objects.create_user(
             username=DEMO_USERNAME,
