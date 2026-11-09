@@ -21,7 +21,7 @@ El modelo de datos debe admitir varios cursos.
 - SQLite local.
 - Plantillas Django, HTML, CSS y JavaScript básico.
 - Bootstrap 5.3 almacenado localmente.
-- Google Gemini API con Gemini 3.8 Flash (`gemini-3.8-flash`),
+- Google Gemini API con Gemini 3.5 Flash-Lite (`gemini-3.5-flash-lite`),
   inicialmente en el nivel gratuito.
 - Proveedor local de respuestas grabadas para el modo demo.
 
@@ -33,12 +33,25 @@ y verificar el esqueleto del proyecto.
 
 ## 3. Estado actual
 
-La Entrega 1 de S-001 fue fusionada. La Entrega 2 está en implementación
-con inicio de sesión, autorización académica, visualización de la carrera
-y cierre de sesión mediante POST.
+S-001 está terminada. Sus cuatro entregas están en `main` y el PR #38 cerró
+el issue #4. La Entrega 4 aplica a Gemini un límite total de 60 segundos y
+un solo intento, traduce los fallos esperados y permite continuar con la
+respuesta grabada. Ante un `429`, ofrece el modo demo sin registrar
+detalles internos.
 
-Todavía no están implementados el formulario del tutor ni los proveedores
-real y demo de las siguientes entregas de S-001.
+JavEstrada09 comprobó CA-4 localmente con `gemini-3.8-flash` mediante dos
+respuestas reales en la interfaz, una sobre variables y otra que calculó
+correctamente Q75. La consulta de Q75 tardó aproximadamente tres minutos.
+Las pruebas automatizadas simulan Gemini y la prueba del constructor usa
+un mock.
+
+Una consulta directa de diagnóstico también respondió correctamente. En
+intentos reales se observaron `429 RESOURCE_EXHAUSTED` y
+`504 DEADLINE_EXCEEDED`; ambos casos están cubiertos ahora mediante pruebas
+simuladas. Douglas completó la verificación independiente de los siete
+criterios sobre `eb01cc7`, incluida una instalación limpia con Python 3.12.10
+y una respuesta real con `gemini-3.5-flash-lite`. La evidencia está en
+`specs/S-001-esqueleto/verificacion.md`.
 
 No presentar como implementadas funcionalidades pendientes.
 No ejecutar generadores de código para adelantar funcionalidades
@@ -134,8 +147,8 @@ Los datos completos deben incluir como mínimo:
 - Manejar errores de conexión, cuota y respuestas inválidas.
 - Validar la salida de IA antes de utilizarla o mostrarla.
 - No ejecutar contenido generado por el modelo como código.
-- Utilizar Google Gemini API con Gemini 3.8 Flash
-  (`gemini-3.8-flash`).
+- Utilizar Google Gemini API con Gemini 3.5 Flash-Lite
+  (`gemini-3.5-flash-lite`) como modelo predeterminado.
 - Priorizar el nivel gratuito y no habilitar facturación de pago
   en la etapa inicial.
 - Activar el modo demo cuando no haya conexión o se agote la cuota.
@@ -200,7 +213,7 @@ Actualizar este archivo en el mismo PR que cambie una convención.
 
 ## 11. Comandos de instalación y ejecución
 
-Comandos comprobados para las Entregas 1 y 2 de S-001 en PowerShell:
+Comandos comprobados para las Entregas 1 a 4 de S-001 en PowerShell:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -208,8 +221,9 @@ py -3.12 -m venv .venv
 & ".\.venv\Scripts\python.exe" manage.py migrate
 & ".\.venv\Scripts\python.exe" manage.py rebuild_synthetic_data
 & ".\.venv\Scripts\python.exe" manage.py check
-& ".\.venv\Scripts\python.exe" manage.py test accounts academics
+& ".\.venv\Scripts\python.exe" manage.py test accounts academics tutor
 & ".\.venv\Scripts\python.exe" manage.py makemigrations --check --dry-run
+& ".\.venv\Scripts\python.exe" -m pip check
 ```
 
 Antes de los comandos de Django se debe configurar localmente

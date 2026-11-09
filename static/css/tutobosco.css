@@ -207,6 +207,75 @@ h2 {
     line-height: 1.15;
 }
 
+.tutor-card {
+    width: min(48rem, 100%);
+    padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.tutor-heading {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    justify-content: space-between;
+}
+
+.tutor-heading h2 {
+    margin-bottom: 1rem;
+}
+
+.mode-badge {
+    flex: 0 0 auto;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid #b48a2a;
+    border-radius: 999px;
+    color: #694b08;
+    background: #fff2c9;
+    font-family: Arial, sans-serif;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.mode-badge-real {
+    border-color: var(--forest);
+    color: var(--forest-dark);
+    background: #e2f2eb;
+}
+
+.demo-example {
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.demo-fallback {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #d7bd78;
+    background: #fff8df;
+}
+
+.demo-fallback p {
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+}
+
+.tutor-submit {
+    width: auto;
+}
+
+.tutor-answer {
+    margin-top: 2rem;
+    padding: 1.4rem;
+    border-left: 4px solid var(--forest);
+    background: #edf5f1;
+}
+
+.tutor-answer p:last-child {
+    margin-bottom: 0;
+    white-space: pre-wrap;
+    line-height: 1.65;
+}
+
 .status-layout {
     justify-items: start;
 }
@@ -223,6 +292,14 @@ h2 {
     .auth-layout {
         grid-template-columns: 1fr;
         gap: 2rem;
+    }
+
+    .tutor-heading {
+        display: grid;
+    }
+
+    .mode-badge {
+        justify-self: start;
     }
 
     h1 {

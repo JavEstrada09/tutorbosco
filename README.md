@@ -15,12 +15,23 @@ Proyecto final de Programación Comercial — UMES.
 
 ## Estado
 
-Las Entregas 1 y 2 de S-001 incorporan la base ejecutable de Django, el
-modelo académico mínimo, datos sintéticos mínimos, inicio de sesión y la
-pantalla protegida que muestra la carrera del estudiante.
+Las Entregas 1, 2, 3 y la implementación local de la Entrega 4 de S-001
+incorporan la base ejecutable de Django,
+el modelo académico mínimo, datos sintéticos, inicio de sesión, la pantalla
+protegida del estudiante y el formulario del tutor con proveedores demo y
+Gemini. La consulta real tiene un límite total de 60 segundos y realiza un
+solo intento. Esto evita que `429` y otros fallos activen reintentos que
+prolonguen la espera o registren detalles internos del proveedor.
 
-Los proveedores del tutor, el modo demo y la integración con Gemini
-siguen pendientes de las entregas posteriores. S-001 no está terminada.
+El recorrido demo está comprobado sin clave ni cliente Gemini. JavEstrada09
+también comprobó CA-4 localmente con `gemini-3.8-flash`. Douglas completó la
+verificación independiente de los siete criterios sobre `eb01cc7`, incluida
+una instalación limpia con Python 3.12.10 y una respuesta real con
+`gemini-3.5-flash-lite`; S-001 queda pendiente de la revisión y fusión del PR.
+
+S-002 incorporó docentes, temas, notas y el conjunto completo de datos
+sintéticos. La verificación independiente quedó registrada en
+[verificacion.md](specs/S-002-datos-sinteticos/verificacion.md).
 
 ## Requisitos
 
@@ -72,43 +83,75 @@ contenga:
   imprimirlo ni compartirlo.
 - `DEMO_STUDENT_PASSWORD`: contraseña fuerte para la cuenta sintética,
   escrita únicamente en `.env`.
+- `DEMO_TEACHER_PASSWORD`: contraseña fuerte para las cuentas docentes
+  sintéticas, escrita únicamente en `.env`.
+- `AI_MODE=demo`: usa la respuesta grabada sin red ni clave de Gemini.
+- `AI_MODEL=gemini-3.5-flash-lite` selecciona el modelo aprobado. Dejar
+  `AI_MODEL` vacío usa el mismo valor. En instalaciones existentes,
+  actualizar este valor si todavía indica Gemini 3.8 Flash.
+- `GEMINI_API_KEY`: se deja vacío en modo demo. En modo real contiene la
+  clave local y nunca debe mostrarse, registrarse ni versionarse.
 - `DJANGO_DEBUG=true`: habilita ayudas de desarrollo local.
 - `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1`: limita los nombres locales
   aceptados por Django.
 
 `.env` está excluido de Git. No guarde contraseñas ni claves en README,
-código, registros o commits. La Entrega 2 no necesita `GEMINI_API_KEY`
-ni realiza llamadas a Gemini.
+código, registros o commits. El modo demo no importa ni inicializa el
+cliente Gemini al responder.
 
-## Base y datos mínimos
+## Base y datos sintéticos
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py migrate
 & ".\.venv\Scripts\python.exe" manage.py rebuild_synthetic_data
 ```
 
-`rebuild_synthetic_data` puede repetirse sin duplicar datos. Administra
-solo su manifiesto sintético, que incluye:
+`rebuild_synthetic_data` exige `DEMO_STUDENT_PASSWORD` y
+`DEMO_TEACHER_PASSWORD`, guarda sus hashes mediante Django, puede
+repetirse sin duplicar datos y no borra registros ajenos al manifiesto.
 
-- Usuario: `estudiante_demo`.
-- Carné: `2026-00001`.
-- Curso: `PROG-COM`, Programación Comercial.
+Genera:
 
-El comando exige `DEMO_STUDENT_PASSWORD`, guarda su hash mediante Django
-y no borra registros ajenos.
+- 30 estudiantes: `estudiante_demo` y `estudiante_01` a `estudiante_29`.
+- 3 docentes: `docente_01` a `docente_03`.
+- 4 cursos con 6 temas cada uno: `PROG-COM`, `BD-APL`, `DES-WEB` y
+  `REDES`.
+- Notas enteras de 0 a 100 con perfiles distintos, incluidos estudiantes
+  con dos temas débiles, sin temas débiles y sin notas.
 
-## Comprobaciones de las Entregas 1 y 2
+Todos los estudiantes están inscritos en Programación Comercial y se
+distribuyen además entre los otros tres cursos. Las cuentas docentes usan
+la contraseña local definida en `DEMO_TEACHER_PASSWORD`.
+
+Un tema se considera débil cuando su nota es estrictamente menor que 60.
+El umbral se configurará con `WEAK_TOPIC_THRESHOLD` en la spec de práctica
+sobre temas débiles.
+
+## Comprobaciones locales
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py check
-& ".\.venv\Scripts\python.exe" manage.py test accounts academics
+& ".\.venv\Scripts\python.exe" manage.py test accounts academics tutor
 & ".\.venv\Scripts\python.exe" manage.py makemigrations --check --dry-run
+& ".\.venv\Scripts\python.exe" -m pip check
 ```
 
-Estas pruebas cubren los modelos, sus restricciones, el hash de la
-contraseña, la reconstrucción idempotente, autenticación, autorización,
-aislamiento entre estudiantes, CSRF y cierre de sesión mediante POST.
-No verifican todavía los siete criterios completos de S-001.
+Las pruebas automatizadas cubren los modelos y sus restricciones, los
+límites de las notas, el hash de las contraseñas, la reconstrucción
+idempotente y los perfiles sintéticos. También comprueban autenticación,
+autorización, aislamiento entre estudiantes, CSRF, cierre de sesión mediante
+POST, el formulario del tutor, la selección de proveedor, la salida validada
+y la ausencia de inicialización de Gemini en modo demo.
+
+Las pruebas simulan Gemini, incluida la prueba del constructor mediante un
+mock. Cubren configuración inválida, conexión fallida, cuota agotada (`429`),
+tiempo de espera (`504`) y respuesta inválida, sin consumir cuota. La
+verificación independiente registra por separado las consultas reales.
+
+La regresión de `429` comprueba que Gemini recibe un solo intento, que se
+ofrece continuar en modo demo y que el detalle interno del proveedor no se
+registra. Como no se conservan reintentos, el límite de 60 segundos cubre la
+consulta completa.
 
 ## Inicio del servidor
 
@@ -118,13 +161,65 @@ No verifican todavía los siete criterios completos de S-001.
 
 Abra `http://127.0.0.1:8000/acceso/`. Use el usuario sintético
 `estudiante_demo` y la contraseña definida localmente en
-`DEMO_STUDENT_PASSWORD`. Después del acceso verá únicamente la carrera
-asociada a esa cuenta y podrá cerrar sesión mediante el formulario.
+`DEMO_STUDENT_PASSWORD`. Después del acceso verá su carrera y el formulario
+del tutor. Con `AI_MODE=demo`, envíe la pregunta visible en la pantalla:
 
-La pantalla del tutor y sus formularios todavía no están implementados.
+```text
+¿Qué es una variable y para qué se usa?
+```
+
+La respuesta grabada debe mencionar Programación Comercial y dirigirse a
+usted. Este recorrido funciona sin Internet y con `GEMINI_API_KEY` vacío.
+
+Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
+`Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
+muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.
+
+## Comprobación real de CA-4
+
+En la Entrega 4, JavEstrada09 probó `gemini-3.5-flash-lite` en modo real
+desde TutorBosco. El tutor explicó en español, con trato de usted, cómo
+restar el descuento de Q10 a Q100 y obtener Q90. La prueba usó un plazo
+total de 60 segundos y un único intento. Douglas repitió CA-4 en modo real
+con `gemini-3.5-flash-lite`: la interfaz mostró la respuesta en 4.12 s, con
+trato de usted y mención de Programación Comercial. Con `gemini-3.8-flash`
+la consulta falló con `504 DEADLINE_EXCEEDED`.
+
+En las pruebas anteriores de la Entrega 3:
+
+JavEstrada09 comprobó localmente la disponibilidad de
+`gemini-3.8-flash` en el nivel gratuito. La interfaz recibió dos respuestas
+reales: una sobre variables y otra que calculó correctamente Q75. La
+consulta de Q75 tardó aproximadamente tres minutos.
+
+De forma separada se realizó una consulta directa de diagnóstico que
+respondió correctamente. En otros intentos reales se observaron los errores
+`429 RESOURCE_EXHAUSTED` y `504 DEADLINE_EXCEEDED`. La Entrega 4 reproduce
+ambos casos mediante pruebas simuladas para verificar sus mensajes sin
+consumir cuota.
+
+Esta comprobación corresponde al autor y no reemplaza la verificación
+independiente pendiente de Douglas. El total de solicitudes y los tokens
+utilizados no están confirmados. No se registraron claves ni datos sensibles.
+
+## Comprobación local de CA-7
+
+El 08-11-2026, JavEstrada09 repitió la instalación con Python 3.12.10 en un
+entorno virtual temporal nuevo y una base SQLite aislada. La instalación de
+`requirements.txt`, las migraciones, `rebuild_synthetic_data`, las 48 pruebas
+disponibles en ese momento,
+`check`, `makemigrations --check --dry-run` y `pip check` finalizaron
+correctamente.
+
+El recorrido HTTP aislado completó acceso, consulta de carrera y respuesta
+grabada. Durante la pregunta demo se bloquearon mediante simulaciones tanto
+la creación del cliente Gemini como la salida de red, y ninguna fue invocada.
+Esta comprobación del autor no sustituye la ejecución independiente pendiente
+de Douglas.
 
 ## Versiones comprobadas
 
 - Python 3.12.10.
 - Django 5.2.19.
+- google-genai 3.0.0.
 - python-dotenv 1.2.4.
