@@ -323,6 +323,81 @@ Costo o cuota consumida:
 No se realizaron llamadas a Gemini ni a la API de IA del producto.
 El consumo de esta conversación de OpenCode no se cuantificó.
 
+## S-001 · 07-11-2026 · Implementación de Entrega 3
+
+Herramienta y modelo: OpenCode · GPT-5.6 Sol.
+Usado por: JavEstrada09.
+
+Fases en que se usó: implementación, pruebas, depuración y documentación.
+
+Instrucción clave:
+Implementar el formulario protegido del tutor, el contrato común, el modo
+demo sin red y el proveedor real con `google-genai`, sin hacer commit ni
+usar una clave cuando no estuviera configurada.
+
+Qué se aceptó sin cambios:
+- La selección pública mediante `AI_MODE=demo` o `AI_MODE=real`.
+- El contexto limitado a pregunta, carrera y curso.
+- La importación diferida del SDK para no inicializar Gemini en modo demo.
+- La pregunta y respuesta grabadas para Programación Comercial.
+
+Qué se corrigió o descartó, y por qué:
+- Se fijó `google-genai==3.0.0` después de comprobar su instalación con
+  Python 3.12 y ejecutar `pip check`.
+- Se agregó validación de texto no vacío, extensión, curso, trato de usted
+  e indicadores básicos de español antes de mostrar una respuesta.
+- Las 44 pruebas automatizadas simulan Gemini. La prueba del constructor
+  también usa un mock y no realiza una solicitud de red.
+- CA-4 se comprobó después mediante consultas reales separadas, registradas
+  en la siguiente entrada.
+- El cambio automático al modo demo ante fallos del proveedor permanece
+  para la Entrega 4 aprobada.
+
+Resultado registrado por el autor:
+- `manage.py check`: sin problemas.
+- Pruebas de `accounts`, `academics` y `tutor`: 44 pruebas superadas.
+- `makemigrations --check --dry-run`: no detectó cambios.
+- `pip check`: no detectó dependencias incompatibles.
+- La verificación independiente de Douglas sigue pendiente.
+
+Costo o cuota consumida:
+Las 44 pruebas automatizadas no realizaron llamadas reales a Gemini porque
+usaron simulaciones. Las consultas reales se registran por separado.
+
+## S-001 · 08-11-2026 · Comprobación real de Entrega 3
+
+Herramienta y modelo: Google Gemini API · Gemini 3.8 Flash
+(`gemini-3.8-flash`).
+Usado por: JavEstrada09.
+
+Fases en que se usó: pruebas de aceptación y diagnóstico.
+
+Instrucción clave:
+Comprobar CA-4 desde la interfaz con consultas de Programación Comercial y
+realizar, por separado, una consulta directa de diagnóstico, sin registrar
+la clave ni habilitar facturación de pago.
+
+Qué se aceptó sin cambios:
+- `gemini-3.8-flash` respondió dos consultas reales desde la interfaz: una
+  sobre variables y otra que calculó correctamente Q75.
+- La consulta de Q75 tardó aproximadamente tres minutos.
+- Una consulta directa de diagnóstico, separada de CA-4, también respondió
+  correctamente.
+
+Qué se corrigió o descartó, y por qué:
+- En intentos reales se observaron `429 RESOURCE_EXHAUSTED` y
+  `504 DEADLINE_EXCEEDED`.
+- El 504 se conserva como caso pendiente para el manejo completo de errores
+  de la Entrega 4.
+- Estos resultados no se confunden con las 44 pruebas automatizadas, que
+  simulan Gemini y usan un mock en la prueba del constructor.
+- La verificación independiente de Douglas sigue pendiente.
+
+Costo o cuota consumida:
+Se utilizó el nivel gratuito. El total de solicitudes y los tokens consumidos
+no están confirmados. El gasto monetario registrado es USD 0.00; este valor
+no significa que el consumo de solicitudes o tokens haya sido cero.
+
 ## S-003 · 05-11-2026
 
 Herramienta y modelo: Claude (app de Claude) · Claude Sonnet 5.5.

@@ -15,6 +15,49 @@
         <p class="career-value">{{ career }}</p>
     </article>
 
+    <section class="panel tutor-card" aria-labelledby="tutor-title">
+        <div class="tutor-heading">
+            <div>
+                <p class="card-label">Tutor del curso</p>
+                <h2 id="tutor-title">Consulte sobre {{ course_name }}</h2>
+            </div>
+            {% if tutor_reply.mode == "demo" or tutor_mode == "demo" %}
+                <span class="mode-badge">Modo demo</span>
+            {% elif tutor_reply.mode == "real" or tutor_mode == "real" %}
+                <span class="mode-badge mode-badge-real">Modo real</span>
+            {% endif %}
+        </div>
+
+        <p class="demo-example">
+            Pregunta disponible en el modo demo: <strong>{{ demo_question }}</strong>
+        </p>
+
+        {% if tutor_error %}
+            <div class="alert" role="alert">{{ tutor_error }}</div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="field">
+                {{ tutor_form.question.label_tag }}
+                {{ tutor_form.question }}
+                {% for error in tutor_form.question.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <button class="button button-primary tutor-submit" type="submit">
+                Enviar pregunta
+            </button>
+        </form>
+
+        {% if tutor_reply %}
+            <article class="tutor-answer" aria-live="polite">
+                <p class="card-label">Respuesta del tutor</p>
+                <p>{{ tutor_reply.text }}</p>
+            </article>
+        {% endif %}
+    </section>
+
     <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
         <button class="button button-secondary" type="submit">Cerrar sesión</button>
