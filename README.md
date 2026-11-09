@@ -29,6 +29,10 @@ verificación independiente de los siete criterios sobre `eb01cc7`, incluida
 una instalación limpia con Python 3.12.10 y una respuesta real con
 `gemini-3.5-flash-lite`; S-001 queda pendiente de la revisión y fusión del PR.
 
+S-002 incorporó docentes, temas, notas y el conjunto completo de datos
+sintéticos. La verificación independiente quedó registrada en
+[verificacion.md](specs/S-002-datos-sinteticos/verificacion.md).
+
 ## Requisitos
 
 - Python 3.12.
@@ -79,6 +83,8 @@ contenga:
   imprimirlo ni compartirlo.
 - `DEMO_STUDENT_PASSWORD`: contraseña fuerte para la cuenta sintética,
   escrita únicamente en `.env`.
+- `DEMO_TEACHER_PASSWORD`: contraseña fuerte para las cuentas docentes
+  sintéticas, escrita únicamente en `.env`.
 - `AI_MODE=demo`: usa la respuesta grabada sin red ni clave de Gemini.
 - `AI_MODEL=gemini-3.5-flash-lite` selecciona el modelo aprobado. Dejar
   `AI_MODEL` vacío usa el mismo valor. En instalaciones existentes,
@@ -93,24 +99,35 @@ contenga:
 código, registros o commits. El modo demo no importa ni inicializa el
 cliente Gemini al responder.
 
-## Base y datos mínimos
+## Base y datos sintéticos
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py migrate
 & ".\.venv\Scripts\python.exe" manage.py rebuild_synthetic_data
 ```
 
-`rebuild_synthetic_data` puede repetirse sin duplicar datos. Administra
-solo su manifiesto sintético, que incluye:
+`rebuild_synthetic_data` exige `DEMO_STUDENT_PASSWORD` y
+`DEMO_TEACHER_PASSWORD`, guarda sus hashes mediante Django, puede
+repetirse sin duplicar datos y no borra registros ajenos al manifiesto.
 
-- Usuario: `estudiante_demo`.
-- Carné: `2026-00001`.
-- Curso: `PROG-COM`, Programación Comercial.
+Genera:
 
-El comando exige `DEMO_STUDENT_PASSWORD`, guarda su hash mediante Django
-y no borra registros ajenos.
+- 30 estudiantes: `estudiante_demo` y `estudiante_01` a `estudiante_29`.
+- 3 docentes: `docente_01` a `docente_03`.
+- 4 cursos con 6 temas cada uno: `PROG-COM`, `BD-APL`, `DES-WEB` y
+  `REDES`.
+- Notas enteras de 0 a 100 con perfiles distintos, incluidos estudiantes
+  con dos temas débiles, sin temas débiles y sin notas.
 
-## Comprobaciones de las Entregas 1 a 4
+Todos los estudiantes están inscritos en Programación Comercial y se
+distribuyen además entre los otros tres cursos. Las cuentas docentes usan
+la contraseña local definida en `DEMO_TEACHER_PASSWORD`.
+
+Un tema se considera débil cuando su nota es estrictamente menor que 60.
+El umbral se configurará con `WEAK_TOPIC_THRESHOLD` en la spec de práctica
+sobre temas débiles.
+
+## Comprobaciones locales
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py check
@@ -119,13 +136,17 @@ y no borra registros ajenos.
 & ".\.venv\Scripts\python.exe" -m pip check
 ```
 
-Las 50 pruebas automatizadas cubren modelos, autenticación, autorización,
-aislamiento, CSRF, formulario, selección de proveedor, salida validada y
-ausencia de inicialización de Gemini en modo demo. También simulan
-configuración inválida, conexión fallida, cuota agotada (`429`), tiempo de
-espera (`504`) y respuesta inválida. Estas pruebas simulan Gemini, incluida
-la prueba del constructor mediante un mock, por lo que no consumen cuota ni
-sustituyen las consultas reales.
+Las pruebas automatizadas cubren los modelos y sus restricciones, los
+límites de las notas, el hash de las contraseñas, la reconstrucción
+idempotente y los perfiles sintéticos. También comprueban autenticación,
+autorización, aislamiento entre estudiantes, CSRF, cierre de sesión mediante
+POST, el formulario del tutor, la selección de proveedor, la salida validada
+y la ausencia de inicialización de Gemini en modo demo.
+
+Las pruebas simulan Gemini, incluida la prueba del constructor mediante un
+mock. Cubren configuración inválida, conexión fallida, cuota agotada (`429`),
+tiempo de espera (`504`) y respuesta inválida, sin consumir cuota. La
+verificación independiente registra por separado las consultas reales.
 
 La regresión de `429` comprueba que Gemini recibe un solo intento, que se
 ofrece continuar en modo demo y que el detalle interno del proveedor no se
