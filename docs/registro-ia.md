@@ -416,3 +416,46 @@ Qué se corrigió o descartó, y por qué: Ninguna corrección; leí la spec com
 
 Costo o cuota consumida: ninguna llamada a la API de IA
 del producto.
+
+## S-002 · 06-11-2026 · Plan, modelos y datos sintéticos
+
+Herramienta y modelo: OpenCode · deepseek-v4.1-flash.
+Usado por: douglas-yasser.
+
+Fases en que se usó: plan, implementación y pruebas.
+
+Instrucción clave:
+Ampliar el modelo académico de S-001 con docentes, asignaciones,
+temas y notas, y extender `rebuild_synthetic_data` con el conjunto
+completo de datos sintéticos.
+
+Qué se aceptó sin cambios:
+- El plan aprobado en el PR #33.
+- El acuerdo de modelos con S-001 y las decisiones D-003, D-004,
+  D-007, D-008 y D-009.
+- La división de la implementación en dos incrementos revisables.
+
+Qué se corrigió o descartó, y por qué:
+- Se reemplazaron las pruebas que esperaban únicamente los datos
+  mínimos de S-001 por pruebas del conjunto completo.
+- Se usó MD5 solo en las pruebas de reconstrucción para reducir el
+  costo de generar 33 cuentas; la aplicación mantiene los hashers
+  de Django.
+- Se corrigió el borrado accidental de notas de estudiantes ajenos al
+  reconstruir los temas del conjunto sintético; se agregó una prueba
+  de regresión.
+- Se limitó la limpieza de la reconstrucción a las inscripciones, notas
+  y asignaciones que genera el manifiesto para cada cuenta, conservando
+  los registros agregados fuera de ese conjunto; se agregaron dos
+  pruebas de regresión.
+- No se modificó `accounts.User` ni las migraciones de S-001.
+
+Resultado registrado por el autor:
+- `manage.py check`: sin problemas.
+- Pruebas de `accounts` y `academics`: 34 superadas.
+- `makemigrations --check --dry-run`: sin cambios.
+- La verificación independiente de JavEstrada09 sigue pendiente.
+
+Costo o cuota consumida:
+No se realizaron llamadas a Gemini ni a la API de IA del producto.
+El consumo de esta conversación de OpenCode no se cuantificó.

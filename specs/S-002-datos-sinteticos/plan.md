@@ -5,7 +5,7 @@ Revisado y aprobado por: JavEstrada09 · 06-11-2026
 
 Spec: `specs/S-002-datos-sinteticos/spec.md`
 Issue: #6
-Estado: aprobado; Entrega 1 en implementación
+Estado: aprobado; Entrega 2 implementada, pendiente de verificación
 
 ## Enfoque
 

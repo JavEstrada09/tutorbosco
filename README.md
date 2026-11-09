@@ -25,6 +25,9 @@ también comprobó CA-4 localmente con `gemini-3.8-flash`. La verificación
 independiente de Douglas y el manejo completo de errores de la Entrega 4
 siguen pendientes; S-001 todavía no está terminada.
 
+La implementación de S-002 agrega docentes, temas y notas, y el conjunto
+completo de datos sintéticos. Queda pendiente su verificación independiente.
+
 ## Requisitos
 
 - Python 3.12.
@@ -75,6 +78,8 @@ contenga:
   imprimirlo ni compartirlo.
 - `DEMO_STUDENT_PASSWORD`: contraseña fuerte para la cuenta sintética,
   escrita únicamente en `.env`.
+- `DEMO_TEACHER_PASSWORD`: contraseña fuerte para las cuentas docentes
+  sintéticas, escrita únicamente en `.env`.
 - `AI_MODE=demo`: usa la respuesta grabada sin red ni clave de Gemini.
 - `AI_MODEL=gemini-3.8-flash`: identificador configurable previsto para
   la comprobación real.
@@ -88,24 +93,35 @@ contenga:
 código, registros o commits. El modo demo no importa ni inicializa el
 cliente Gemini al responder.
 
-## Base y datos mínimos
+## Base y datos sintéticos
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py migrate
 & ".\.venv\Scripts\python.exe" manage.py rebuild_synthetic_data
 ```
 
-`rebuild_synthetic_data` puede repetirse sin duplicar datos. Administra
-solo su manifiesto sintético, que incluye:
+`rebuild_synthetic_data` exige `DEMO_STUDENT_PASSWORD` y
+`DEMO_TEACHER_PASSWORD`, guarda sus hashes mediante Django, puede
+repetirse sin duplicar datos y no borra registros ajenos al manifiesto.
 
-- Usuario: `estudiante_demo`.
-- Carné: `2026-00001`.
-- Curso: `PROG-COM`, Programación Comercial.
+Genera:
 
-El comando exige `DEMO_STUDENT_PASSWORD`, guarda su hash mediante Django
-y no borra registros ajenos.
+- 30 estudiantes: `estudiante_demo` y `estudiante_01` a `estudiante_29`.
+- 3 docentes: `docente_01` a `docente_03`.
+- 4 cursos con 6 temas cada uno: `PROG-COM`, `BD-APL`, `DES-WEB` y
+  `REDES`.
+- Notas enteras de 0 a 100 con perfiles distintos, incluidos estudiantes
+  con dos temas débiles, sin temas débiles y sin notas.
 
-## Comprobaciones de las Entregas 1, 2 y 3
+Todos los estudiantes están inscritos en Programación Comercial y se
+distribuyen además entre los otros tres cursos. Las cuentas docentes usan
+la contraseña local definida en `DEMO_TEACHER_PASSWORD`.
+
+Un tema se considera débil cuando su nota es estrictamente menor que 60.
+El umbral se configurará con `WEAK_TOPIC_THRESHOLD` en la spec de práctica
+sobre temas débiles.
+
+## Comprobaciones locales
 
 ```powershell
 & ".\.venv\Scripts\python.exe" manage.py check
@@ -114,12 +130,16 @@ y no borra registros ajenos.
 & ".\.venv\Scripts\python.exe" -m pip check
 ```
 
-Las 44 pruebas automatizadas cubren modelos, autenticación, autorización,
-aislamiento, CSRF, formulario, selección de proveedor, salida validada y
-ausencia de inicialización de Gemini en modo demo. Estas pruebas simulan
-Gemini, incluida la prueba del constructor mediante un mock, por lo que no
-consumen cuota ni sustituyen las consultas reales. Tampoco verifican todavía
-los siete criterios completos de S-001.
+Las 49 pruebas automatizadas cubren los modelos, sus restricciones, los
+límites de las notas, el hash de las contraseñas, la reconstrucción
+idempotente y los perfiles sintéticos. También cubren autenticación,
+autorización, aislamiento entre estudiantes, CSRF, cierre de sesión
+mediante POST, el formulario del tutor, la selección de los modos real,
+simulado y demo, la salida validada y la ausencia de inicialización de
+Gemini en modo demo. Estas pruebas simulan Gemini, incluida la prueba del
+constructor mediante un mock, por lo que no consumen cuota ni sustituyen
+las consultas reales. Tampoco verifican todavía los siete criterios
+completos de S-001 ni sustituyen la verificación independiente de S-002.
 
 ## Inicio del servidor
 
