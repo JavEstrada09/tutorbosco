@@ -21,7 +21,7 @@ El modelo de datos debe admitir varios cursos.
 - SQLite local.
 - Plantillas Django, HTML, CSS y JavaScript básico.
 - Bootstrap 5.3 almacenado localmente.
-- Google Gemini API con Gemini 3.8 Flash (`gemini-3.8-flash`),
+- Google Gemini API con Gemini 3.5 Flash-Lite (`gemini-3.5-flash-lite`),
   inicialmente en el nivel gratuito.
 - Proveedor local de respuestas grabadas para el modo demo.
 
@@ -33,21 +33,24 @@ y verificar el esqueleto del proyecto.
 
 ## 3. Estado actual
 
-Las Entregas 1 y 2 de S-001 fueron fusionadas. La implementación local de
-la Entrega 3 incluye el formulario del tutor, el proveedor demo local y el
-proveedor Gemini desde el backend.
+Las Entregas 1, 2 y 3 de S-001 fueron fusionadas. La implementación local de
+la Entrega 4 aplica a Gemini un límite total de 60 segundos y un solo intento,
+traduce los fallos esperados y permite continuar con la respuesta grabada sin
+contactar a Gemini. Un `429` no se reintenta ni registra detalles internos.
 
 JavEstrada09 comprobó CA-4 localmente con `gemini-3.8-flash` mediante dos
 respuestas reales en la interfaz, una sobre variables y otra que calculó
 correctamente Q75. La consulta de Q75 tardó aproximadamente tres minutos.
-Las 44 pruebas automatizadas simulan Gemini y la prueba del constructor usa
+Las 50 pruebas automatizadas simulan Gemini y la prueba del constructor usa
 un mock; no deben presentarse como consultas reales.
 
 Una consulta directa de diagnóstico también respondió correctamente. En
 intentos reales se observaron `429 RESOURCE_EXHAUSTED` y
-`504 DEADLINE_EXCEEDED`; el caso 504 queda pendiente para la Entrega 4 de
-manejo completo de errores y cierre técnico. La verificación independiente
-de Douglas también sigue pendiente, por lo que S-001 no está terminada.
+`504 DEADLINE_EXCEEDED`; ambos casos están cubiertos ahora mediante pruebas
+simuladas. Douglas completó la verificación independiente de los siete
+criterios sobre `eb01cc7`, incluida una instalación limpia con Python 3.12.10
+y una respuesta real con `gemini-3.5-flash-lite`. S-001 queda pendiente de la
+revisión y fusión del PR final.
 
 No presentar como implementadas funcionalidades pendientes.
 No ejecutar generadores de código para adelantar funcionalidades
@@ -143,8 +146,8 @@ Los datos completos deben incluir como mínimo:
 - Manejar errores de conexión, cuota y respuestas inválidas.
 - Validar la salida de IA antes de utilizarla o mostrarla.
 - No ejecutar contenido generado por el modelo como código.
-- Utilizar Google Gemini API con Gemini 3.8 Flash
-  (`gemini-3.8-flash`).
+- Utilizar Google Gemini API con Gemini 3.5 Flash-Lite
+  (`gemini-3.5-flash-lite`) como modelo predeterminado.
 - Priorizar el nivel gratuito y no habilitar facturación de pago
   en la etapa inicial.
 - Activar el modo demo cuando no haya conexión o se agote la cuota.
@@ -209,7 +212,7 @@ Actualizar este archivo en el mismo PR que cambie una convención.
 
 ## 11. Comandos de instalación y ejecución
 
-Comandos comprobados para las Entregas 1, 2 y 3 de S-001 en PowerShell:
+Comandos comprobados para las Entregas 1 a 4 de S-001 en PowerShell:
 
 ```powershell
 py -3.12 -m venv .venv

@@ -24,8 +24,10 @@ ALLOWED_HOSTS = [
 ]
 
 AI_MODE = os.getenv("AI_MODE", "demo") or "demo"
-AI_MODEL = os.getenv("AI_MODEL", "gemini-3.8-flash") or "gemini-3.8-flash"
+AI_MODEL = os.getenv("AI_MODEL") or "gemini-3.5-flash-lite"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_TOTAL_TIMEOUT_MS = 60_000
+GEMINI_MAX_ATTEMPTS = 1
 
 INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",

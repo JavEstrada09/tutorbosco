@@ -4,8 +4,8 @@ Registrar una entrada por spec.
 No incluir claves, contraseñas ni datos reales de estudiantes.
 
 Este archivo registra las herramientas y los modelos usados para
-desarrollar el proyecto. El modelo del producto es Gemini 3.8 Flash
-(`gemini-3.8-flash`) y se documenta en docs/adr/ADR-001-stack.md.
+desarrollar el proyecto. El modelo predeterminado del producto es Gemini
+3.5 Flash-Lite (`gemini-3.5-flash-lite`), documentado en docs/adr/ADR-001-stack.md.
 
 Formato de cada entrada (plantilla 9.7 del enunciado):
 
@@ -397,6 +397,97 @@ Costo o cuota consumida:
 Se utilizó el nivel gratuito. El total de solicitudes y los tokens consumidos
 no están confirmados. El gasto monetario registrado es USD 0.00; este valor
 no significa que el consumo de solicitudes o tokens haya sido cero.
+
+## S-001 · 08-11-2026 · Implementación de Entrega 4
+
+Herramienta y modelo: OpenCode · GPT-5.6 Sol.
+Usado por: JavEstrada09.
+
+Fases en que se usó: implementación, pruebas, depuración y documentación.
+
+Instrucción clave:
+Limitar la espera y los reintentos de Gemini, manejar configuración, conexión,
+cuota, tiempo de espera y salida inválida, permitir continuar en modo demo y
+preparar la verificación de los siete criterios sin atribuir resultados a
+Douglas.
+
+Qué se aceptó sin cambios:
+- Mensajes seguros y diferenciados para conexión, `429` y `504`.
+- Continuación explícita con la pregunta grabada y sin inicializar Gemini.
+- Verificación local de CA-7 con entorno virtual nuevo y base aislada.
+
+Qué se corrigió o descartó, y por qué:
+- La revisión humana corrigió la política inicial de dos intentos de 15
+  segundos. El SDK reintentaba `429` de forma predeterminada y podía registrar
+  la excepción completa antes del segundo intento. La política final usa un
+  solo intento y un límite total de 60 segundos, por lo que `429` ofrece el
+  modo demo inmediatamente y no entra al registro de reintentos.
+- El primer comando del recorrido aislado fue dividido incorrectamente por
+  PowerShell debido a sus comillas internas. Se pasó el código como un único
+  argumento y el recorrido terminó correctamente; no fue un fallo del producto.
+- El `504` real observado anteriormente no se repitió contra Gemini. Se simuló
+  como exige el plan para verificar el manejo sin consumir cuota.
+- CA-4 no se repitió porque ya tiene evidencia real del autor y esta entrega
+  no necesitaba otra solicitud. Esa evidencia no sustituye a Douglas.
+
+Resultado registrado por el autor:
+- `manage.py check`: sin problemas.
+- Suite completa después de corregir la política: 49 pruebas superadas en el
+  entorno habitual.
+- Instalación limpia previa: 48 pruebas, que eran todas las disponibles al
+  ejecutar esa comprobación, superadas en el entorno virtual temporal nuevo.
+- `makemigrations --check --dry-run`: no detectó cambios.
+- `pip check`: no detectó dependencias incompatibles.
+- Recorrido demo aislado: acceso, carrera y respuesta grabada correctos; sin
+  invocar Gemini ni la red.
+- La verificación independiente de Douglas quedó pendiente en esa fecha; se
+  completó el 09-11-2026 en la entrada siguiente.
+
+Costo o cuota consumida:
+No se realizaron llamadas reales a Gemini durante la Entrega 4. Las pruebas
+usaron simulaciones y el recorrido aislado bloqueó Gemini y la salida de red.
+El consumo de esta conversación de OpenCode no se cuantificó.
+
+## S-001 · 09-11-2026 · Verificación independiente
+
+Herramienta y modelo: Google Gemini API · Gemini 3.8 Flash (`gemini-3.8-flash`)
+y Gemini 3.5 Flash-Lite (`gemini-3.5-flash-lite`).
+Usado por: douglas-yasser.
+
+Fases en que se usó: pruebas de aceptación de la verificación independiente.
+
+Instrucción clave:
+Verificar los siete criterios de S-001 sobre el commit `eb01cc7` en un
+worktree aislado, registrar la evidencia y comprobar CA-4 con una consulta
+real desde la interfaz sin mostrar la clave.
+
+Qué se aceptó sin cambios:
+- CA-1 a CA-6 cumplen según el registro de `specs/S-001-esqueleto/verificacion.md`.
+- La respuesta real de `gemini-3.5-flash-lite` se mostró en la interfaz en
+  4.12 s, en español, con trato de usted y mención de Programación Comercial.
+- El recorrido demo funcionó sin red y sin inicializar Gemini.
+- Se mantiene el límite vigente de 60 segundos y un solo intento de `eb01cc7`.
+- La instalación limpia y el recorrido demo se repitieron con Python 3.12.10:
+  50 pruebas superadas en 91.695 s y recorrido completo con `runserver`.
+
+Qué se corrigió o descartó, y por qué:
+- Con `gemini-3.8-flash` se realizaron tres intentos reales que fallaron:
+  uno agotó el plazo de 60 segundos (62.464 s), otro devolvió el error
+  genérico del proveedor (4.676 s) y un diagnóstico directo confirmó
+  `504 DEADLINE_EXCEEDED`.
+- Se repitió CA-4 con el modelo documentado `gemini-3.5-flash-lite`: la
+  llamada al servicio respondió en 4.531 s y la interfaz mostró la respuesta
+  real en 4.12 s.
+- La ejecución inicial con Python 3.13.14 se conserva como evidencia
+  adicional; la comprobación principal se repitió con Python 3.12.10.
+- El `.env` local se alineó a `AI_MODEL=gemini-3.5-flash-lite`.
+
+Costo o cuota consumida:
+Se utilizó el nivel gratuito. Se realizaron cinco solicitudes reales: tres
+con `gemini-3.8-flash` (todas fallidas) y dos con `gemini-3.5-flash-lite`
+(ambas correctas). El total de tokens no está confirmado. El gasto monetario
+registrado es USD 0.00; este valor no significa que el consumo de solicitudes
+o tokens haya sido cero.
 
 ## S-003 · 05-11-2026
 

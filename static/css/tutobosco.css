@@ -247,6 +247,18 @@ h2 {
     line-height: 1.55;
 }
 
+.demo-fallback {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #d7bd78;
+    background: #fff8df;
+}
+
+.demo-fallback p {
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+}
+
 .tutor-submit {
     width: auto;
 }

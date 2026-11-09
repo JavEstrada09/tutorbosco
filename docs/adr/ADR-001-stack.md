@@ -4,9 +4,10 @@
 
 Aceptado. Revisado y fusionado en el PR #1 (27-10-2026).
 
-El modelo seleccionado es Gemini 3.8 Flash (`gemini-3.8-flash`).
-Su disponibilidad, cuota y calidad en la cuenta del equipo se
-comprobarán en S-001 antes de declarar verificada la integración.
+El 09-11-2026 el equipo aprobó Gemini 3.5 Flash-Lite
+(`gemini-3.5-flash-lite`) para la Entrega 4 de S-001. Douglas completó la
+verificación independiente de la integración sobre `eb01cc7`; queda pendiente
+la revisión y fusión del PR final.
 
 ## Contexto
 
@@ -80,7 +81,13 @@ estudiantes, temas, inscripciones y notas.
 
 ### Integración con IA
 
-Usar Google Gemini API con Gemini 3.8 Flash (`gemini-3.8-flash`).
+Usar Google Gemini API con Gemini 3.5 Flash-Lite
+(`gemini-3.5-flash-lite`) como modelo predeterminado.
+
+Gemini 3.8 Flash funcionó en las primeras pruebas, pero las consultas
+recientes devolvieron errores 503 y 504. Gemini 3.5 Flash-Lite respondió
+en modo real desde TutorBosco y explicó correctamente un descuento de
+Q10 sobre Q100, con un total de Q90.
 
 Priorizar el nivel gratuito y no habilitar facturación de pago
 en la etapa inicial. El costo definitivo se evaluará según el
@@ -192,5 +199,5 @@ el sistema siguiendo únicamente el README en menos de 30 minutos.
 - https://docs.djangoproject.com/en/5.2/topics/auth/default/
 - https://docs.djangoproject.com/en/5.2/intro/tutorial02/
 - https://getbootstrap.com/docs/5.3/getting-started/download/
-- https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash
+- https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite
 - https://ai.google.dev/gemini-api/docs/pricing
