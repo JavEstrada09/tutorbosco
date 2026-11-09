@@ -34,22 +34,23 @@ y verificar el esqueleto del proyecto.
 ## 3. Estado actual
 
 Las Entregas 1, 2 y 3 de S-001 fueron fusionadas. La implementación local de
-la Entrega 4 aplica a Gemini un límite total de 15 segundos y un solo intento,
+la Entrega 4 aplica a Gemini un límite total de 60 segundos y un solo intento,
 traduce los fallos esperados y permite continuar con la respuesta grabada sin
 contactar a Gemini. Un `429` no se reintenta ni registra detalles internos.
 
 JavEstrada09 comprobó CA-4 localmente con `gemini-3.8-flash` mediante dos
 respuestas reales en la interfaz, una sobre variables y otra que calculó
 correctamente Q75. La consulta de Q75 tardó aproximadamente tres minutos.
-Las 49 pruebas automatizadas simulan Gemini y la prueba del constructor usa
+Las 50 pruebas automatizadas simulan Gemini y la prueba del constructor usa
 un mock; no deben presentarse como consultas reales.
 
 Una consulta directa de diagnóstico también respondió correctamente. En
 intentos reales se observaron `429 RESOURCE_EXHAUSTED` y
 `504 DEADLINE_EXCEEDED`; ambos casos están cubiertos ahora mediante pruebas
-simuladas. El autor comprobó CA-7 con un entorno virtual nuevo y una base
-aislada. La verificación independiente de Douglas sigue pendiente, por lo que
-S-001 no está terminada.
+simuladas. Douglas completó la verificación independiente de los siete
+criterios sobre `eb01cc7`, incluida una instalación limpia con Python 3.12.10
+y una respuesta real con `gemini-3.5-flash-lite`. S-001 queda pendiente de la
+revisión y fusión del PR final.
 
 No presentar como implementadas funcionalidades pendientes.
 No ejecutar generadores de código para adelantar funcionalidades

@@ -5,8 +5,9 @@
 Aceptado. Revisado y fusionado en el PR #1 (27-10-2026).
 
 El 09-11-2026 el equipo aprobó Gemini 3.5 Flash-Lite
-(`gemini-3.5-flash-lite`) para la Entrega 4 de S-001. La verificación
-independiente de la integración sigue pendiente.
+(`gemini-3.5-flash-lite`) para la Entrega 4 de S-001. Douglas completó la
+verificación independiente de la integración sobre `eb01cc7`; queda pendiente
+la revisión y fusión del PR final.
 
 ## Contexto
 

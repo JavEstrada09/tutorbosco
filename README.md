@@ -19,13 +19,15 @@ Las Entregas 1, 2, 3 y la implementación local de la Entrega 4 de S-001
 incorporan la base ejecutable de Django,
 el modelo académico mínimo, datos sintéticos, inicio de sesión, la pantalla
 protegida del estudiante y el formulario del tutor con proveedores demo y
-Gemini. La consulta real tiene un límite total de 15 segundos y realiza un
+Gemini. La consulta real tiene un límite total de 60 segundos y realiza un
 solo intento. Esto evita que `429` y otros fallos activen reintentos que
 prolonguen la espera o registren detalles internos del proveedor.
 
 El recorrido demo está comprobado sin clave ni cliente Gemini. JavEstrada09
-también comprobó CA-4 localmente con `gemini-3.8-flash`. La verificación
-independiente de Douglas sigue pendiente; S-001 todavía no está terminada.
+también comprobó CA-4 localmente con `gemini-3.8-flash`. Douglas completó la
+verificación independiente de los siete criterios sobre `eb01cc7`, incluida
+una instalación limpia con Python 3.12.10 y una respuesta real con
+`gemini-3.5-flash-lite`; S-001 queda pendiente de la revisión y fusión del PR.
 
 ## Requisitos
 
@@ -117,7 +119,7 @@ y no borra registros ajenos.
 & ".\.venv\Scripts\python.exe" -m pip check
 ```
 
-Las 49 pruebas automatizadas cubren modelos, autenticación, autorización,
+Las 50 pruebas automatizadas cubren modelos, autenticación, autorización,
 aislamiento, CSRF, formulario, selección de proveedor, salida validada y
 ausencia de inicialización de Gemini en modo demo. También simulan
 configuración inválida, conexión fallida, cuota agotada (`429`), tiempo de
@@ -127,7 +129,7 @@ sustituyen las consultas reales.
 
 La regresión de `429` comprueba que Gemini recibe un solo intento, que se
 ofrece continuar en modo demo y que el detalle interno del proveedor no se
-registra. Como no se conservan reintentos, el límite de 15 segundos cubre la
+registra. Como no se conservan reintentos, el límite de 60 segundos cubre la
 consulta completa.
 
 ## Inicio del servidor
@@ -157,8 +159,10 @@ muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.
 En la Entrega 4, JavEstrada09 probó `gemini-3.5-flash-lite` en modo real
 desde TutorBosco. El tutor explicó en español, con trato de usted, cómo
 restar el descuento de Q10 a Q100 y obtener Q90. La prueba usó un plazo
-total de 60 segundos y un único intento. La verificación independiente
-de Douglas sigue pendiente.
+total de 60 segundos y un único intento. Douglas repitió CA-4 en modo real
+con `gemini-3.5-flash-lite`: la interfaz mostró la respuesta en 4.12 s, con
+trato de usted y mención de Programación Comercial. Con `gemini-3.8-flash`
+la consulta falló con `504 DEADLINE_EXCEEDED`.
 
 En las pruebas anteriores de la Entrega 3:
 
