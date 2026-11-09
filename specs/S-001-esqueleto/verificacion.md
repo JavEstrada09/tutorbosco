@@ -134,5 +134,15 @@ mostraron ni se versionaron.
 
 La verificación independiente de los siete criterios quedó completa sobre
 `eb01cc7`, con la instalación limpia en Python 3.12.10 y la evidencia adicional
-de Python 3.13.14. S-001 sigue pendiente de revisión y fusión del PR final;
-este registro no sustituye la revisión humana ni la aprobación del equipo.
+de Python 3.13.14. El PR final #38 se fusionó a `main` en `febd35c` y cerró
+el issue #4.
+
+## Comprobación técnica de `main`
+
+El 09-11-2026, Codex ejecutó `febd35c` en un entorno Linux aislado con
+Python 3.12.14 y una base SQLite nueva. Las migraciones y la reconstrucción
+se completaron. `check`, `makemigrations --check --dry-run` y `pip check`
+terminaron sin incidencias. Pasaron las 55 pruebas de `accounts`, `academics`
+y `tutor`. Un cliente HTTP de Django confirmó el inicio de sesión con CSRF,
+la carrera del estudiante y la respuesta grabada con la red y Gemini
+bloqueados.
