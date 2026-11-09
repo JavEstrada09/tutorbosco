@@ -1,10 +1,13 @@
+import asyncio
 import secrets
 from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, patch
 
+import httpx2
 from django.contrib.auth import get_user_model
 from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
+from google.genai import errors as genai_errors
 
 from academics.models import Course, Enrollment, StudentProfile
 from tutor.demo_responses import DEMO_QUESTION, DEMO_RESPONSE
@@ -16,6 +19,13 @@ from tutor.providers import (
     _create_gemini_client,
 )
 from tutor.services import TutorReply, ask_tutor
+
+
+def mock_gemini_generation(create_client):
+    client = create_client.return_value.__enter__.return_value
+    async_client = client.aio.__aenter__.return_value
+    async_client.models.generate_content = AsyncMock()
+    return async_client.models.generate_content
 
 
 class TutorQuestionFormTests(SimpleTestCase):
@@ -44,11 +54,19 @@ class TutorQuestionFormTests(SimpleTestCase):
 
 class TutorServiceTests(SimpleTestCase):
     @patch("google.genai.Client")
-    def test_real_client_uses_installed_sdk_without_network(self, client_class):
-        client = _create_gemini_client("clave-sintetica")
+    def test_real_client_sets_network_timeout_and_no_retries(self, client_class):
+        client = _create_gemini_client(
+            "clave-sintetica",
+            total_timeout_ms=60_000,
+            max_attempts=1,
+        )
 
         self.assertEqual(client, client_class.return_value)
-        client_class.assert_called_once_with(api_key="clave-sintetica")
+        call = client_class.call_args.kwargs
+        self.assertEqual(call["api_key"], "clave-sintetica")
+        self.assertEqual(call["http_options"].timeout, 60_000)
+        retry_options = call["http_options"].retry_options
+        self.assertEqual(retry_options.attempts, 1)
 
     @override_settings(AI_MODE="demo", GEMINI_API_KEY="")
     @patch("socket.create_connection")
@@ -87,16 +105,12 @@ class TutorServiceTests(SimpleTestCase):
     )
     @patch("tutor.providers._create_gemini_client")
     def test_real_provider_sends_only_allowed_context(self, create_client):
-        generate_content = Mock(
-            return_value=SimpleNamespace(
-                text=(
-                    "En Programación Comercial, usted puede usar una variable "
-                    "para guardar un valor."
-                )
+        generate_content = mock_gemini_generation(create_client)
+        generate_content.return_value = SimpleNamespace(
+            text=(
+                "En Programación Comercial, usted puede usar una variable "
+                "para guardar un valor."
             )
-        )
-        create_client.return_value = SimpleNamespace(
-            models=SimpleNamespace(generate_content=generate_content)
         )
 
         reply = ask_tutor(
@@ -106,7 +120,11 @@ class TutorServiceTests(SimpleTestCase):
         )
 
         self.assertEqual(reply.mode, "real")
-        create_client.assert_called_once_with("clave-sintetica")
+        create_client.assert_called_once_with(
+            "clave-sintetica",
+            total_timeout_ms=60_000,
+            max_attempts=1,
+        )
         call = generate_content.call_args.kwargs
         self.assertEqual(call["model"], "modelo-simulado")
         self.assertIn("Pregunta: ¿Qué es una variable?", call["contents"])
@@ -147,11 +165,137 @@ class TutorServiceTests(SimpleTestCase):
         GEMINI_API_KEY="clave-sintetica",
     )
     @patch("tutor.providers._create_gemini_client")
-    def test_empty_or_nonconforming_real_outputs_are_rejected(self, create_client):
-        generate_content = Mock()
-        create_client.return_value = SimpleNamespace(
-            models=SimpleNamespace(generate_content=generate_content)
+    def test_expected_provider_failures_have_safe_specific_messages(
+        self,
+        create_client,
+    ):
+        generate_content = mock_gemini_generation(create_client)
+        request = httpx2.Request("POST", "https://example.invalid")
+        cases = (
+            (
+                httpx2.ConnectError("detalle-interno", request=request),
+                "No fue posible conectar con el tutor real.",
+            ),
+            (
+                genai_errors.ServerError(
+                    504,
+                    {"error": {"message": "detalle-interno", "status": "TIEMPO"}},
+                ),
+                "El tutor real tardó demasiado en responder.",
+            ),
         )
+
+        for error, expected_message in cases:
+            with self.subTest(error=type(error).__name__):
+                generate_content.side_effect = error
+                with self.assertRaises(TutorUnavailableError) as raised:
+                    ask_tutor(
+                        question=DEMO_QUESTION,
+                        career="Ingeniería en Sistemas",
+                        course_name="Programación Comercial",
+                    )
+                message = str(raised.exception)
+                self.assertIn(expected_message, message)
+                self.assertIn("Puede continuar en modo demo.", message)
+                self.assertNotIn("clave-secreta", message)
+                self.assertNotIn("detalle-interno", message)
+
+    @override_settings(
+        AI_MODE="real",
+        AI_MODEL="modelo-simulado",
+        GEMINI_API_KEY="clave-sintetica",
+    )
+    @patch("tutor.providers.logger.error")
+    @patch("google.genai.Client")
+    def test_429_is_not_retried_or_logged(self, client_class, log_error):
+        generate_content = mock_gemini_generation(client_class)
+        generate_content.side_effect = genai_errors.ClientError(
+            429,
+            {
+                "error": {
+                    "message": "detalle-interno-del-proveedor",
+                    "status": "RESOURCE_EXHAUSTED",
+                }
+            },
+        )
+
+        with self.assertRaisesMessage(
+            TutorUnavailableError,
+            "El tutor real alcanzó su límite de uso.",
+        ):
+            ask_tutor(
+                question=DEMO_QUESTION,
+                career="Ingeniería en Sistemas",
+                course_name="Programación Comercial",
+            )
+
+        generate_content.assert_awaited_once()
+        http_options = client_class.call_args.kwargs["http_options"]
+        self.assertEqual(http_options.timeout, 60_000)
+        self.assertEqual(http_options.retry_options.attempts, 1)
+        log_error.assert_not_called()
+
+    @override_settings(
+        AI_MODE="real",
+        AI_MODEL="modelo-simulado",
+        GEMINI_API_KEY="clave-sintetica",
+        GEMINI_TOTAL_TIMEOUT_MS=20,
+    )
+    @patch("tutor.providers._create_gemini_client")
+    def test_total_timeout_cancels_generation(self, create_client):
+        cancelled = False
+
+        async def generate_slowly(**kwargs):
+            nonlocal cancelled
+            try:
+                await asyncio.sleep(1)
+            except asyncio.CancelledError:
+                cancelled = True
+                raise
+
+        generate_content = mock_gemini_generation(create_client)
+        generate_content.side_effect = generate_slowly
+
+        with self.assertRaisesMessage(
+            TutorUnavailableError,
+            "El tutor real tardó demasiado en responder.",
+        ):
+            ask_tutor(
+                question=DEMO_QUESTION,
+                career="Ingeniería en Sistemas",
+                course_name="Programación Comercial",
+            )
+
+        self.assertTrue(cancelled)
+        generate_content.assert_awaited_once()
+
+    @override_settings(
+        AI_MODE="real",
+        AI_MODEL="modelo-simulado",
+        GEMINI_API_KEY="clave-sintetica",
+        GEMINI_TOTAL_TIMEOUT_MS=0,
+    )
+    @patch("tutor.providers._create_gemini_client")
+    def test_invalid_timeout_is_rejected_before_initializing_client(self, client):
+        with self.assertRaisesMessage(
+            TutorConfigurationError,
+            "El límite total de espera del tutor no es válido.",
+        ):
+            ask_tutor(
+                question=DEMO_QUESTION,
+                career="Ingeniería en Sistemas",
+                course_name="Programación Comercial",
+            )
+        client.assert_not_called()
+
+    @override_settings(
+        AI_MODE="real",
+        AI_MODEL="modelo-simulado",
+        GEMINI_API_KEY="clave-sintetica",
+    )
+    @patch("tutor.providers._create_gemini_client")
+    def test_empty_or_nonconforming_real_outputs_are_rejected(self, create_client):
+        generate_content = mock_gemini_generation(create_client)
 
         for response in (
             "",
@@ -248,7 +392,59 @@ class TutorViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, DEMO_RESPONSE)
         self.assertContains(response, "Modo demo")
+        self.assertContains(response, "Respuesta grabada del modo demo")
         self.assertContains(response, self.profile.career)
+        client.assert_not_called()
+
+    @override_settings(
+        AI_MODE="real",
+        AI_MODEL="modelo-simulado",
+        GEMINI_API_KEY="clave-sintetica",
+    )
+    @patch("tutor.providers._create_gemini_client")
+    def test_real_failure_offers_demo_without_exposing_details(self, create_client):
+        generate_content = mock_gemini_generation(create_client)
+        generate_content.side_effect = genai_errors.ClientError(
+            429,
+            {"error": {"message": "clave-secreta", "status": "RESOURCE_EXHAUSTED"}},
+        )
+        csrf_token = self.get_csrf_token()
+
+        response = self.client.post(
+            reverse("student_home"),
+            {
+                "question": "¿Qué es una clase?",
+                "csrfmiddlewaretoken": csrf_token,
+            },
+        )
+
+        self.assertContains(response, "alcanzó su límite de uso")
+        self.assertContains(response, "Continuar en modo demo")
+        self.assertContains(response, DEMO_QUESTION)
+        self.assertNotContains(response, "clave-secreta")
+        self.assertNotContains(response, "RESOURCE_EXHAUSTED")
+
+    @override_settings(
+        AI_MODE="real",
+        AI_MODEL="modelo-simulado",
+        GEMINI_API_KEY="clave-sintetica",
+    )
+    @patch("tutor.providers._create_gemini_client")
+    def test_demo_continuation_uses_recorded_question_without_gemini(self, client):
+        csrf_token = self.get_csrf_token()
+
+        response = self.client.post(
+            reverse("student_home"),
+            {
+                "continue_in_demo": "1",
+                "question": "pregunta manipulada",
+                "csrfmiddlewaretoken": csrf_token,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, DEMO_RESPONSE)
+        self.assertContains(response, "Respuesta grabada del modo demo")
         client.assert_not_called()
 
     @patch("academics.views.ask_tutor")

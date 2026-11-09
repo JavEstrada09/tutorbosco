@@ -9,7 +9,7 @@ y se comparte entre los cinco integrantes.
 
 ## Modalidad inicial
 
-Se utilizará Gemini 3.8 Flash (`gemini-3.8-flash`) mediante
+El modelo predeterminado es Gemini 3.5 Flash-Lite (`gemini-3.5-flash-lite`) en
 Google Gemini API, priorizando el nivel gratuito.
 
 No se habilitará facturación de pago en la etapa inicial.
@@ -24,6 +24,8 @@ pagos automáticos.
 | --- | --- | --- | --- | --- | --- | --- |
 | 07-11-2026 | JavEstrada09 | Gemini simulado / `gemini-3.8-flash` | 44 pruebas automatizadas de Entrega 3 | No aplica; las pruebas usan simulaciones y el constructor usa un mock | No aplica | Suite automatizada, sin solicitudes al servicio |
 | 08-11-2026 | JavEstrada09 | Gemini / `gemini-3.8-flash` | CA-4 en la interfaz y diagnóstico directo; se observaron errores 429 y 504 en otros intentos | Nivel gratuito; total de solicitudes y tokens no confirmados | 0.00 | Dos respuestas en la interfaz, una consulta directa exitosa y errores observados |
+| 08-11-2026 | JavEstrada09 | Gemini simulado / `gemini-3.8-flash` | 48 pruebas y recorrido demo aislado de Entrega 4 | No aplica; Gemini y la red fueron simulados o bloqueados | No aplica | Suite completa y recorrido demo sin solicitudes al servicio |
+| 08-11-2026 | JavEstrada09 | Gemini simulado / `gemini-3.8-flash` | 49 pruebas tras corregir espera y reintentos de Entrega 4 | No aplica; `429` y el cliente se simularon sin usar cuota | No aplica | Suite completa, un solo intento y sin solicitudes al servicio |
 
 Se utilizó el nivel gratuito sin habilitar facturación de pago. El total de
 solicitudes y los tokens consumidos no están confirmados.

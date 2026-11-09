@@ -36,6 +36,17 @@
             <div class="alert" role="alert">{{ tutor_error }}</div>
         {% endif %}
 
+        {% if offer_demo %}
+            <form method="post" class="demo-fallback">
+                {% csrf_token %}
+                <input type="hidden" name="continue_in_demo" value="1">
+                <p>Puede continuar con la pregunta de ejemplo y una respuesta grabada.</p>
+                <button class="button button-secondary" type="submit">
+                    Continuar en modo demo
+                </button>
+            </form>
+        {% endif %}
+
         <form method="post" novalidate>
             {% csrf_token %}
             <div class="field">
@@ -52,7 +63,13 @@
 
         {% if tutor_reply %}
             <article class="tutor-answer" aria-live="polite">
-                <p class="card-label">Respuesta del tutor</p>
+                <p class="card-label">
+                    {% if tutor_reply.mode == "demo" %}
+                        Respuesta grabada del modo demo
+                    {% else %}
+                        Respuesta del tutor real
+                    {% endif %}
+                </p>
                 <p>{{ tutor_reply.text }}</p>
             </article>
         {% endif %}

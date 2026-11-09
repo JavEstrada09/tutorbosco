@@ -35,9 +35,10 @@ en el servidor y no dependerán de ocultar elementos de la interfaz.
 - La aprobación de este plan incluye Django 5.2 LTS, `google-genai` y
   `python-dotenv`. Sus versiones compatibles se verificarán y fijarán
   durante la implementación, sin solicitar una autorización redundante.
-- La disponibilidad real de `gemini-3.8-flash` y su cuota se comprobarán
-  durante la implementación. No se habilitará facturación de pago sin
-  aprobación del equipo.
+- La disponibilidad real de Gemini y su cuota se comprobarán durante la
+  implementación con el modelo vigente en ADR-001. La Entrega 3 probó
+  `gemini-3.8-flash` y la Entrega 4 adopta `gemini-3.5-flash-lite`. La
+  facturación de pago requiere aprobación del equipo.
 
 ## Responsabilidades de S-001 y S-002
 
@@ -227,7 +228,7 @@ La interfaz de configuración conservará exactamente estas variables:
 - `AI_MODE=real` selecciona el proveedor real.
 - `AI_MODE=demo` selecciona el proveedor local sin red.
 - `AI_MODEL` contiene el identificador configurable del modelo; el valor
-  previsto por ADR-001 es `gemini-3.8-flash`.
+  predeterminado según ADR-001 es `gemini-3.5-flash-lite`.
 - `GEMINI_API_KEY` contiene la clave usada solo por el backend.
 - `DEMO_STUDENT_PASSWORD` proporciona la contraseña al comando de datos.
 

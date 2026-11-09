@@ -4,8 +4,8 @@ Registrar una entrada por spec.
 No incluir claves, contraseñas ni datos reales de estudiantes.
 
 Este archivo registra las herramientas y los modelos usados para
-desarrollar el proyecto. El modelo del producto es Gemini 3.8 Flash
-(`gemini-3.8-flash`) y se documenta en docs/adr/ADR-001-stack.md.
+desarrollar el proyecto. El modelo predeterminado del producto es Gemini
+3.5 Flash-Lite (`gemini-3.5-flash-lite`), documentado en docs/adr/ADR-001-stack.md.
 
 Formato de cada entrada (plantilla 9.7 del enunciado):
 
@@ -397,6 +397,56 @@ Costo o cuota consumida:
 Se utilizó el nivel gratuito. El total de solicitudes y los tokens consumidos
 no están confirmados. El gasto monetario registrado es USD 0.00; este valor
 no significa que el consumo de solicitudes o tokens haya sido cero.
+
+## S-001 · 08-11-2026 · Implementación de Entrega 4
+
+Herramienta y modelo: OpenCode · GPT-5.6 Sol.
+Usado por: JavEstrada09.
+
+Fases en que se usó: implementación, pruebas, depuración y documentación.
+
+Instrucción clave:
+Limitar la espera y los reintentos de Gemini, manejar configuración, conexión,
+cuota, tiempo de espera y salida inválida, permitir continuar en modo demo y
+preparar la verificación de los siete criterios sin atribuir resultados a
+Douglas.
+
+Qué se aceptó sin cambios:
+- Mensajes seguros y diferenciados para conexión, `429` y `504`.
+- Continuación explícita con la pregunta grabada y sin inicializar Gemini.
+- Verificación local de CA-7 con entorno virtual nuevo y base aislada.
+
+Qué se corrigió o descartó, y por qué:
+- La revisión humana corrigió la política inicial de dos intentos de 15
+  segundos. El SDK reintentaba `429` de forma predeterminada y podía registrar
+  la excepción completa antes del segundo intento. La política final usa un
+  solo intento y un límite total de 15 segundos, por lo que `429` ofrece el
+  modo demo inmediatamente y no entra al registro de reintentos.
+- El primer comando del recorrido aislado fue dividido incorrectamente por
+  PowerShell debido a sus comillas internas. Se pasó el código como un único
+  argumento y el recorrido terminó correctamente; no fue un fallo del producto.
+- El `504` real observado anteriormente no se repitió contra Gemini. Se simuló
+  como exige el plan para verificar el manejo sin consumir cuota.
+- CA-4 no se repitió porque ya tiene evidencia real del autor y esta entrega
+  no necesitaba otra solicitud. Esa evidencia no sustituye a Douglas.
+
+Resultado registrado por el autor:
+- `manage.py check`: sin problemas.
+- Suite completa después de corregir la política: 49 pruebas superadas en el
+  entorno habitual.
+- Instalación limpia previa: 48 pruebas, que eran todas las disponibles al
+  ejecutar esa comprobación, superadas en el entorno virtual temporal nuevo.
+- `makemigrations --check --dry-run`: no detectó cambios.
+- `pip check`: no detectó dependencias incompatibles.
+- Recorrido demo aislado: acceso, carrera y respuesta grabada correctos; sin
+  invocar Gemini ni la red.
+- La verificación independiente de Douglas sigue pendiente en los siete
+  criterios.
+
+Costo o cuota consumida:
+No se realizaron llamadas reales a Gemini durante la Entrega 4. Las pruebas
+usaron simulaciones y el recorrido aislado bloqueó Gemini y la salida de red.
+El consumo de esta conversación de OpenCode no se cuantificó.
 
 ## S-003 · 05-11-2026
 
