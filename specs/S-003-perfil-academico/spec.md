@@ -1,7 +1,7 @@
 # S-003 Perfil académico del estudiante
 
 Requisito: RF-02 · Autor: AlexDLG1 · Verificador: ramosdeleon555 · Issue: #7
-Estado: aprobada
+Estado: en verificación; implementación fusionada, registro independiente en revisión.
 
 ## Problema
 
@@ -77,3 +77,4 @@ CA-8 Dado que la nota de un tema cambió en la base de datos,
 
 05-11-2026 · Versión inicial · —
 09-11-2026 · Estado: aprobada (spec fusionada en PR #21); plan aprobado por AlexDLG1 · —
+09-11-2026 · Implementación fusionada en PR #40; se documentan controles sobre `9f8c6e2` y evidencia disponible. Estado: en verificación, pendiente de confirmar el registro independiente y revisar el PR documental. No cambia el comportamiento especificado.
