@@ -1,9 +1,18 @@
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 
-from academics.models import Course, Enrollment, Grade, Topic
+from django.db import transaction
+
+from academics.models import Course, Enrollment, Grade, TeachingAssignment, Topic
 
 AVERAGE_PRECISION = Decimal("0.01")
+GRADE_MIN_VALUE = 0
+GRADE_MAX_VALUE = 100
+NOT_TEACHING_MESSAGE = "Usted no imparte este curso. La nota no se guardó."
+
+
+class GradeRegistrationError(Exception):
+    """Rechazo de una nota; el mensaje está en español para la persona usuaria."""
 
 
 @dataclass(frozen=True)
@@ -79,3 +88,82 @@ def get_course_summaries(student_profile):
             )
         )
     return summaries
+
+
+def get_taught_course(user, course_code):
+    """Devuelve el curso con ese código si el usuario lo imparte, o None.
+
+    Devuelve None si la cuenta no tiene TeacherProfile, si no tiene una
+    TeachingAssignment del curso o si el curso no existe. Las vistas de
+    docente (S-004 y S-005) responden 403 en los tres casos por igual.
+    """
+    if user is None or not user.is_authenticated:
+        return None
+    return Course.objects.filter(
+        code=course_code,
+        teaching_assignments__teacher__user=user,
+    ).first()
+
+
+def record_grade(*, user, course, student_pk, topic_pk, value):
+    """Registra o corrige la nota de un estudiante en un tema del curso.
+
+    Comprueba en el servidor que el usuario tiene sesión e imparte el curso,
+    que el tema pertenece al curso, que el estudiante está inscrito en él y
+    que la nota es un entero de 0 a 100 (D-008). Si algo falla, lanza
+    GradeRegistrationError y no escribe nada. Sin sesión, rechaza antes de
+    abrir la transacción, sin consultar la base. Corregir reemplaza la nota
+    anterior: siempre queda un solo registro por estudiante y tema.
+
+    Devuelve (grade, created), donde created es False si se corrigió.
+    """
+    if user is None or not user.is_authenticated:
+        raise GradeRegistrationError(NOT_TEACHING_MESSAGE)
+
+    with transaction.atomic():
+        return _record_grade_for_teacher(
+            user=user,
+            course=course,
+            student_pk=student_pk,
+            topic_pk=topic_pk,
+            value=value,
+        )
+
+
+def _record_grade_for_teacher(*, user, course, student_pk, topic_pk, value):
+    if not TeachingAssignment.objects.filter(
+        teacher__user=user,
+        course=course,
+    ).exists():
+        raise GradeRegistrationError(NOT_TEACHING_MESSAGE)
+
+    topic = Topic.objects.filter(pk=topic_pk, course=course).first()
+    if topic is None:
+        raise GradeRegistrationError(
+            "El tema no pertenece a este curso. La nota no se guardó."
+        )
+
+    enrollment = (
+        Enrollment.objects.select_related("student__user")
+        .filter(student_id=student_pk, course=course)
+        .first()
+    )
+    if enrollment is None:
+        raise GradeRegistrationError(
+            "El estudiante no está asignado a este curso. La nota no se guardó."
+        )
+
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int)
+        or not GRADE_MIN_VALUE <= value <= GRADE_MAX_VALUE
+    ):
+        raise GradeRegistrationError(
+            "La nota debe ser un número entero entre 0 y 100."
+        )
+
+    return Grade.objects.update_or_create(
+        student=enrollment.student,
+        topic=topic,
+        defaults={"value": value},
+    )

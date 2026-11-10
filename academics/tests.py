@@ -5,6 +5,7 @@ from io import StringIO
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -33,7 +34,13 @@ from academics.models import (
     TeachingAssignment,
     Topic,
 )
-from academics.services import calculate_average, get_course_summaries
+from academics.services import (
+    GradeRegistrationError,
+    calculate_average,
+    get_course_summaries,
+    get_taught_course,
+    record_grade,
+)
 
 
 class AcademicModelTests(TestCase):
@@ -335,6 +342,211 @@ class GetCourseSummariesTests(TestCase):
                 [summary.average for summary in summaries],
                 [Decimal("71.67"), Decimal("71.67")],
             )
+
+
+def create_s005_user(username):
+    return get_user_model().objects.create_user(
+        username=username,
+        password=secrets.token_urlsafe(24),
+    )
+
+
+def create_s005_teacher(username, *courses):
+    teacher = TeacherProfile.objects.create(user=create_s005_user(username))
+    for course in courses:
+        TeachingAssignment.objects.create(teacher=teacher, course=course)
+    return teacher
+
+
+def create_s005_student(student_id, *courses):
+    student = StudentProfile.objects.create(
+        user=create_s005_user(f"notas_{student_id}"),
+        student_id=student_id,
+        career="Carrera Sintética",
+        semester=2,
+    )
+    for course in courses:
+        Enrollment.objects.create(student=student, course=course)
+    return student
+
+
+class GetTaughtCourseTests(TestCase):
+    def setUp(self):
+        self.own_course = Course.objects.create(code="S005-PROPIO", name="Curso propio")
+        self.other_course = Course.objects.create(code="S005-AJENO", name="Curso ajeno")
+        self.teacher = create_s005_teacher("docente_s005", self.own_course)
+        create_s005_teacher("otro_docente_s005", self.other_course)
+
+    def test_returns_course_taught_by_user(self):
+        self.assertEqual(
+            get_taught_course(self.teacher.user, "S005-PROPIO"),
+            self.own_course,
+        )
+
+    def test_returns_none_for_course_taught_by_another_teacher(self):
+        self.assertIsNone(get_taught_course(self.teacher.user, "S005-AJENO"))
+
+    def test_returns_none_for_unknown_course_code(self):
+        self.assertIsNone(get_taught_course(self.teacher.user, "NO-EXISTE"))
+
+    def test_returns_none_for_accounts_without_teacher_profile(self):
+        student = create_s005_student("2026-20001", self.own_course)
+        staff = get_user_model().objects.create_user(
+            username="personal_s005",
+            password=secrets.token_urlsafe(24),
+            is_staff=True,
+        )
+
+        for user in (create_s005_user("sin_perfil_s005"), student.user, staff):
+            with self.subTest(username=user.username):
+                self.assertIsNone(get_taught_course(user, "S005-PROPIO"))
+
+    def test_returns_none_for_anonymous_user_without_queries(self):
+        with self.assertNumQueries(0):
+            self.assertIsNone(get_taught_course(AnonymousUser(), "S005-PROPIO"))
+            self.assertIsNone(get_taught_course(None, "S005-PROPIO"))
+
+
+class RecordGradeTests(TestCase):
+    def setUp(self):
+        self.course = Course.objects.create(code="S005-PROG", name="Programación de prueba")
+        self.other_course = Course.objects.create(code="S005-BD", name="Bases de prueba")
+        self.topic, self.second_topic = (
+            Topic.objects.create(course=self.course, name=name)
+            for name in ("Variables", "Ciclos")
+        )
+        self.other_topic = Topic.objects.create(course=self.other_course, name="SQL")
+        self.teacher = create_s005_teacher("docente_notas", self.course)
+        self.other_teacher = create_s005_teacher("otro_docente_notas", self.other_course)
+        self.student = create_s005_student("2026-20010", self.course, self.other_course)
+        self.outsider = create_s005_student("2026-20011", self.other_course)
+
+    def record(self, **overrides):
+        arguments = {
+            "user": self.teacher.user,
+            "course": self.course,
+            "student_pk": self.student.pk,
+            "topic_pk": self.topic.pk,
+            "value": 85,
+        }
+        arguments.update(overrides)
+        return record_grade(**arguments)
+
+    def grade_snapshot(self):
+        return list(
+            Grade.objects.order_by("pk").values_list("student_id", "topic_id", "value")
+        )
+
+    def assert_rejected(self, message, **overrides):
+        before = self.grade_snapshot()
+        with self.assertRaisesMessage(GradeRegistrationError, message):
+            self.record(**overrides)
+        self.assertEqual(self.grade_snapshot(), before)
+
+    def test_registers_grade_when_student_has_none(self):
+        grade, created = self.record(value=85)
+
+        self.assertTrue(created)
+        self.assertEqual(
+            self.grade_snapshot(),
+            [(self.student.pk, self.topic.pk, 85)],
+        )
+        self.assertEqual(grade.student, self.student)
+        self.assertEqual(grade.topic, self.topic)
+
+    def test_correction_replaces_previous_grade(self):
+        Grade.objects.create(student=self.student, topic=self.topic, value=60)
+
+        grade, created = self.record(value=75)
+
+        self.assertFalse(created)
+        self.assertEqual(grade.value, 75)
+        self.assertEqual(
+            self.grade_snapshot(),
+            [(self.student.pk, self.topic.pk, 75)],
+        )
+
+    def test_correction_does_not_touch_other_topics(self):
+        Grade.objects.create(student=self.student, topic=self.second_topic, value=50)
+
+        self.record(value=90)
+
+        self.assertEqual(
+            Grade.objects.get(student=self.student, topic=self.second_topic).value,
+            50,
+        )
+
+    def test_accepts_scale_boundaries(self):
+        for value in (0, 100):
+            with self.subTest(value=value):
+                grade, _ = self.record(value=value)
+                grade.refresh_from_db()
+                self.assertEqual(grade.value, value)
+
+    def test_rejects_values_outside_scale_or_not_integer(self):
+        Grade.objects.create(student=self.student, topic=self.topic, value=60)
+
+        for value in (-1, 101, True, 85.5, "85", None):
+            with self.subTest(value=value):
+                self.assert_rejected(
+                    "La nota debe ser un número entero entre 0 y 100.",
+                    value=value,
+                )
+
+    def test_rejects_course_taught_by_another_teacher(self):
+        self.assert_rejected(
+            "Usted no imparte este curso. La nota no se guardó.",
+            course=self.other_course,
+            topic_pk=self.other_topic.pk,
+        )
+
+    def test_rejects_account_without_teacher_profile(self):
+        for user in (create_s005_user("sin_perfil_notas"), self.student.user):
+            with self.subTest(username=user.username):
+                self.assert_rejected(
+                    "Usted no imparte este curso. La nota no se guardó.",
+                    user=user,
+                )
+
+    def test_rejects_unauthenticated_user_without_queries(self):
+        before = self.grade_snapshot()
+
+        for user in (AnonymousUser(), None):
+            with self.subTest(user=user):
+                with self.assertNumQueries(0):
+                    with self.assertRaisesMessage(
+                        GradeRegistrationError,
+                        "Usted no imparte este curso. La nota no se guardó.",
+                    ):
+                        self.record(user=user)
+
+        self.assertEqual(self.grade_snapshot(), before)
+
+    def test_rejects_topic_from_another_course(self):
+        Grade.objects.create(student=self.student, topic=self.other_topic, value=40)
+
+        self.assert_rejected(
+            "El tema no pertenece a este curso. La nota no se guardó.",
+            topic_pk=self.other_topic.pk,
+        )
+
+    def test_rejects_unknown_topic(self):
+        self.assert_rejected(
+            "El tema no pertenece a este curso. La nota no se guardó.",
+            topic_pk=self.other_topic.pk + 1000,
+        )
+
+    def test_rejects_student_not_enrolled_in_course(self):
+        self.assert_rejected(
+            "El estudiante no está asignado a este curso. La nota no se guardó.",
+            student_pk=self.outsider.pk,
+        )
+
+    def test_rejects_unknown_student(self):
+        self.assert_rejected(
+            "El estudiante no está asignado a este curso. La nota no se guardó.",
+            student_pk=self.outsider.pk + 1000,
+        )
 
 
 class StudentProfileViewTests(TestCase):
