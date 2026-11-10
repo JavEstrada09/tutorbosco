@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_http_methods
 
 from academics.models import Course, Enrollment, StudentProfile, TeacherProfile
 from academics.services import (
@@ -16,42 +16,65 @@ from tutor.services import ask_tutor, get_tutor_mode
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def student_home(request):
-    enrollment = Enrollment.objects.select_related("student", "course").filter(
-        student__user=request.user,
-        course__code="PROG-COM",
-    ).first()
-    if enrollment is None:
+    enrollments = list(
+        Enrollment.objects.select_related("student", "course")
+        .filter(student__user=request.user)
+        .order_by("course__name", "course__code")
+    )
+    if not enrollments:
         return render(request, "academics/access_denied.html", status=403)
 
+    course_code = request.POST.get("course", request.GET.get("course"))
+    by_code = {item.course.code: item for item in enrollments}
+    if course_code is None:
+        enrollment = by_code.get("PROG-COM", enrollments[0])
+    else:
+        enrollment = by_code.get(course_code)
+        if enrollment is None:
+            return render(request, "academics/access_denied.html", status=403)
+
     profile = enrollment.student
+    tutor_mode = get_tutor_mode()
+    demo_question = DEMO_QUESTION if enrollment.course.code == "PROG-COM" else None
     continue_in_demo = request.POST.get("continue_in_demo") == "1"
-    form_data = {"question": DEMO_QUESTION} if continue_in_demo else request.POST or None
+    form_data = {"question": demo_question} if continue_in_demo else request.POST or None
     form = TutorQuestionForm(form_data)
     tutor_reply = None
     tutor_error = None
     offer_demo = False
-    if request.method == "POST" and form.is_valid():
-        try:
-            tutor_reply = ask_tutor(
-                question=form.cleaned_data["question"],
-                career=profile.career,
-                course_name=enrollment.course.name,
-                mode="demo" if continue_in_demo else None,
-            )
-        except TutorError as error:
-            tutor_error = str(error)
-            offer_demo = True
+    if request.method == "POST":
+        if not demo_question and (continue_in_demo or tutor_mode == "demo"):
+            tutor_error = "El modo demo aún no tiene respuestas grabadas para este curso."
+        elif form.is_valid():
+            try:
+                tutor_reply = ask_tutor(
+                    question=form.cleaned_data["question"],
+                    career=profile.career,
+                    course_name=enrollment.course.name,
+                    mode="demo" if continue_in_demo else None,
+                )
+            except TutorError as error:
+                if demo_question:
+                    tutor_error = str(error)
+                    offer_demo = True
+                else:
+                    tutor_error = (
+                        "No fue posible obtener una respuesta del tutor. "
+                        "El modo demo aún no tiene respuestas grabadas para este curso."
+                    )
 
     return render(
         request,
         "academics/student_home.html",
         {
             "career": profile.career,
-            "course_name": enrollment.course.name,
-            "demo_question": DEMO_QUESTION,
+            "courses": [item.course for item in enrollments],
+            "selected_course": enrollment.course,
+            "demo_question": demo_question,
             "offer_demo": offer_demo,
-            "tutor_mode": get_tutor_mode(),
+            "tutor_mode": tutor_mode,
             "tutor_error": tutor_error,
             "tutor_form": form,
             "tutor_reply": tutor_reply,

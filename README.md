@@ -97,7 +97,8 @@ contenga:
 - `GEMINI_API_KEY`: se deja vacío en modo demo. En modo real contiene la
   clave local y nunca debe mostrarse, registrarse ni versionarse.
 - `WEAK_TOPIC_THRESHOLD`: umbral de tema débil; vacío usa 60. Un tema es
-  débil cuando su nota es estrictamente menor que este valor.
+  débil cuando su nota es estrictamente menor que este valor. Si lo configura,
+  use un entero entre 0 y 100.
 - `DJANGO_DEBUG=true`: habilita ayudas de desarrollo local.
 - `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1`: limita los nombres locales
   aceptados por Django.

@@ -704,3 +704,15 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida (si aplica): sin llamadas a Gemini ni uso
 pagado del producto. El consumo de la herramienta de desarrollo no se
 cuantificó.
+
+## S-006 · 10-11-2026 · Plan y primer bloque
+
+ChatGPT (Codex) ayudó a proponer y ajustar el plan técnico aprobado por
+JavEstrada09 y a preparar el acceso al tutor por curso inscrito y la
+validación del umbral. Se incorporaron las observaciones de
+douglas-yasser sobre el 403, la privacidad en modo demo y las revisiones
+de conversación. Se reutilizó el cálculo de temas débiles de S-008.
+
+Se usaron respuestas locales y dobles de prueba para comprobar este
+bloque, sin llamadas a Gemini. La revisión del cambio por el autor y
+la verificación independiente de la funcionalidad quedan pendientes.
