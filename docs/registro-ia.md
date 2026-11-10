@@ -684,7 +684,7 @@ El consumo de la herramienta de desarrollo no se cuantificó.
 Herramienta y modelo: ChatGPT (OpenAI) · GPT-6.
 Usado por: Brayan11Hernandez.
 
-Fases en que se usó: spec y plan.
+Fases en que se usó: spec, plan, implementación, pruebas y depuración.
 
 Instrucción clave:
 Analizar los requisitos de S-004 y preparar la especificación
@@ -719,6 +719,19 @@ El autor revisó y aprobó el plan técnico, documentando los
 ajustes de seguridad y las responsabilidades de integración.
 La implementación y las pruebas funcionales están pendientes.
 
+
+Actualizacion de implementacion y pruebas (10-11-2026):
+
+- Herramienta utilizada: ChatGPT (OpenAI), modelo GPT-6.
+- Se desarrollaron las pantallas de cursos, temas y estudiantes.
+- Se implementaron formularios, vistas y rutas de S-004.
+- Se agregaron pruebas de listado, validaciones y operaciones.
+- Se ejecutaron 96 pruebas generales correctamente.
+- Se corrigieron importaciones duplicadas y cambios innecesarios
+  de formato para conservar el codigo de otros integrantes.
+- Las pruebas de vistas utilizaron autorizacion simulada.
+- Queda pendiente verificar los permisos reales mediante
+  get_taught_course cuando S-005 se integre en main.
 Costo o cuota consumida:
 No se realizaron llamadas directas a la API de IA desde
 TutoBosco para esta actividad.
