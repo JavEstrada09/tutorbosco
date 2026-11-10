@@ -772,3 +772,40 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida (si aplica): sin llamadas a Gemini ni uso
 pagado del producto. El consumo de la herramienta de desarrollo no se
 cuantificó.
+
+## S-005 · 10-11-2026 · Verificación independiente asistida
+
+Herramienta y modelo: OpenCode · GPT-6.1 Sol (`openai/gpt-6.1-sol`).
+Usado por: ramosdeleon555, según la confirmación del usuario de la sesión.
+
+Fases en que se usó: pruebas y documentación de la verificación.
+
+Instrucción clave:
+Verificar el commit `1c26d94` del PR #45 en la misma rama, registrar solo
+resultados comprobados, obtener capturas reales del navegador, restaurar
+los datos y avisar al autor ante cualquier fallo sin corregir su código.
+
+Qué se aceptó sin cambios:
+- El usuario confirmó la estructura y el plan de verificación de S-005 y
+  autorizó los dos auxiliares temporales fuera del repositorio.
+- Suite completa: 150 pruebas OK. Recorrido de CA-1 a CA-8 en Chrome
+  automatizado, con formularios reales de acceso, cierre de sesión y notas.
+- Registro de consultas de persistencia, nota única, promedio y aislamiento;
+  capturas reales en `specs/S-005-registro-notas/img/`.
+- Limpieza posterior comprobada: `estudiante_02` sin notas y `estudiante_08`
+  nuevamente con 60 en Git y GitHub avanzado de PROG-COM.
+
+Qué se corrigió o descartó, y por qué:
+- La suite se repitió después de una interrupción por el tiempo máximo del
+  comando. Solo se declara aprobada la ejecución completa de 150 pruebas.
+- Se reutilizó el servidor local identificado del repositorio porque el
+  puerto 8000 ya estaba ocupado. Se desactivó la caché de Chrome en lugar
+  de declarar una pulsación manual de Ctrl+F5.
+- Se repitió la captura del 403 sin el aviso de guardar contraseña de Chrome.
+- Los POST no autorizados de CA-8 se atribuyen a la suite; no se presentan
+  como formularios manipulados manualmente ni se atribuye al usuario un
+  recorrido manual realizado por el agente.
+- No se modificó el código de la aplicación ni se instalaron paquetes.
+
+Costo o cuota consumida: sin llamadas a Gemini ni a la API de IA del
+producto. El consumo de la herramienta de desarrollo no está disponible.
