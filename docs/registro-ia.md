@@ -599,3 +599,43 @@ Resultado registrado por el autor:
 Costo o cuota consumida:
 No se realizaron llamadas a Gemini ni a la API de IA del producto.
 El consumo de esta conversación de Claude Code no se cuantificó.
+
+## S-003 · 09-11-2026 · Asistencia a la verificación independiente
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Fases en que se usó: pruebas, diagnóstico local y documentación.
+
+Instrucción clave:
+Ayudar a ramosdeleon555 a registrar su verificación real de CA-1 a CA-8
+del commit `9f8c6e2`, sin atribuir pruebas ni aprobaciones inexistentes.
+El usuario confirmó haber revisado ese commit y haber probado manualmente
+los casos especiales; aportó dos capturas del estado inicial.
+
+Trabajo realizado por el agente:
+- Inspeccionó migraciones y base local: un estudiante, un curso y ningún
+  tema ni nota. Reconstruyó el conjunto sintético con la configuración
+  local existente, sin mostrar secretos ni instalar dependencias.
+- Ejecutó sobre `9f8c6e2` la suite de `accounts`, `academics` y `tutor`:
+  80 pruebas OK, en 53.632 segundos. CA-1 a CA-8 están cubiertos por
+  métodos explícitos de `StudentProfileViewTests` que pasaron.
+- Ejecutó `check`, `makemigrations --check --dry-run` y `pip check`, sin
+  problemas; `migrate` indicó que no había migraciones pendientes.
+- Comprobó autenticación y HTML del perfil mediante el cliente de Django
+  con tres cuentas de la base reconstruida. Esto no fue una revisión
+  visual humana del navegador. Un primer comando auxiliar falló por
+  comillas antes de ejecutar Django; el comando corregido pasó.
+- Creó `s-003-verificacion` desde el main remoto actualizado `45ee80e`.
+  Comparó los directorios de aplicación con `9f8c6e2`, sin diferencias.
+- Documentó resultados, procedencia de la evidencia y capturas originales.
+  No presentó la captura del curso sin temas como prueba de promedios ni
+  como escenario de temas existentes sin notas.
+
+Decisiones de documentación:
+- La declaración de pruebas manuales pertenece al usuario; las ejecuciones
+  automatizadas pertenecen al agente. No se inventaron valores ni capturas
+  de las modificaciones manuales.
+- Se conservó S-003 en verificación, pendiente de confirmación humana del
+  registro y revisión del PR documental, conforme a AGENTS §12.
+
+Costo o cuota consumida: no hubo llamadas reales a Gemini; las pruebas
+simularon el proveedor. El consumo de OpenCode no se cuantificó.
