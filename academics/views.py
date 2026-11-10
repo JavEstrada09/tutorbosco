@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 
+from academics.forms import GradeForm, display_name
 from academics.models import (
     Course,
     Enrollment,
@@ -11,10 +12,14 @@ from academics.models import (
     Topic,
 )
 from academics.services import (
+    GradeRegistrationError,
+    get_course_grade_sheet,
     get_course_panel,
     get_course_summaries,
     get_student_panel_row,
+    get_taught_course,
     get_taught_courses,
+    record_grade,
 )
 from academics.teacher_forms import StudentEnrollmentForm, TopicForm
 from tutor.demo_responses import DEMO_QUESTION
@@ -369,6 +374,55 @@ def teacher_course_students(request, course_code):
             "enrollments": enrollments,
             "student_form": student_form,
         },
+    )
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def teacher_course_grades(request, course_code):
+    course = get_taught_course(request.user, course_code)
+    if course is None:
+        return render(request, "academics/access_denied.html", status=403)
+
+    grade_sheet = get_course_grade_sheet(course)
+    form = GradeForm(
+        request.POST if request.method == "POST" else None,
+        grade_sheet=grade_sheet,
+    )
+    registration_error = None
+    status = 200
+    if request.method == "POST":
+        if form.is_valid():
+            try:
+                grade, created = record_grade(
+                    user=request.user,
+                    course=course,
+                    student_pk=form.cleaned_data["student"],
+                    topic_pk=form.cleaned_data["topic"],
+                    value=form.cleaned_data["value"],
+                )
+            except GradeRegistrationError as error:
+                registration_error = str(error)
+            else:
+                action = "Se guardó" if created else "Se actualizó"
+                messages.success(
+                    request,
+                    f"{action} la nota {grade.value} de "
+                    f"{display_name(grade.student.user)} en {grade.topic.name}.",
+                )
+                return redirect("teacher_course_grades", course_code=course.code)
+        status = 400
+
+    return render(
+        request,
+        "academics/teacher_course_grades.html",
+        {
+            "course": course,
+            "form": form,
+            "grade_sheet": grade_sheet,
+            "registration_error": registration_error,
+        },
+        status=status,
     )
 
 

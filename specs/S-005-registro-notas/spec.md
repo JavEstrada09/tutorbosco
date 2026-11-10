@@ -1,7 +1,7 @@
 # S-005 Registro y corrección de notas
 
 Requisito: RF-03 (parcial: registro y corrección de notas) · Autor: AlexDLG1 · Verificador: ramosdeleon555 · Issue: #9
-Estado: borrador
+Estado: aprobada
 
 ## Problema
 
@@ -74,3 +74,4 @@ CA-8 Dado que intento guardar una nota para un estudiante que no está asignado 
 ## Registro de cambios
 
 05-11-2026 · Versión inicial · —
+09-11-2026 · Estado: aprobada (spec fusionada en PR #29); plan aprobado por AlexDLG1. Coordinación con S-004 y S-010 confirmada con Brayan11Hernandez: ruta /docente/cursos/<código>/notas/, get_taught_course compartida y 403 ante un curso que el docente no imparte · —

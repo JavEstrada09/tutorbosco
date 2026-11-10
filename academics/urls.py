@@ -4,6 +4,7 @@ from academics.views import (
     role_home,
     student_home,
     student_profile,
+    teacher_course_grades,
     teacher_course_panel,
     teacher_course_students,
     teacher_course_topics,
@@ -50,5 +51,10 @@ urlpatterns = [
         "docente/panel/<str:course_code>/estudiantes/<int:student_id>/",
         teacher_student_detail,
         name="teacher_student_detail",
+    ),
+    path(
+        "docente/cursos/<str:course_code>/notas/",
+        teacher_course_grades,
+        name="teacher_course_grades",
     ),
 ]

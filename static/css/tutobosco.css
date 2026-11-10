@@ -185,12 +185,14 @@ h2 {
 }
 
 .student-layout,
+.teacher-layout,
 .status-layout {
     display: grid;
     gap: 2rem;
 }
 
 .student-layout h1,
+.teacher-layout h1,
 .status-layout h1 {
     max-width: 16ch;
     font-size: clamp(2.2rem, 6vw, 4.5rem);
@@ -343,6 +345,59 @@ h2 {
     margin-bottom: 0;
     color: var(--muted);
     font-size: 1.1rem;
+}
+
+.notice {
+    padding: 0.8rem;
+    border-left: 3px solid var(--forest);
+    color: var(--forest-dark);
+    background: #edf5f1;
+    font-family: Arial, sans-serif;
+    font-size: 0.88rem;
+}
+
+.grade-form-card,
+.grade-sheet-card {
+    padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.grade-form-card {
+    width: min(35rem, 100%);
+}
+
+.form-help,
+.empty-note {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.grade-submit {
+    width: auto;
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+.grade-sheet thead th {
+    min-width: 7rem;
+    vertical-align: bottom;
+}
+
+.grade-sheet tbody th {
+    white-space: nowrap;
+}
+
+.grade-sheet td {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.student-id {
+    display: block;
+    color: var(--muted);
+    font-family: Arial, sans-serif;
+    font-size: 0.8rem;
 }
 
 .status-layout {
