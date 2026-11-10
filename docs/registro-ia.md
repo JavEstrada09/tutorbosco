@@ -101,3 +101,47 @@ La revisión de douglas-yasser está pendiente.
 Costo o cuota consumida:
 No se realizaron llamadas a la API de IA del producto.
 El consumo de esta conversación no se cuantificó.
+## S-004 · 09-11-2026 · Especificación y planificación
+
+Herramienta y modelo: ChatGPT (OpenAI) · GPT-6.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: spec y plan.
+
+Instrucción clave:
+Analizar los requisitos de S-004 y preparar la especificación
+y el plan técnico para gestionar cursos, temas académicos y
+asignaciones de estudiantes en TutoBosco.
+
+Respetar AGENTS.md, docs/plan.md y las decisiones del equipo.
+Conservar las funcionalidades de S-003 y S-005, reutilizar
+get_taught_course() y evitar reemplazar archivos compartidos.
+
+Qué se aceptó sin cambios:
+- La estructura general de la especificación S-004.
+- Los ocho criterios de aceptación Dado/Cuando/Entonces.
+- La propuesta de utilizar los modelos académicos existentes.
+- La organización de las pantallas de cursos, temas y estudiantes.
+- La estrategia de realizar modificaciones pequeñas y verificables.
+
+Qué se corrigió o descartó, y por qué:
+- Se aclaró la diferencia entre usuarios no autenticados
+  y usuarios autenticados sin permisos.
+- Se confirmó que los permisos deben verificarse en el servidor
+  mediante get_taught_course().
+- Se mantuvo la separación de responsabilidades entre S-004,
+  S-005 y S-010 para evitar conflictos entre implementaciones.
+- Se descartó reemplazar archivos completos que ya contienen
+  código de otros integrantes.
+- Se estableció que verificacion.md será completado por
+  AlexDLG1 y no por el autor de S-004.
+
+Revisión humana:
+El autor revisó y aprobó el plan técnico, documentando los
+ajustes de seguridad y las responsabilidades de integración.
+La implementación y las pruebas funcionales están pendientes.
+
+Costo o cuota consumida:
+No se realizaron llamadas directas a la API de IA desde
+TutoBosco para esta actividad.
+El consumo de la conversación en ChatGPT no se cuantificó.
