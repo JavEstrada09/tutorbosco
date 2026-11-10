@@ -879,3 +879,11 @@ de conversación. Se reutilizó el cálculo de temas débiles de S-008.
 Se usaron respuestas locales y dobles de prueba para comprobar este
 bloque, sin llamadas a Gemini. La revisión del cambio por el autor y
 la verificación independiente de la funcionalidad quedan pendientes.
+
+## S-006 · 10-11-2026 · Segundo bloque
+
+ChatGPT (Codex) ayudó a implementar el modelo de conversación, su
+migración, el control de revisiones y la limpieza al cerrar sesión.
+Las pruebas usan SQLite y cuentas sintéticas. Este bloque se ejecutó
+sin llamadas a Gemini. La revisión del autor y la verificación
+independiente en la computadora de Douglas quedan pendientes.
