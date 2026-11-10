@@ -678,3 +678,29 @@ ni una aprobación humana inexistente. S-003 continúa en verificación.
 
 Costo o cuota consumida: sin llamadas a Gemini ni uso pagado del producto.
 El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-008 · 10-11-2026 · Plan e implementación
+
+Herramienta y modelo: OpenCode · deepseek-v4.1-flash.
+Usado por: douglas-yasser.
+
+Fases en que se usó: plan / implementación / pruebas.
+
+Instrucción clave (resumen, no la conversación completa):
+Proponer el plan de S-008 en modo solo lectura, incorporar las
+correcciones humanas acordadas en el issue #8 e implementar el panel
+del docente con pruebas de los criterios CA-1 a CA-5.
+
+Qué se aceptó sin cambios:
+- La propuesta de plan.md revisada y aprobada por douglas-yasser.
+
+Qué se corrigió o descartó, y por qué:
+- El redirect posterior al login se mantuvo en S-008 frente a la nota
+  del plan de S-004 que lo reservaba a S-010; decisión humana del
+  autor registrada en el issue #8.
+- Las rutas cambiaron de identificadores numéricos a course_code
+  bajo /docente/panel/ para no pisar las rutas acordadas de S-004.
+
+Costo o cuota consumida (si aplica): sin llamadas a Gemini ni uso
+pagado del producto. El consumo de la herramienta de desarrollo no se
+cuantificó.

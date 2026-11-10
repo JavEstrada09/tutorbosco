@@ -59,7 +59,7 @@ class AuthenticationViewTests(TestCase):
 
         self.assertRedirects(
             response,
-            reverse("student_home"),
+            reverse("role_home"),
             fetch_redirect_response=False,
         )
         self.assertEqual(
@@ -83,7 +83,7 @@ class AuthenticationViewTests(TestCase):
 
         self.assertRedirects(
             response,
-            reverse("student_home"),
+            reverse("role_home"),
             fetch_redirect_response=False,
         )
 

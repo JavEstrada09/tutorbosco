@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Su panel docente | TutoBosco{% endblock %}
+
+{% block content %}
+<section class="student-layout" aria-labelledby="panel-title">
+    <div>
+        <p class="eyebrow">Panel del docente</p>
+        <h1 id="panel-title">Sus cursos</h1>
+        <p class="lead">Aquí puede consultar el avance de sus estudiantes por curso.</p>
+    </div>
+
+    {% for course in courses %}
+        <article class="panel course-card" aria-labelledby="course-{{ course.pk }}">
+            <h2 id="course-{{ course.pk }}">{{ course.code }} – {{ course.name }}</h2>
+            <p>
+                <a class="button button-secondary" href="{% url 'teacher_course_panel' course.code %}">Ver panel del curso</a>
+            </p>
+        </article>
+    {% empty %}
+        <section class="panel empty-state" role="status">
+            <p>Aún no tiene cursos asignados.</p>
+        </section>
+    {% endfor %}
+
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="button button-secondary" type="submit">Cerrar sesión</button>
+    </form>
+</section>
+{% endblock %}
