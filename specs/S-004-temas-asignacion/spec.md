@@ -2,7 +2,7 @@
 
 Requisito: RF-03 parcial · Autor: Brayan11Hernandez · Verificador: AlexDLG1 · Issue: #8
 
-Estado: aprobada
+Estado: terminada
 
 ## Problema
 
@@ -144,3 +144,9 @@ Las estructuras de datos y los permisos se coordinarán con los responsables de 
 
 09-11-2026 · Especificación aprobada y fusionada mediante
 el PR #27. Se inicia la planificación de la implementación S-004.
+
+10-11-2026 · Implementación y seguimiento fusionados mediante los PR #47
+y #48. AlexDLG1 verificó CA-1 a CA-8 en Windows con Python 3.12.10 sobre
+`d86b6fe`; ejecutó 173 pruebas correctamente y registró capturas y resultados
+en `verificacion.md`. El PR #48 incorporó la evidencia, cerró el issue #8 y
+dejó dos observaciones no bloqueantes documentadas para trabajo posterior.
