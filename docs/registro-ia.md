@@ -736,3 +736,41 @@ Costo o cuota consumida:
 No se realizaron llamadas directas a la API de IA desde
 TutoBosco para esta actividad.
 El consumo de la conversación en ChatGPT no se cuantificó.
+
+## S-008 · 10-11-2026 · Plan e implementación
+
+Herramienta y modelo: OpenCode · deepseek-v4.1-flash.
+Usado por: douglas-yasser.
+
+Fases en que se usó: plan / implementación / pruebas.
+
+Instrucción clave (resumen, no la conversación completa):
+Proponer el plan de S-008 en modo solo lectura, incorporar las
+correcciones humanas acordadas en el issue #8 e implementar el panel
+del docente con pruebas de los criterios CA-1 a CA-5.
+
+Qué se aceptó sin cambios:
+- La propuesta de plan.md revisada y aprobada por douglas-yasser.
+
+Qué se corrigió o descartó, y por qué:
+- El redirect posterior al login se mantuvo en S-008 frente a la nota
+  del plan de S-004 que lo reservaba a S-010; decisión humana del
+  autor registrada en el issue #8.
+- Las rutas cambiaron de identificadores numéricos a course_code
+  bajo /docente/panel/ para no pisar las rutas acordadas de S-004.
+
+Costo o cuota consumida (si aplica): sin llamadas a Gemini ni uso
+pagado del producto. El consumo de la herramienta de desarrollo no se
+cuantificó.
+
+## S-006 · 10-11-2026 · Plan y primer bloque
+
+ChatGPT (Codex) ayudó a proponer y ajustar el plan técnico aprobado por
+JavEstrada09 y a preparar el acceso al tutor por curso inscrito y la
+validación del umbral. Se incorporaron las observaciones de
+douglas-yasser sobre el 403, la privacidad en modo demo y las revisiones
+de conversación. Se reutilizó el cálculo de temas débiles de S-008.
+
+Se usaron respuestas locales y dobles de prueba para comprobar este
+bloque, sin llamadas a Gemini. La revisión del cambio por el autor y
+la verificación independiente de la funcionalidad quedan pendientes.

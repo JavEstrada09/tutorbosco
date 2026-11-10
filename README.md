@@ -96,6 +96,9 @@ contenga:
   actualizar este valor si todavía indica Gemini 3.8 Flash.
 - `GEMINI_API_KEY`: se deja vacío en modo demo. En modo real contiene la
   clave local y nunca debe mostrarse, registrarse ni versionarse.
+- `WEAK_TOPIC_THRESHOLD`: umbral de tema débil; vacío usa 60. Un tema es
+  débil cuando su nota es estrictamente menor que este valor. Si lo configura,
+  use un entero entre 0 y 100.
 - `DJANGO_DEBUG=true`: habilita ayudas de desarrollo local.
 - `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1`: limita los nombres locales
   aceptados por Django.
@@ -128,9 +131,8 @@ Todos los estudiantes están inscritos en Programación Comercial y se
 distribuyen además entre los otros tres cursos. Las cuentas docentes usan
 la contraseña local definida en `DEMO_TEACHER_PASSWORD`.
 
-Un tema se considera débil cuando su nota es estrictamente menor que 60.
-El umbral se configurará con `WEAK_TOPIC_THRESHOLD` en la spec de práctica
-sobre temas débiles.
+Un tema se considera débil cuando su nota es estrictamente menor que
+`WEAK_TOPIC_THRESHOLD`, configurable en `.env` (60 por defecto).
 
 ## Comprobaciones locales
 
@@ -188,6 +190,13 @@ curso. Un tema sin nota aparece como `Sin nota` y no entra al promedio; un
 curso sin notas muestra `Sin notas`. Con los datos sintéticos,
 `estudiante_demo` tiene promedio 78.00 en Programación Comercial y
 `estudiante_02` no tiene notas.
+
+Con un docente sintético, por ejemplo `docente_01` y la contraseña de
+`DEMO_TEACHER_PASSWORD`, el acceso dirige a `http://127.0.0.1:8000/docente/panel/`.
+El panel lista los cursos que imparte y, por curso, los estudiantes con su
+promedio y sus temas débiles, ordenables por promedio, el detalle de cada
+estudiante y el conteo de estudiantes con cada tema débil. Solo se muestran
+los cursos asignados al docente; el resto responde 403.
 
 Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
 `Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,

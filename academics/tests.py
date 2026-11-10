@@ -33,7 +33,16 @@ from academics.models import (
     TeachingAssignment,
     Topic,
 )
-from academics.services import calculate_average, get_course_summaries
+from academics.services import (
+    TopicGrade,
+    calculate_average,
+    get_course_panel,
+    get_course_summaries,
+    get_student_panel_row,
+    get_taught_courses,
+    get_weak_topics,
+    is_weak,
+)
 
 
 class AcademicModelTests(TestCase):
@@ -585,7 +594,7 @@ class StudentAccessTests(TestCase):
             status_code=403,
         )
 
-    def test_student_without_pilot_enrollment_is_denied(self):
+    def test_student_without_enrollments_is_denied(self):
         user, _ = self.create_student("Carrera sin inscripción", enrolled=False)
         self.client.force_login(user)
 
@@ -593,6 +602,19 @@ class StudentAccessTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertNotContains(response, "Carrera sin inscripción", status_code=403)
+
+    @override_settings(AI_MODE="demo")
+    def test_student_enrolled_only_in_another_course_can_access_tutor(self):
+        user, profile = self.create_student("Carrera inscrita", enrolled=False)
+        course = Course.objects.create(code="DES-WEB", name="Desarrollo Web")
+        Enrollment.objects.create(student=profile, course=course)
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertContains(response, "Consulte sobre Desarrollo Web")
+        self.assertNotContains(response, PILOT_COURSE_NAME)
+        self.assertContains(response, "El modo demo aún no tiene respuestas grabadas")
 
     def test_staff_status_alone_does_not_grant_academic_access(self):
         user = get_user_model().objects.create_user(
@@ -1110,3 +1132,356 @@ class RebuildSyntheticDataTests(TestCase):
 
                 StudentProfile.objects.filter(user=user).delete()
                 user.delete()
+
+
+class PanelFixtureMixin:
+    def setUp(self):
+        self.course = Course.objects.create(code="S008-CURSO", name="Curso del panel")
+        self.other_course = Course.objects.create(
+            code="S008-OTRO", name="Curso ajeno"
+        )
+        self.topics = [
+            Topic.objects.create(course=self.course, name=name)
+            for name in ("Variables", "Condicionales", "Ciclos")
+        ]
+        self.teacher_user = get_user_model().objects.create_user(
+            username="docente_panel_s008",
+            password=secrets.token_urlsafe(24),
+        )
+        self.teacher = TeacherProfile.objects.create(user=self.teacher_user)
+        TeachingAssignment.objects.create(teacher=self.teacher, course=self.course)
+        self.student_number = 0
+
+    def create_student(self, *, courses=(), first_name="", last_name=""):
+        self.student_number += 1
+        user = get_user_model().objects.create_user(
+            username=f"panel_{self.student_number}",
+            password=secrets.token_urlsafe(24),
+            first_name=first_name,
+            last_name=last_name,
+        )
+        profile = StudentProfile.objects.create(
+            user=user,
+            student_id=f"2026-3{self.student_number:04d}",
+            career="Carrera Sintética",
+            semester=2,
+        )
+        for course in courses:
+            Enrollment.objects.create(student=profile, course=course)
+        return user, profile
+
+    def set_grades(self, profile, values):
+        for topic, value in zip(self.topics, values):
+            if value is not None:
+                Grade.objects.create(student=profile, topic=topic, value=value)
+
+
+class IsWeakTests(SimpleTestCase):
+    def test_grade_below_threshold_is_weak(self):
+        self.assertTrue(is_weak(59))
+
+    def test_grade_at_threshold_is_not_weak(self):
+        self.assertFalse(is_weak(60))
+
+    def test_grade_above_threshold_is_not_weak(self):
+        self.assertFalse(is_weak(100))
+
+    def test_missing_grade_is_never_weak(self):
+        self.assertFalse(is_weak(None))
+
+    @override_settings(WEAK_TOPIC_THRESHOLD=70)
+    def test_threshold_is_configurable(self):
+        self.assertTrue(is_weak(69))
+        self.assertFalse(is_weak(70))
+
+
+class GetCoursePanelTests(PanelFixtureMixin, TestCase):
+    def test_rows_include_average_and_weak_topics(self):
+        _, ana = self.create_student(first_name="Ana", courses=[self.course])
+        self.set_grades(ana, [80, 55, 60])
+        panel = get_course_panel(self.course)
+        self.assertEqual(len(panel.rows), 1)
+        row = panel.rows[0]
+        self.assertEqual(row.average, Decimal("65.00"))
+        self.assertEqual(
+            [topic.name for topic in row.weak_topics], ["Condicionales"]
+        )
+
+    def test_topic_weak_counts_count_only_weak_students(self):
+        _, ana = self.create_student(courses=[self.course])
+        self.set_grades(ana, [80, 55, 55])
+        _, luis = self.create_student(courses=[self.course])
+        self.set_grades(luis, [50, 70, 59])
+        panel = get_course_panel(self.course)
+        counts = {
+            item.topic.name: item.weak_count for item in panel.topic_weak_counts
+        }
+        self.assertEqual(counts, {"Variables": 1, "Condicionales": 1, "Ciclos": 2})
+
+    def test_student_without_grades_has_no_average_and_no_weak_topics(self):
+        self.create_student(courses=[self.course])
+        panel = get_course_panel(self.course)
+        row = panel.rows[0]
+        self.assertIsNone(row.average)
+        self.assertEqual(row.weak_topics, ())
+        self.assertEqual({item.weak_count for item in panel.topic_weak_counts}, {0})
+
+    def test_unenrolled_students_are_excluded(self):
+        _, inscrito = self.create_student(courses=[self.course])
+        self.set_grades(inscrito, [80, 80, 80])
+        _, externo = self.create_student(courses=[self.other_course])
+        self.set_grades(externo, [10, 10, 10])
+        panel = get_course_panel(self.course)
+        self.assertEqual([row.student.pk for row in panel.rows], [inscrito.pk])
+        self.assertEqual({item.weak_count for item in panel.topic_weak_counts}, {0})
+
+    def test_student_panel_row_returns_row_or_none(self):
+        _, ana = self.create_student(courses=[self.course])
+        self.set_grades(ana, [80, 55, 60])
+        _, externo = self.create_student(courses=[self.other_course])
+        row = get_student_panel_row(self.course, ana)
+        self.assertEqual(row.average, Decimal("65.00"))
+        self.assertIsNone(get_student_panel_row(self.course, externo))
+
+    def test_taught_courses_only_include_assigned_courses(self):
+        self.assertEqual(get_taught_courses(self.teacher), [self.course])
+
+    def test_get_weak_topics_keeps_order_and_ignores_missing_grades(self):
+        items = (
+            TopicGrade(topic=self.topics[0], value=59),
+            TopicGrade(topic=self.topics[1], value=None),
+            TopicGrade(topic=self.topics[2], value=60),
+        )
+        self.assertEqual(get_weak_topics(items), (self.topics[0],))
+
+
+class TeacherPanelViewTests(PanelFixtureMixin, TestCase):
+    def get_panel(self, *, code=None, user=None, **params):
+        self.client.force_login(user or self.teacher_user)
+        code = self.course.code if code is None else code
+        return self.client.get(reverse("teacher_course_panel", args=[code]), params)
+
+    def get_student_detail(self, student_profile, *, code=None, user=None):
+        self.client.force_login(user or self.teacher_user)
+        code = self.course.code if code is None else code
+        return self.client.get(
+            reverse("teacher_student_detail", args=[code, student_profile.pk])
+        )
+
+    def test_anonymous_access_redirects_to_login(self):
+        for url_name, args in (
+            ("teacher_panel", None),
+            ("teacher_course_panel", (self.course.code,)),
+            ("teacher_student_detail", (self.course.code, 1)),
+        ):
+            with self.subTest(pantalla=url_name):
+                url = reverse(url_name, args=args)
+                response = self.client.get(url)
+                self.assertRedirects(
+                    response,
+                    f"{reverse('login')}?next={url}",
+                )
+
+    def test_accounts_without_teacher_profile_are_denied(self):
+        user, student = self.create_student(courses=[self.course])
+        accounts = {
+            "estudiante": user,
+            "sin perfil": get_user_model().objects.create_user(username="sin_s008"),
+            "personal técnico": get_user_model().objects.create_user(
+                username="staff_s008",
+                is_staff=True,
+            ),
+        }
+        for label, account in accounts.items():
+            with self.subTest(cuenta=label):
+                self.client.force_login(account)
+                for url in (
+                    reverse("teacher_panel"),
+                    reverse("teacher_course_panel", args=[self.course.code]),
+                    reverse(
+                        "teacher_student_detail",
+                        args=[self.course.code, student.pk],
+                    ),
+                ):
+                    response = self.client.get(url)
+                    self.assertContains(
+                        response,
+                        "Su cuenta no tiene autorización académica",
+                        status_code=403,
+                    )
+            self.client.logout()
+
+    def test_ca1_lists_enrolled_students_with_average_and_weak_topics(self):
+        _, ana = self.create_student(
+            first_name="Ana", last_name="Ruiz", courses=[self.course]
+        )
+        self.set_grades(ana, [80, 55, 60])
+        _, luis = self.create_student(
+            first_name="Luis", last_name="Paz", courses=[self.course]
+        )
+        self.set_grades(luis, [70, 65, 58])
+        response = self.get_panel()
+        self.assertContains(response, "Ana Ruiz")
+        self.assertContains(response, "65.00")
+        self.assertContains(response, "Luis Paz")
+        self.assertContains(response, "64.33")
+        self.assertContains(response, "Condicionales")
+        self.assertContains(response, "Ciclos")
+
+    def test_ca2_order_by_average_changes_order(self):
+        _, alta = self.create_student(first_name="Alta", courses=[self.course])
+        self.set_grades(alta, [90, 90, 90])
+        _, baja = self.create_student(first_name="Baja", courses=[self.course])
+        self.set_grades(baja, [60, 60, 60])
+        desc = self.get_panel(orden="promedio-desc")
+        asc = self.get_panel(orden="promedio-asc")
+        self.assertLess(desc.content.index(b"Alta"), desc.content.index(b"Baja"))
+        self.assertLess(asc.content.index(b"Baja"), asc.content.index(b"Alta"))
+
+    def test_default_order_sorts_by_name(self):
+        _, zoe = self.create_student(first_name="Zoe", courses=[self.course])
+        self.set_grades(zoe, [80, 80, 80])
+        self.create_student(first_name="Ana", courses=[self.course])
+        response = self.get_panel()
+        self.assertLess(response.content.index(b"Ana"), response.content.index(b"Zoe"))
+
+    def test_ca2_students_without_average_stay_last(self):
+        _, con_notas = self.create_student(first_name="Zoe", courses=[self.course])
+        self.set_grades(con_notas, [80, 80, 80])
+        self.create_student(first_name="Ana", courses=[self.course])
+        for order in ("promedio-asc", "promedio-desc"):
+            with self.subTest(orden=order):
+                response = self.get_panel(orden=order)
+                self.assertLess(
+                    response.content.index(b"Zoe"),
+                    response.content.index(b"Ana"),
+                )
+
+    def test_ca3_student_detail_shows_average_and_weak_topics(self):
+        _, ana = self.create_student(first_name="Ana", courses=[self.course])
+        self.set_grades(ana, [80, 55, 60])
+        response = self.get_student_detail(ana)
+        self.assertContains(response, "Ana")
+        self.assertContains(response, ana.student_id)
+        self.assertContains(response, "65.00")
+        self.assertContains(response, "Condicionales")
+
+    def test_ca4_topic_breakdown_shows_weak_counts(self):
+        _, ana = self.create_student(courses=[self.course])
+        self.set_grades(ana, [80, 55, 55])
+        _, luis = self.create_student(courses=[self.course])
+        self.set_grades(luis, [50, 70, 59])
+        response = self.get_panel()
+        counts = {
+            item.topic.name: item.weak_count
+            for item in response.context["topic_weak_counts"]
+        }
+        self.assertEqual(counts, {"Variables": 1, "Condicionales": 1, "Ciclos": 2})
+        self.assertContains(response, "Temas débiles por tema")
+
+    def test_ca5_unassigned_course_is_denied(self):
+        response = self.get_panel(code=self.other_course.code)
+        self.assertContains(
+            response,
+            "Su cuenta no tiene autorización académica",
+            status_code=403,
+        )
+
+    def test_ca5_course_of_another_teacher_is_denied(self):
+        other_user = get_user_model().objects.create_user(
+            username="docente_ajeno_s008",
+            password=secrets.token_urlsafe(24),
+        )
+        other_teacher = TeacherProfile.objects.create(user=other_user)
+        TeachingAssignment.objects.create(
+            teacher=other_teacher, course=self.other_course
+        )
+        response = self.get_panel(code=self.other_course.code)
+        self.assertContains(
+            response,
+            "Su cuenta no tiene autorización académica",
+            status_code=403,
+        )
+
+    def test_ca5_student_of_another_course_is_denied(self):
+        _, externo = self.create_student(courses=[self.other_course])
+        response = self.get_student_detail(externo)
+        self.assertContains(
+            response,
+            "Su cuenta no tiene autorización académica",
+            status_code=403,
+        )
+
+    def test_teacher_panel_lists_only_taught_courses(self):
+        self.client.force_login(self.teacher_user)
+        response = self.client.get(reverse("teacher_panel"))
+        self.assertContains(response, "Curso del panel")
+        self.assertNotContains(response, "Curso ajeno")
+
+    def test_teacher_without_courses_sees_notice(self):
+        other_user = get_user_model().objects.create_user(
+            username="docente_sin_cursos",
+            password=secrets.token_urlsafe(24),
+        )
+        TeacherProfile.objects.create(user=other_user)
+        self.client.force_login(other_user)
+        response = self.client.get(reverse("teacher_panel"))
+        self.assertContains(response, "Aún no tiene cursos asignados.")
+
+    def test_panel_views_only_accept_get(self):
+        self.client.force_login(self.teacher_user)
+        for url in (
+            reverse("teacher_panel"),
+            reverse("teacher_course_panel", args=[self.course.code]),
+        ):
+            with self.subTest(pantalla=url):
+                self.assertEqual(self.client.post(url).status_code, 405)
+
+
+class RoleHomeTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="rol_s008",
+            password=secrets.token_urlsafe(24),
+        )
+
+    def test_anonymous_access_redirects_to_login(self):
+        response = self.client.get(reverse("role_home"))
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('role_home')}",
+        )
+
+    def test_student_is_redirected_to_student_home(self):
+        StudentProfile.objects.create(
+            user=self.user,
+            student_id="2026-40001",
+            career="Carrera Sintética",
+            semester=1,
+        )
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("role_home"))
+        self.assertRedirects(
+            response,
+            reverse("student_home"),
+            fetch_redirect_response=False,
+        )
+
+    def test_teacher_is_redirected_to_teacher_panel(self):
+        TeacherProfile.objects.create(user=self.user)
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("role_home"))
+        self.assertRedirects(
+            response,
+            reverse("teacher_panel"),
+            fetch_redirect_response=False,
+        )
+
+    def test_user_without_profile_is_denied(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("role_home"))
+        self.assertContains(
+            response,
+            "Su cuenta no tiene autorización académica",
+            status_code=403,
+        )

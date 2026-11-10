@@ -2,7 +2,7 @@
 
 Requisito: RF-06
 Autor: douglas-yasser · Verificador: JavEstrada09 · Issue: #12
-Estado: borrador
+Estado: en implementación
 
 ## Problema
 
@@ -54,4 +54,4 @@ asignación (S-004) y tutor (S-006).
 
 ## Registro de cambios
 
-[se completa en cada cambio]
+10-11-2026 · Plan aprobado por douglas-yasser e implementación del panel del docente · —
