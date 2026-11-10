@@ -1,5 +1,6 @@
 import os
 import secrets
+from decimal import Decimal
 from io import StringIO
 from unittest.mock import patch
 
@@ -8,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import IntegrityError, transaction
-from django.test import Client, TestCase, override_settings
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
 from academics.management.commands.rebuild_synthetic_data import (
@@ -32,6 +33,7 @@ from academics.models import (
     TeachingAssignment,
     Topic,
 )
+from academics.services import calculate_average
 
 
 class AcademicModelTests(TestCase):
@@ -188,6 +190,34 @@ class S002AcademicModelTests(TestCase):
             student=self.student,
             topic=topic_hundred,
             value=100,
+        )
+
+
+class CalculateAverageTests(SimpleTestCase):
+    def test_simple_average_is_rounded_to_two_decimals(self):
+        self.assertEqual(calculate_average([80, 65, 70]), Decimal("71.67"))
+
+    def test_topics_without_grade_are_excluded(self):
+        average = calculate_average([80, 60, None])
+
+        self.assertEqual(average, Decimal("70.00"))
+        self.assertEqual(str(average), "70.00")
+
+    def test_returns_none_when_there_are_no_grades(self):
+        self.assertIsNone(calculate_average([None, None]))
+        self.assertIsNone(calculate_average([]))
+
+    def test_ties_are_rounded_half_up(self):
+        self.assertEqual(
+            calculate_average([70, 70, 70, 70, 70, 70, 70, 71]),
+            Decimal("70.13"),
+        )
+
+    def test_accepts_scale_boundaries_and_any_iterable(self):
+        self.assertEqual(calculate_average([0, 100]), Decimal("50.00"))
+        self.assertEqual(
+            calculate_average(value for value in (100,)),
+            Decimal("100.00"),
         )
 
 
