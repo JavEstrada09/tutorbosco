@@ -43,9 +43,9 @@ S-005 agrega la pantalla del docente para registrar y corregir notas en
 `academics.services.record_grade`, que comprueba en el servidor que el
 docente imparta el curso, que el tema sea del curso, que el estudiante esté
 inscrito y que la nota sea un entero de 0 a 100. La verificación
-independiente de ramosdeleon555 está pendiente. La lista de cursos del
-docente, la gestión de temas y estudiantes (S-004) y la redirección por rol
-después del acceso (S-010) todavía no están implementadas.
+independiente de ramosdeleon555 está pendiente. La gestión de temas y
+estudiantes, con el enlace a esta pantalla (S-004), todavía no está
+implementada.
 
 ## Requisitos
 
@@ -105,6 +105,8 @@ contenga:
   actualizar este valor si todavía indica Gemini 3.8 Flash.
 - `GEMINI_API_KEY`: se deja vacío en modo demo. En modo real contiene la
   clave local y nunca debe mostrarse, registrarse ni versionarse.
+- `WEAK_TOPIC_THRESHOLD`: umbral de tema débil; vacío usa 60. Un tema es
+  débil cuando su nota es estrictamente menor que este valor.
 - `DJANGO_DEBUG=true`: habilita ayudas de desarrollo local.
 - `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1`: limita los nombres locales
   aceptados por Django.
@@ -137,9 +139,8 @@ Todos los estudiantes están inscritos en Programación Comercial y se
 distribuyen además entre los otros tres cursos. Las cuentas docentes usan
 la contraseña local definida en `DEMO_TEACHER_PASSWORD`.
 
-Un tema se considera débil cuando su nota es estrictamente menor que 60.
-El umbral se configurará con `WEAK_TOPIC_THRESHOLD` en la spec de práctica
-sobre temas débiles.
+Un tema se considera débil cuando su nota es estrictamente menor que
+`WEAK_TOPIC_THRESHOLD`, configurable en `.env` (60 por defecto).
 
 ## Comprobaciones locales
 
@@ -206,13 +207,24 @@ curso sin notas muestra `Sin notas`. Con los datos sintéticos,
 `estudiante_demo` tiene promedio 78.00 en Programación Comercial y
 `estudiante_02` no tiene notas.
 
+Con un docente sintético, por ejemplo `docente_01` y la contraseña de
+`DEMO_TEACHER_PASSWORD`, el acceso dirige a `http://127.0.0.1:8000/docente/panel/`.
+El panel lista los cursos que imparte y, por curso, los estudiantes con su
+promedio y sus temas débiles, ordenables por promedio, el detalle de cada
+estudiante y el conteo de estudiantes con cada tema débil. Solo se muestran
+los cursos asignados al docente; el resto responde 403.
+
+Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
+`Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
+muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.
+
 ### Registro de notas del docente
 
-Mientras S-010 no redirija al docente, abra directamente
-`http://127.0.0.1:8000/acceso/?next=/docente/cursos/PROG-COM/notas/` y use
-`docente_01` con la contraseña definida localmente en
-`DEMO_TEACHER_PASSWORD`. Si inicia sesión desde `/acceso/` sin `next`, la
-pantalla del estudiante responde con acceso denegado. `docente_01` imparte
+Abra `http://127.0.0.1:8000/acceso/?next=/docente/cursos/PROG-COM/notas/` y
+use `docente_01` con la contraseña definida localmente en
+`DEMO_TEACHER_PASSWORD`. Si inicia sesión desde `/acceso/` sin `next`, el
+acceso lo lleva al panel del docente (`/docente/panel/`), que todavía no
+enlaza a esta pantalla; el enlace llegará con S-004. `docente_01` imparte
 `PROG-COM` y `DES-WEB`; para el otro curso cambie el código en la URL.
 
 La pantalla muestra la planilla del curso, con una fila por estudiante
@@ -226,10 +238,6 @@ restablece las notas de los estudiantes que tienen notas en el manifiesto,
 pero no borra las que se registren a estudiantes sin notas, como
 `estudiante_02`. Esas notas deben eliminarse aparte si se quiere volver al
 estado inicial.
-
-Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
-`Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
-muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.
 
 ## Comprobación real de CA-4
 

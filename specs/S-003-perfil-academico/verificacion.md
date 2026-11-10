@@ -4,7 +4,9 @@ Verificador: ramosdeleon555, según la asignación de la spec y la
 declaración del usuario de esta sesión.
 Computadora: equipo local de Canche, Windows 10, Python 3.12.10,
 Django 5.2.19, SQLite.
-Commit probado: `9f8c6e25320f865af1dc7795817ba5f526e244bd`.
+Commit probado en la ejecución inicial: `9f8c6e25320f865af1dc7795817ba5f526e244bd`.
+Commit probado en la evidencia complementaria:
+`7b2a79b6c2f7e80c3348b76b8d51c8f66c223118` (main después del PR #41).
 Fecha de ejecución y registro: 2026-11-09.
 
 Estado: controles automatizados satisfactorios y revisión manual
@@ -12,7 +14,20 @@ declarada por el usuario; pendiente de confirmación del registro por el
 verificador y revisión del PR documental. El agente no aprueba la spec
 en nombre del verificador.
 
-## Alcance y procedencia de la evidencia
+## Cronología y corrección del proceso
+
+- El PR #40 fusionó la implementación y cerró el issue #7 antes de que
+  existiera el registro de verificación completo. Esto incumplió el orden
+  de AGENTS §4 y §12; documentarlo después no vuelve retroactiva la revisión.
+- El PR #41 incorporó el primer registro, todavía pendiente de confirmación
+  explícita de ramosdeleon555. Fusionarlo no resolvió esa confirmación.
+- Esta corrección agrega evidencia ejecutada después de ambos merges.
+  No reescribe las fechas originales ni representa aprobación del agente.
+- La verificación formal corresponde a Ramos y la revisión de este cambio
+  documental corresponde a otro integrante. Si cambia el verificador,
+  el equipo debe registrar formalmente la reasignación antes del cierre.
+
+## Alcance y procedencia de la evidencia inicial
 
 - El usuario confirmó haber revisado el sistema en `9f8c6e2` y haber
   comprobado manualmente los casos especiales CA-4, CA-6 y CA-8. No
@@ -128,10 +143,74 @@ carné propio, promedios, inscripciones y ausencia de notas pasaron.
   temas registrados. Respalda parcialmente CA-1; no demuestra CA-3 ni
   CA-5 ni sustituye evidencia de los escenarios especiales.
 
-Las imágenes se conservaron sin alterar. No hay capturas posteriores a la
-reconstrucción ni capturas individuales de CA-2 a CA-8 en este registro.
-La evidencia actual de esos escenarios es la ejecución automatizada
-descrita arriba, además de la declaración manual del usuario.
+Las imágenes iniciales se conservaron sin alterar. En el registro del
+PR #41 no existían capturas de CA-2 a CA-8; su evidencia era la suite y
+la declaración manual del usuario. Las capturas nuevas de la sección
+siguiente corresponden a escenarios aislados, no a una repetición humana
+de aquellas pruebas ni al estado inicial de la base demo.
+
+## Evidencia complementaria posterior al PR #41
+
+Fecha: 2026-11-09, hora local registrada en el archivo de ejecución.
+Ejecutor: OpenCode, a solicitud del usuario. Commit: `7b2a79b`.
+La comparación de `accounts`, `academics`, `tutor`, `config` y `templates`
+contra `9f8c6e2` no mostró diferencias de aplicación.
+
+Se ejecutaron de nuevo los tres métodos de `StudentProfileViewTests`
+correspondientes a CA-4, CA-6 y CA-8: **3 pruebas OK en 2.043 segundos**.
+La salida real completa está en [evidencia/ca4-ca6-ca8.txt](evidencia/ca4-ca6-ca8.txt).
+No se presenta esta ejecución como una segunda ejecución de las 80 pruebas.
+
+Después se levantó Django en una dirección de loopback con una base SQLite
+temporal migrada y datos sintéticos creados únicamente para los escenarios.
+Chrome headless accedió a la aplicación real y capturó la página completa
+a 1440 píxeles de ancho, con el CSS local cargado. No son imágenes
+reconstruidas a partir de HTML ni capturas editadas. Se comprobaron el DOM,
+los cursos, las celdas y los datos esperados antes de cada captura.
+
+Las sesiones se generaron con `Client.force_login` y se suministraron al
+navegador solo durante la ejecución, sin versionar cookies ni claves.
+Esta evidencia comprueba el perfil autenticado; no vuelve a probar el
+formulario de login. Las dos cuentas de CA-7 utilizaron sesiones separadas
+en el mismo navegador, sustituyendo la cookie entre consultas.
+
+### Escenarios y capturas
+
+| Criterio | Datos, acción y observación en Chrome | Resultado | Evidencia |
+| --- | --- | --- | --- |
+| CA-1 | `Perfil principal Sintético`, carné `2026-30001`, carrera `Carrera de prueba 1`, semestre 2; los datos creados en la base temporal aparecen en el perfil. | Cumple en escenario automatizado de navegador. | [Datos](img/ca1-datos.png). |
+| CA-2 | El mismo estudiante tiene `S003-BD` y `S003-PROG`; se creó también `S003-RED` sin inscribirlo. Solo se muestran los dos cursos asignados. | Cumple en escenario automatizado de navegador. | [Cursos](img/ca2-cursos.png); cursos observados en el log. |
+| CA-3 | Variables 80, Condicionales 65 y Ciclos 70 en `S003-PROG`; promedio visible `71.67`. | Cumple con los valores exactos de la spec. | [Promedio](img/ca3-promedio.png). |
+| CA-4 | `Perfil parcial Sintético`, carné `2026-30002`: Variables 80, Condicionales 60 y Ciclos sin registro de nota; se ven `Sin nota` y promedio `70.00`. | Cumple en prueba dirigida y navegador automatizado. | [Tema sin nota](img/ca4-sin-nota.png); log del método CA-4. |
+| CA-5 | `Perfil sin notas Sintético`, carné `2026-30003`, inscrito con tres temas existentes y ninguna nota; aparecen tres `Sin nota` y promedio `Sin notas`. | Cumple en escenario automatizado de navegador. | [Curso sin notas](img/ca5-sin-notas.png). |
+| CA-6 | `Perfil sin cursos Sintético`, carné `2026-30004`, sin inscripciones; conserva sus datos, no muestra tarjetas de cursos y aparece `Aún no tiene cursos asignados.`. | Cumple en prueba dirigida y navegador automatizado. | [Sin cursos](img/ca6-sin-cursos.png); log del método CA-6. |
+| CA-7 | Perfiles `2026-30001` y `2026-30005`, con carreras y cursos distintos. Cada sesión consulta `/perfil/?student_id=` con el carné de la otra; el DOM conserva el propietario y no muestra los datos ajenos. | Cumple en escenario automatizado de navegador. | [Primer perfil](img/ca7-primer-perfil.png), [segundo perfil](img/ca7-segundo-perfil.png); aserciones del DOM registradas. |
+| CA-8 | En `2026-30001` se captura 65 y `71.67`, se actualiza una fila de nota a 95 mediante ORM y se recarga la misma pestaña con caché ignorada. Se muestran 95 y `81.67`, sin las celdas 65 ni `71.67`. | Cumple en prueba dirigida y recarga real de navegador automatizado. | [Antes](img/ca8-antes.png), [después](img/ca8-despues.png); actualización y DOM registrados en el log. |
+
+### Aislamiento, reproducción y alcance
+
+- Los perfiles con carnés `2026-30001` a `2026-30005` pertenecen al montaje
+  temporal, no al manifiesto de `rebuild_synthetic_data` ni a la base demo.
+- Se utilizó automatización temporal con Python estándar y CDP mediante
+  Node.js y Chrome existentes. No se instalaron dependencias ni se
+  modificaron modelos, vistas, plantillas o pruebas del producto.
+- El log contiene la salida de Django y los valores DOM observados en las
+  diez capturas, sin secretos. Las comprobaciones no registraron llamadas
+  externas de la página ni errores de sus recursos requeridos; se excluyó
+  el icono opcional `favicon.ico` del control de errores de recursos.
+- Se detuvieron el servidor y navegador creados para esta ejecución y se
+  descartaron la base y el perfil temporales. La base demo no se modificó.
+- Para reproducir las pruebas dirigidas, ejecutar desde el commit indicado:
+
+```powershell
+& ".\.venv\Scripts\python.exe" manage.py test academics.tests.StudentProfileViewTests.test_ca4_topic_without_grade_is_shown_and_excluded academics.tests.StudentProfileViewTests.test_ca6_student_without_courses_sees_data_and_notice academics.tests.StudentProfileViewTests.test_ca8_reload_shows_updated_grade_and_average --verbosity 2
+```
+
+Para reproducir visualmente los escenarios, preparar los datos de la tabla
+en una base aislada y abrir `/perfil/` con el propietario correspondiente.
+La ejecución de Chrome y la comparación de DOM son pruebas automatizadas
+del agente, no evidencia de que Ramos haya inspeccionado personalmente las
+capturas. Su confirmación explícita sigue pendiente.
 
 ## Correcciones y repetición de pruebas
 
@@ -143,10 +222,10 @@ descrita arriba, además de la declaración manual del usuario.
   comillas en PowerShell (`SyntaxError`), antes de ejecutar Django. Se
   corrigió el comando y la comprobación posterior pasó; no fue un fallo
   de la aplicación ni requirió cambios al repositorio.
-- No se realizaron cambios manuales a notas o inscripciones durante esta
-  sesión del agente. Los escenarios CA-4, CA-6 y CA-8 se ejecutaron dentro
-  de la base de prueba descartada al terminar; la base local quedó con el
-  conjunto sintético reconstruido.
+- En la ejecución inicial del agente no se realizaron cambios manuales a
+  notas o inscripciones de la base demo. CA-4, CA-6 y CA-8 se ejecutaron
+  en la base de prueba descartada al terminar. En la ejecución complementaria
+  se modificó una nota únicamente en la base temporal para capturar CA-8.
 
 ## Confirmación pendiente
 
