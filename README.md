@@ -38,6 +38,15 @@ personales, cursos inscritos, nota por tema y promedio del curso. El promedio
 se calcula en una sola función, `academics.services.calculate_average`. La
 verificación independiente de ramosdeleon555 está pendiente.
 
+S-005 agrega la pantalla del docente para registrar y corregir notas en
+`/docente/cursos/<código>/notas/`. La regla de guardado vive en
+`academics.services.record_grade`, que comprueba en el servidor que el
+docente imparta el curso, que el tema sea del curso, que el estudiante esté
+inscrito y que la nota sea un entero de 0 a 100. La verificación
+independiente de ramosdeleon555 está pendiente. La lista de cursos del
+docente, la gestión de temas y estudiantes (S-004) y la redirección por rol
+después del acceso (S-010) todavía no están implementadas.
+
 ## Requisitos
 
 - Python 3.12.
@@ -153,6 +162,14 @@ con redondeo a dos decimales, los temas sin nota, los cursos sin notas, el
 estudiante sin cursos, el aislamiento entre estudiantes y la nota actualizada
 al recargar.
 
+Para el registro de notas, las pruebas cubren el guardado de una nota nueva,
+la corrección que reemplaza la anterior sin duplicarla, los valores fuera de
+rango o no enteros, la nota visible en el perfil del estudiante y después de
+volver a iniciar sesión, y que la planilla solo muestre estudiantes inscritos
+y temas del curso. También comprueban el rechazo en el servidor de un
+estudiante no inscrito, un tema de otro curso y un curso que el docente no
+imparte, el acceso de estudiantes y cuentas sin perfil docente, y CSRF.
+
 Las pruebas simulan Gemini, incluida la prueba del constructor mediante un
 mock. Cubren configuración inválida, conexión fallida, cuota agotada (`429`),
 tiempo de espera (`504`) y respuesta inválida, sin consumir cuota. La
@@ -188,6 +205,27 @@ curso. Un tema sin nota aparece como `Sin nota` y no entra al promedio; un
 curso sin notas muestra `Sin notas`. Con los datos sintéticos,
 `estudiante_demo` tiene promedio 78.00 en Programación Comercial y
 `estudiante_02` no tiene notas.
+
+### Registro de notas del docente
+
+Mientras S-010 no redirija al docente, abra directamente
+`http://127.0.0.1:8000/acceso/?next=/docente/cursos/PROG-COM/notas/` y use
+`docente_01` con la contraseña definida localmente en
+`DEMO_TEACHER_PASSWORD`. Si inicia sesión desde `/acceso/` sin `next`, la
+pantalla del estudiante responde con acceso denegado. `docente_01` imparte
+`PROG-COM` y `DES-WEB`; para el otro curso cambie el código en la URL.
+
+La pantalla muestra la planilla del curso, con una fila por estudiante
+inscrito y una columna por tema; un tema sin nota aparece como `Sin nota`.
+El formulario pide Estudiante, Tema y Nota. Si el estudiante ya tiene nota en
+ese tema, la nueva la reemplaza. Un código de curso que el docente no imparte,
+como `BD-APL` para `docente_01`, responde con acceso denegado.
+
+Las notas registradas cambian los datos sintéticos. `rebuild_synthetic_data`
+restablece las notas de los estudiantes que tienen notas en el manifiesto,
+pero no borra las que se registren a estudiantes sin notas, como
+`estudiante_02`. Esas notas deben eliminarse aparte si se quiere volver al
+estado inicial.
 
 Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
 `Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
