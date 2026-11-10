@@ -630,6 +630,19 @@ class StudentAccessTests(TestCase):
         self.assertNotContains(second_response, second_profile.student_id)
         self.assertNotContains(second_response, "Semestre")
 
+    def test_student_home_links_to_profile(self):
+        user, _ = self.create_student("Carrera con enlace al perfil")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertContains(
+            response,
+            f'<a class="profile-link" href="{reverse("student_profile")}">'
+            "Ver su perfil académico</a>",
+            html=True,
+        )
+
     def test_logout_is_post_only_and_requires_valid_csrf(self):
         user, _ = self.create_student("Carrera para cerrar sesión")
         self.client.force_login(user)

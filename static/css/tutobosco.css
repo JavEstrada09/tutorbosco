@@ -207,6 +207,14 @@ h2 {
     line-height: 1.15;
 }
 
+.profile-link {
+    display: inline-block;
+    margin-top: 1.2rem;
+    color: var(--forest-dark);
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+}
+
 .tutor-card {
     width: min(48rem, 100%);
     padding: clamp(1.5rem, 5vw, 3rem);
