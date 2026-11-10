@@ -946,3 +946,25 @@ Pendiente:
 
 Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
 producto. El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-006 · 10-11-2026 · Segundo bloque
+
+ChatGPT (Codex) ayudó a implementar el modelo de conversación, su
+migración, el control de revisiones y la limpieza al cerrar sesión.
+Las pruebas usan SQLite y cuentas sintéticas. Este bloque se ejecutó
+sin llamadas a Gemini. La revisión del autor y la verificación
+independiente en la computadora de Douglas quedan pendientes.
+
+
+## S-006 · 10-11-2026 · Bloque 3a: proveedores
+
+ChatGPT (Codex) preparó el contexto mínimo del hilo, las instrucciones
+separadas para Gemini y las grabaciones por curso, tema e intención.
+Se reutiliza `is_weak` de S-008. Para mantener PRs revisables, el bloque 3
+se entrega como proveedores (3a) e integración con la pantalla (3b), sin
+cambiar las decisiones del plan aprobado ni declarar terminada S-006.
+
+Las pruebas ejecutadas en Linux usan datos sintéticos, proveedor simulado
+y red bloqueada para el demo. No se llamó a Gemini real ni se generó gasto
+del producto. La lectura y ejecución por Jav en Windows y la verificación
+independiente de Douglas quedan pendientes para este cambio.

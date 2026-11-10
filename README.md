@@ -295,3 +295,25 @@ de Douglas.
 - Django 5.2.19.
 - google-genai 3.0.0.
 - python-dotenv 1.2.4.
+
+
+### S-006 · Proveedores personalizados (bloque 3a)
+
+El servicio `conversation_context` prepara exclusivamente los temas y notas
+capturados al abrir el hilo y sus cuatro últimos turnos. Para la llamada se
+limita cada pregunta a 500 caracteres y cada respuesta previa a 2000; los
+turnos completos permanecen en la base hasta reiniciar o cerrar sesión.
+Gemini recibe las instrucciones separadas de los datos y de la pregunta.
+Se mantienen el límite total de 60 segundos, un intento y la validación.
+
+El proveedor demo admite «¿Qué tema debería repasar?», «¿Me da otro ejemplo?»,
+«Explíqueme [nombre exacto del tema].», la pregunta original sobre variables
+y los dos ejemplos de privacidad del plan. Hay explicaciones y ejemplos
+adicionales grabados para los seis temas del piloto. Sin una grabación
+aplicable, devuelve un aviso; no reutiliza respuestas del piloto en otro
+curso. Se comparte el cálculo `is_weak` y se distinguen las notas ausentes.
+
+Este bloque prepara los proveedores. La conexión de estos contextos con
+la vista, el historial visible, el reinicio y la pregunta pendiente se
+entrega en el bloque 3b. El recorrido actual de pantalla continúa usando
+el contexto básico hasta esa integración.
