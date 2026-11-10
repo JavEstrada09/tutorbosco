@@ -337,6 +337,207 @@ class GetCourseSummariesTests(TestCase):
             )
 
 
+class StudentProfileViewTests(TestCase):
+    def setUp(self):
+        self.programming = Course.objects.create(
+            code="S003-PROG",
+            name="Programación de prueba",
+        )
+        self.databases = Course.objects.create(
+            code="S003-BD",
+            name="Bases de datos de prueba",
+        )
+        self.networks = Course.objects.create(
+            code="S003-RED",
+            name="Redes sin inscripción",
+        )
+        self.topics = {
+            course.code: [
+                Topic.objects.create(course=course, name=f"{name} {course.code}")
+                for name in ("Variables", "Condicionales", "Ciclos")
+            ]
+            for course in (self.programming, self.databases, self.networks)
+        }
+        self.student_number = 0
+
+    def create_student(self, *, courses=(), first_name="", last_name="", **fields):
+        self.student_number += 1
+        user = get_user_model().objects.create_user(
+            username=f"perfil_{self.student_number}",
+            password=secrets.token_urlsafe(24),
+            first_name=first_name,
+            last_name=last_name,
+        )
+        profile = StudentProfile.objects.create(
+            user=user,
+            student_id=fields.get("student_id", f"2026-2{self.student_number:04d}"),
+            career=fields.get("career", "Carrera Sintética"),
+            semester=fields.get("semester", 2),
+        )
+        for course in courses:
+            Enrollment.objects.create(student=profile, course=course)
+        return user, profile
+
+    def set_grades(self, profile, course, values):
+        for topic, value in zip(self.topics[course.code], values):
+            if value is not None:
+                Grade.objects.create(student=profile, topic=topic, value=value)
+
+    def get_profile(self, user, **params):
+        self.client.force_login(user)
+        return self.client.get(reverse("student_profile"), params)
+
+    def test_anonymous_access_redirects_to_login(self):
+        response = self.client.get(reverse("student_profile"))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('student_profile')}",
+        )
+
+    def test_accounts_without_student_profile_are_denied(self):
+        teacher_user = get_user_model().objects.create_user(username="docente_s003")
+        TeacherProfile.objects.create(user=teacher_user)
+        accounts = {
+            "sin perfil": get_user_model().objects.create_user(username="sin_s003"),
+            "docente": teacher_user,
+            "personal técnico": get_user_model().objects.create_user(
+                username="staff_s003",
+                is_staff=True,
+            ),
+        }
+        for label, user in accounts.items():
+            with self.subTest(cuenta=label):
+                response = self.get_profile(user)
+
+                self.assertContains(
+                    response,
+                    "Su cuenta no tiene autorización académica",
+                    status_code=403,
+                )
+
+    def test_profile_only_accepts_get(self):
+        user, _ = self.create_student(courses=[self.programming])
+        self.client.force_login(user)
+
+        self.assertEqual(self.client.post(reverse("student_profile")).status_code, 405)
+
+    def test_ca1_shows_personal_data_of_authenticated_student(self):
+        user, _ = self.create_student(
+            courses=[self.programming],
+            first_name="Lucía",
+            last_name="Sintética",
+            student_id="2025-01234",
+            career="Ingeniería Ficticia",
+            semester=7,
+        )
+
+        response = self.get_profile(user)
+
+        self.assertEqual(response.status_code, 200)
+        for value in ("Lucía Sintética", "2025-01234", "Ingeniería Ficticia", "7"):
+            self.assertContains(response, f"<dd>{value}</dd>", html=True)
+
+    def test_ca1_uses_username_when_account_has_no_name(self):
+        user, _ = self.create_student(courses=[self.programming])
+
+        response = self.get_profile(user)
+
+        self.assertContains(response, f"<dd>{user.username}</dd>", html=True)
+
+    def test_ca2_shows_only_enrolled_courses(self):
+        user, _ = self.create_student(courses=[self.programming, self.databases])
+
+        response = self.get_profile(user)
+
+        self.assertContains(response, "S003-PROG – Programación de prueba")
+        self.assertContains(response, "S003-BD – Bases de datos de prueba")
+        self.assertNotContains(response, self.networks.code)
+        self.assertNotContains(response, self.networks.name)
+
+    def test_ca3_shows_each_grade_and_course_average(self):
+        user, profile = self.create_student(courses=[self.programming])
+        self.set_grades(profile, self.programming, (80, 65, 70))
+
+        response = self.get_profile(user)
+
+        for value in (80, 65, 70):
+            self.assertContains(response, f"<td>{value}</td>", html=True)
+        self.assertContains(response, "<td>71.67</td>", html=True)
+        self.assertNotContains(response, "71,67")
+
+    def test_ca4_topic_without_grade_is_shown_and_excluded(self):
+        user, profile = self.create_student(courses=[self.programming])
+        self.set_grades(profile, self.programming, (80, 60, None))
+
+        response = self.get_profile(user)
+
+        self.assertContains(response, "<td>Sin nota</td>", count=1, html=True)
+        self.assertContains(response, "<td>70.00</td>", html=True)
+
+    def test_ca5_course_without_grades_shows_sin_notas(self):
+        user, _ = self.create_student(courses=[self.programming])
+
+        response = self.get_profile(user)
+
+        self.assertContains(response, "<td>Sin nota</td>", count=3, html=True)
+        self.assertContains(response, "<td>Sin notas</td>", count=1, html=True)
+
+    def test_ca6_student_without_courses_sees_data_and_notice(self):
+        user, profile = self.create_student(career="Carrera sin cursos")
+
+        response = self.get_profile(user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f"<dd>{profile.student_id}</dd>", html=True)
+        self.assertContains(response, "<dd>Carrera sin cursos</dd>", html=True)
+        self.assertContains(response, "Aún no tiene cursos asignados.")
+
+    def test_ca7_each_student_sees_only_own_profile(self):
+        first_user, first = self.create_student(
+            courses=[self.programming],
+            career="Carrera Primera",
+        )
+        second_user, second = self.create_student(
+            courses=[self.databases],
+            career="Carrera Segunda",
+        )
+        self.set_grades(first, self.programming, (90, 80, 70))
+        self.set_grades(second, self.databases, (50, 55, 45))
+
+        first_response = self.get_profile(first_user, student_id=second.student_id)
+        second_response = self.get_profile(second_user, student_id=first.student_id)
+
+        self.assertContains(first_response, first.student_id)
+        self.assertContains(first_response, "Carrera Primera")
+        self.assertContains(first_response, "<td>80.00</td>", html=True)
+        self.assertNotContains(first_response, second.student_id)
+        self.assertNotContains(first_response, "Carrera Segunda")
+        self.assertNotContains(first_response, self.databases.name)
+
+        self.assertContains(second_response, second.student_id)
+        self.assertContains(second_response, "Carrera Segunda")
+        self.assertContains(second_response, "<td>50.00</td>", html=True)
+        self.assertNotContains(second_response, first.student_id)
+        self.assertNotContains(second_response, "Carrera Primera")
+        self.assertNotContains(second_response, self.programming.name)
+
+    def test_ca8_reload_shows_updated_grade_and_average(self):
+        user, profile = self.create_student(courses=[self.programming])
+        self.set_grades(profile, self.programming, (80, 65, 70))
+        self.assertContains(self.get_profile(user), "<td>71.67</td>", html=True)
+
+        Grade.objects.filter(
+            student=profile,
+            topic=self.topics[self.programming.code][1],
+        ).update(value=95)
+        response = self.client.get(reverse("student_profile"))
+
+        self.assertContains(response, "<td>95</td>", html=True)
+        self.assertNotContains(response, "<td>65</td>", html=True)
+        self.assertContains(response, "<td>81.67</td>", html=True)
+
+
 class StudentAccessTests(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=True)
