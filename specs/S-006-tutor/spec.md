@@ -1,7 +1,7 @@
 # S-006 Tutor personalizado
 
 Requisito: RF-04; RNF-05 · Autor: JavEstrada09 · Verificador: douglas-yasser · Issue: #10
-Estado: borrador
+Estado: en implementación
 
 ## Problema
 
@@ -148,3 +148,6 @@ CA-9 Dada una respuesta válida en modo real o en modo demo,
 10-11-2026 · Borrador inicial a partir del issue #10, el plan del
 equipo y las decisiones D-005 y D-006. Se propone conservar el
 hilo de cada curso al cambiar entre cursos durante la misma sesión.
+
+10-11-2026 · JavEstrada09 aprobó el plan técnico. Se inicia el bloque de
+validación del umbral y acceso al tutor por curso inscrito.
