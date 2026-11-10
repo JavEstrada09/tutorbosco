@@ -207,6 +207,14 @@ h2 {
     line-height: 1.15;
 }
 
+.profile-link {
+    display: inline-block;
+    margin-top: 1.2rem;
+    color: var(--forest-dark);
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+}
+
 .tutor-card {
     width: min(48rem, 100%);
     padding: clamp(1.5rem, 5vw, 3rem);
@@ -274,6 +282,67 @@ h2 {
     margin-bottom: 0;
     white-space: pre-wrap;
     line-height: 1.65;
+}
+
+.profile-card,
+.course-card,
+.empty-state {
+    width: min(48rem, 100%);
+    padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.profile-data {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 1.2rem;
+    margin: 0;
+}
+
+.profile-data dt,
+.grade-table thead th {
+    color: var(--muted);
+    font-family: Arial, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.profile-data dd {
+    margin: 0.3rem 0 0;
+    font-size: 1.2rem;
+}
+
+.grade-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.grade-table th,
+.grade-table td {
+    padding: 0.7rem 0.4rem;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+}
+
+.grade-table tbody th {
+    font-weight: 400;
+}
+
+.grade-table thead th:last-child,
+.grade-table td:last-child:not([colspan]) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.grade-table tfoot th,
+.grade-table tfoot td {
+    border-bottom: 0;
+    font-weight: 700;
+}
+
+.empty-state p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 1.1rem;
 }
 
 .status-layout {

@@ -550,3 +550,52 @@ Resultado registrado por el autor:
 Costo o cuota consumida:
 No se realizaron llamadas a Gemini ni a la API de IA del producto.
 El consumo de esta conversación de OpenCode no se cuantificó.
+
+## S-003 · 09-11-2026 · Plan e implementación
+
+Herramienta y modelo: Claude Code · Claude Opus 5.5 (`claude-opus-5-5`).
+Usado por: AlexDLG1.
+
+Fases en que se usó: plan, implementación y pruebas.
+
+Instrucción clave:
+Proponer el plan de S-003 en modo de solo lectura, con una función única de
+promedio reutilizable por S-007 y una vista `/perfil/` separada de
+`student_home`. Después, implementar las tareas una por una, mostrando el diff
+y deteniéndose antes de cada commit, sin hacer push.
+
+Qué se aceptó sin cambios:
+- El enfoque del plan: `academics/services.py` con `calculate_average` y
+  `get_course_summaries`, y la vista `student_profile` solo para estudiantes.
+- El uso de `|unlocalize` para mostrar `71.67` como dice la spec, aunque
+  `LANGUAGE_CODE` sea `es`.
+- La cobertura de CA-4 y CA-6 mediante pruebas automatizadas, porque los
+  datos sintéticos no tienen notas parciales ni estudiantes sin cursos.
+- El aviso para un curso sin temas, que el plan no incluía. El agente lo
+  señaló antes del commit y AlexDLG1 autorizó el commit sin pedir cambios.
+
+Qué se corrigió o descartó, y por qué:
+- AlexDLG1 agregó la tarea 0, para documentar el plan aprobado en un commit
+  propio junto con el cambio de estado de la spec y de `docs/plan.md`.
+- AlexDLG1 pidió aclarar que D-004 no fija el modo de redondeo y que
+  `ROUND_HALF_UP` es una decisión del plan.
+- AlexDLG1 corrigió la línea del registro de cambios de la spec para indicar
+  que la spec se fusionó en el PR #21.
+- AlexDLG1 fijó la forma de trabajo: revisar cada diff, ejecutar las pruebas
+  y revisar en el navegador antes de autorizar cada commit.
+- El agente estimó el PR en 300 a 350 líneas; el resultado supera la
+  referencia de 400 líneas, principalmente por las pruebas.
+
+Resultado registrado por el autor:
+- Suite de `accounts`, `academics` y `tutor`: 80 pruebas superadas.
+- `manage.py check`: sin problemas.
+- `makemigrations --check --dry-run`: no detectó cambios.
+- `pip check`: no detectó dependencias incompatibles.
+- Revisión en el navegador de `/perfil/`: `estudiante_demo` con promedio
+  78.00, `estudiante_01` con dos cursos y promedio 77.50, y `estudiante_02`
+  con `Sin nota` y `Sin notas`. El enlace desde `student_home` funciona.
+- La verificación independiente de ramosdeleon555 sigue pendiente.
+
+Costo o cuota consumida:
+No se realizaron llamadas a Gemini ni a la API de IA del producto.
+El consumo de esta conversación de Claude Code no se cuantificó.

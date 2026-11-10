@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.views.decorators.http import require_GET
 
-from academics.models import Enrollment
+from academics.models import Enrollment, StudentProfile
+from academics.services import get_course_summaries
 from tutor.demo_responses import DEMO_QUESTION
 from tutor.forms import TutorQuestionForm
 from tutor.providers import TutorError
@@ -48,5 +50,25 @@ def student_home(request):
             "tutor_error": tutor_error,
             "tutor_form": form,
             "tutor_reply": tutor_reply,
+        },
+    )
+
+
+@login_required
+@require_GET
+def student_profile(request):
+    profile = StudentProfile.objects.filter(user=request.user).first()
+    if profile is None:
+        return render(request, "academics/access_denied.html", status=403)
+
+    return render(
+        request,
+        "academics/student_profile.html",
+        {
+            "full_name": request.user.get_full_name() or request.user.get_username(),
+            "student_id": profile.student_id,
+            "career": profile.career,
+            "semester": profile.semester,
+            "course_summaries": get_course_summaries(profile),
         },
     )
