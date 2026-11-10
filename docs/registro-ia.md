@@ -914,3 +914,35 @@ Pendiente:
 
 Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
 producto. El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-004 · 10-11-2026 · Integración final con S-005
+
+Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: integración, pruebas de autorización y documentación.
+
+Trabajo realizado:
+- Se fusionó `main` después de la incorporación de S-005, sin fusionar
+  directamente su rama.
+- Las vistas de temas y estudiantes quedaron conectadas con la función
+  compartida `get_taught_course()` y se habilitó el enlace a la planilla de
+  notas desde el listado de cursos.
+- Se eliminaron los mocks de autorización de S-004. Las pruebas ahora usan
+  perfiles docentes, asignaciones y cursos reales de la base de pruebas.
+- CA-7 cubre un docente ajeno, una cuenta estudiantil, un curso inexistente,
+  POST no autorizados sin cambios, acceso anónimo y protección CSRF.
+- Se ejecutaron 21 pruebas específicas de S-004 y las 173 pruebas de
+  `accounts`, `academics` y `tutor`; todas finalizaron correctamente.
+- `manage.py check`, `makemigrations --check --dry-run` y `pip check`
+  finalizaron correctamente.
+
+Pendiente:
+- AlexDLG1 debe ejecutar CA-1 a CA-8 en su computadora y crear
+  `specs/S-004-temas-asignacion/verificacion.md`. No se registra ninguna
+  verificación ni aprobación en su nombre.
+- S-004 no debe marcarse como terminada ni cerrar el issue #8 antes de que
+  esa evidencia independiente sea revisada e integrada.
+
+Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
+producto. El consumo de la herramienta de desarrollo no se cuantificó.
