@@ -37,6 +37,7 @@ from academics.models import (
 from academics.services import (
     GradeRegistrationError,
     calculate_average,
+    get_course_grade_sheet,
     get_course_summaries,
     get_taught_course,
     record_grade,
@@ -547,6 +548,93 @@ class RecordGradeTests(TestCase):
             "El estudiante no está asignado a este curso. La nota no se guardó.",
             student_pk=self.outsider.pk + 1000,
         )
+
+
+class GetCourseGradeSheetTests(TestCase):
+    def setUp(self):
+        self.course = Course.objects.create(code="S005-WEB", name="Web de prueba")
+        self.other_course = Course.objects.create(code="S005-RED", name="Redes de prueba")
+        self.topics = [
+            Topic.objects.create(course=self.course, name=name)
+            for name in ("HTML", "CSS", "JavaScript")
+        ]
+        self.other_topic = Topic.objects.create(course=self.other_course, name="Subredes")
+        self.late_student = create_s005_student("2026-20032", self.course)
+        self.early_student = create_s005_student("2026-20031", self.course)
+        self.outsider = create_s005_student("2026-20033", self.other_course)
+
+    def grade(self, student, topic, value):
+        return Grade.objects.create(student=student, topic=topic, value=value)
+
+    def test_rows_include_only_enrolled_students_ordered_by_student_id(self):
+        sheet = get_course_grade_sheet(self.course)
+
+        self.assertEqual(sheet.course, self.course)
+        self.assertEqual(
+            [row.student for row in sheet.rows],
+            [self.early_student, self.late_student],
+        )
+
+    def test_topics_include_only_course_topics_in_creation_order(self):
+        sheet = get_course_grade_sheet(self.course)
+
+        self.assertEqual(list(sheet.topics), self.topics)
+        self.assertNotIn(self.other_topic, sheet.topics)
+
+    def test_grades_follow_topic_order_with_none_for_missing(self):
+        self.grade(self.early_student, self.topics[0], 85)
+        self.grade(self.early_student, self.topics[2], 40)
+
+        sheet = get_course_grade_sheet(self.course)
+
+        self.assertEqual(sheet.rows[0].grades, (85, None, 40))
+        self.assertEqual(sheet.rows[1].grades, (None, None, None))
+
+    def test_ignores_grades_of_other_courses_and_unenrolled_students(self):
+        Enrollment.objects.create(student=self.early_student, course=self.other_course)
+        self.grade(self.early_student, self.other_topic, 99)
+        self.grade(self.outsider, self.topics[0], 70)
+
+        sheet = get_course_grade_sheet(self.course)
+
+        self.assertNotIn(self.outsider, [row.student for row in sheet.rows])
+        self.assertEqual(sheet.rows[0].grades, (None, None, None))
+
+    def test_reflects_correction_made_with_record_grade(self):
+        teacher = create_s005_teacher("docente_planilla", self.course)
+        self.grade(self.early_student, self.topics[1], 60)
+
+        record_grade(
+            user=teacher.user,
+            course=self.course,
+            student_pk=self.early_student.pk,
+            topic_pk=self.topics[1].pk,
+            value=75,
+        )
+
+        sheet = get_course_grade_sheet(self.course)
+        self.assertEqual(sheet.rows[0].grades, (None, 75, None))
+
+    def test_course_without_students_or_topics_is_empty(self):
+        empty_course = Course.objects.create(code="S005-VACIO", name="Curso vacío")
+
+        sheet = get_course_grade_sheet(empty_course)
+
+        self.assertEqual(sheet.topics, ())
+        self.assertEqual(sheet.rows, ())
+
+    def test_uses_three_queries_regardless_of_course_size(self):
+        for index in range(5):
+            create_s005_student(f"2026-2004{index}", self.course)
+        for topic in self.topics:
+            self.grade(self.early_student, topic, 80)
+
+        with self.assertNumQueries(3):
+            sheet = get_course_grade_sheet(self.course)
+            names = [row.student.user.get_username() for row in sheet.rows]
+
+        self.assertEqual(len(names), 7)
+        self.assertEqual(sheet.rows[0].grades, (80, 80, 80))
 
 
 class StudentProfileViewTests(TestCase):

@@ -3,7 +3,14 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from django.db import transaction
 
-from academics.models import Course, Enrollment, Grade, TeachingAssignment, Topic
+from academics.models import (
+    Course,
+    Enrollment,
+    Grade,
+    StudentProfile,
+    TeachingAssignment,
+    Topic,
+)
 
 AVERAGE_PRECISION = Decimal("0.01")
 GRADE_MIN_VALUE = 0
@@ -88,6 +95,54 @@ def get_course_summaries(student_profile):
             )
         )
     return summaries
+
+
+@dataclass(frozen=True)
+class StudentGradeRow:
+    student: StudentProfile
+    grades: tuple[int | None, ...]
+
+
+@dataclass(frozen=True)
+class GradeSheet:
+    course: Course
+    topics: tuple[Topic, ...]
+    rows: tuple[StudentGradeRow, ...]
+
+
+def get_course_grade_sheet(course):
+    """Arma la planilla de notas de un curso para la pantalla del docente.
+
+    Incluye solo a los estudiantes inscritos en el curso, ordenados por
+    carné, y solo los temas del curso, por orden de creación. En cada fila,
+    grades sigue el orden de topics y un tema sin nota tiene None (D-003).
+    Usa tres consultas sin importar el tamaño del curso. No comprueba
+    permisos: la vista debe obtener el curso con get_taught_course.
+    """
+    enrollments = (
+        Enrollment.objects.filter(course=course)
+        .select_related("student__user")
+        .order_by("student__student_id")
+    )
+    topics = tuple(Topic.objects.filter(course=course).order_by("pk"))
+    grade_by_student_topic = {
+        (student_id, topic_id): value
+        for student_id, topic_id, value in Grade.objects.filter(
+            topic__course=course
+        ).values_list("student_id", "topic_id", "value")
+    }
+
+    rows = tuple(
+        StudentGradeRow(
+            student=enrollment.student,
+            grades=tuple(
+                grade_by_student_topic.get((enrollment.student_id, topic.pk))
+                for topic in topics
+            ),
+        )
+        for enrollment in enrollments
+    )
+    return GradeSheet(course=course, topics=topics, rows=rows)
 
 
 def get_taught_course(user, course_code):
