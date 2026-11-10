@@ -33,6 +33,11 @@ S-002 incorporó docentes, temas, notas y el conjunto completo de datos
 sintéticos. La verificación independiente quedó registrada en
 [verificacion.md](specs/S-002-datos-sinteticos/verificacion.md).
 
+S-003 agrega el perfil académico del estudiante en `/perfil/`: datos
+personales, cursos inscritos, nota por tema y promedio del curso. El promedio
+se calcula en una sola función, `academics.services.calculate_average`. La
+verificación independiente de ramosdeleon555 está pendiente.
+
 ## Requisitos
 
 - Python 3.12.
@@ -143,6 +148,11 @@ autorización, aislamiento entre estudiantes, CSRF, cierre de sesión mediante
 POST, el formulario del tutor, la selección de proveedor, la salida validada
 y la ausencia de inicialización de Gemini en modo demo.
 
+Para el perfil académico, las pruebas cubren el cálculo central del promedio
+con redondeo a dos decimales, los temas sin nota, los cursos sin notas, el
+estudiante sin cursos, el aislamiento entre estudiantes y la nota actualizada
+al recargar.
+
 Las pruebas simulan Gemini, incluida la prueba del constructor mediante un
 mock. Cubren configuración inválida, conexión fallida, cuota agotada (`429`),
 tiempo de espera (`504`) y respuesta inválida, sin consumir cuota. La
@@ -170,6 +180,14 @@ del tutor. Con `AI_MODE=demo`, envíe la pregunta visible en la pantalla:
 
 La respuesta grabada debe mencionar Programación Comercial y dirigirse a
 usted. Este recorrido funciona sin Internet y con `GEMINI_API_KEY` vacío.
+
+Desde esa pantalla, el enlace `Ver su perfil académico` abre
+`http://127.0.0.1:8000/perfil/`. El perfil muestra nombre, carné, carrera,
+semestre y, por cada curso inscrito, la nota de cada tema y el promedio del
+curso. Un tema sin nota aparece como `Sin nota` y no entra al promedio; un
+curso sin notas muestra `Sin notas`. Con los datos sintéticos,
+`estudiante_demo` tiene promedio 78.00 en Programación Comercial y
+`estudiante_02` no tiene notas.
 
 Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
 `Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
