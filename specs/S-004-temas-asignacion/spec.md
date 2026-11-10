@@ -2,7 +2,7 @@
 
 Requisito: RF-03 parcial · Autor: Brayan11Hernandez · Verificador: AlexDLG1 · Issue: #8
 
-Estado: borrador
+Estado: aprobada
 
 ## Problema
 
@@ -141,3 +141,6 @@ Las estructuras de datos y los permisos se coordinarán con los responsables de 
 ## Registro de cambios
 
 05-11-2026 · Creación del borrador inicial de S-004 para definir la gestión de temas, asignación de estudiantes, criterios verificables y restricciones de acceso. Pendiente de revisión y aprobación del equipo.
+
+09-11-2026 · Especificación aprobada y fusionada mediante
+el PR #27. Se inicia la planificación de la implementación S-004.

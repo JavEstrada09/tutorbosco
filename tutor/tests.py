@@ -377,6 +377,47 @@ class TutorViewTests(TestCase):
         self.assertEqual(response.status_code, 403)
         ask_tutor_mock.assert_not_called()
 
+    @override_settings(AI_MODE="real")
+    @patch("academics.views.ask_tutor")
+    def test_course_selection_checks_enrollment_before_calling_tutor(self, ask_tutor_mock):
+        selected = Course.objects.create(code="DES-WEB", name="Desarrollo Web")
+        foreign = Course.objects.create(code="BD-APL", name="Bases de Datos Aplicadas")
+        Enrollment.objects.create(student=self.profile, course=selected)
+        url = reverse("student_home")
+        csrf_token = self.get_csrf_token()
+
+        default_page = self.client.get(url)
+        self.assertEqual(default_page.context["selected_course"], self.course)
+        self.assertContains(default_page, "Desarrollo Web")
+        self.assertNotContains(default_page, foreign.name)
+        self.assertContains(
+            self.client.get(url, {"course": selected.code}),
+            "Consulte sobre Desarrollo Web",
+        )
+
+        for method in (self.client.get, self.client.post):
+            with self.subTest(method=method.__name__):
+                response = method(
+                    url,
+                    {"course": foreign.code, "question": DEMO_QUESTION},
+                    HTTP_X_CSRFTOKEN=csrf_token,
+                )
+                self.assertNotContains(response, foreign.name, status_code=403)
+        ask_tutor_mock.assert_not_called()
+
+        response = self.client.post(
+            url,
+            {"course": selected.code, "question": DEMO_QUESTION},
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        self.assertEqual(response.context["selected_course"], selected)
+        ask_tutor_mock.assert_called_once_with(
+            question=DEMO_QUESTION,
+            career=self.profile.career,
+            course_name=selected.name,
+            mode=None,
+        )
+
     @patch("tutor.providers._create_gemini_client")
     def test_demo_question_completes_flow_without_gemini(self, client):
         csrf_token = self.get_csrf_token()

@@ -29,7 +29,16 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_TOTAL_TIMEOUT_MS = 60_000
 GEMINI_MAX_ATTEMPTS = 1
 
-WEAK_TOPIC_THRESHOLD = int(os.getenv("WEAK_TOPIC_THRESHOLD", "60") or 60)
+try:
+    WEAK_TOPIC_THRESHOLD = int(os.getenv("WEAK_TOPIC_THRESHOLD") or "60")
+except ValueError as error:
+    raise ImproperlyConfigured(
+        "WEAK_TOPIC_THRESHOLD debe ser un entero entre 0 y 100."
+    ) from error
+if not 0 <= WEAK_TOPIC_THRESHOLD <= 100:
+    raise ImproperlyConfigured(
+        "WEAK_TOPIC_THRESHOLD debe ser un entero entre 0 y 100."
+    )
 
 INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",

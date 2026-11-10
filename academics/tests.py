@@ -1144,7 +1144,7 @@ class StudentAccessTests(TestCase):
             status_code=403,
         )
 
-    def test_student_without_pilot_enrollment_is_denied(self):
+    def test_student_without_enrollments_is_denied(self):
         user, _ = self.create_student("Carrera sin inscripción", enrolled=False)
         self.client.force_login(user)
 
@@ -1152,6 +1152,19 @@ class StudentAccessTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertNotContains(response, "Carrera sin inscripción", status_code=403)
+
+    @override_settings(AI_MODE="demo")
+    def test_student_enrolled_only_in_another_course_can_access_tutor(self):
+        user, profile = self.create_student("Carrera inscrita", enrolled=False)
+        course = Course.objects.create(code="DES-WEB", name="Desarrollo Web")
+        Enrollment.objects.create(student=profile, course=course)
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertContains(response, "Consulte sobre Desarrollo Web")
+        self.assertNotContains(response, PILOT_COURSE_NAME)
+        self.assertContains(response, "El modo demo aún no tiene respuestas grabadas")
 
     def test_staff_status_alone_does_not_grant_academic_access(self):
         user = get_user_model().objects.create_user(
