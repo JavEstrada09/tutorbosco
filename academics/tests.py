@@ -33,7 +33,7 @@ from academics.models import (
     TeachingAssignment,
     Topic,
 )
-from academics.services import calculate_average
+from academics.services import calculate_average, get_course_summaries
 
 
 class AcademicModelTests(TestCase):
@@ -219,6 +219,122 @@ class CalculateAverageTests(SimpleTestCase):
             calculate_average(value for value in (100,)),
             Decimal("100.00"),
         )
+
+
+class GetCourseSummariesTests(TestCase):
+    def setUp(self):
+        self.student = self.create_student("2026-10001")
+        self.networks = Course.objects.create(code="S003-RED", name="Redes de prueba")
+        self.algorithms = Course.objects.create(
+            code="S003-ALG",
+            name="Algoritmos de prueba",
+        )
+        self.unenrolled = Course.objects.create(
+            code="S003-AJENO",
+            name="Curso sin inscripción",
+        )
+        self.topics = {
+            course.code: [
+                Topic.objects.create(course=course, name=name)
+                for name in ("Variables", "Condicionales", "Ciclos")
+            ]
+            for course in (self.networks, self.algorithms, self.unenrolled)
+        }
+        Enrollment.objects.create(student=self.student, course=self.networks)
+        Enrollment.objects.create(student=self.student, course=self.algorithms)
+
+    def create_student(self, student_id):
+        user = get_user_model().objects.create_user(
+            username=f"resumen_{student_id}",
+            password=secrets.token_urlsafe(24),
+        )
+        return StudentProfile.objects.create(
+            user=user,
+            student_id=student_id,
+            career="Carrera Sintética",
+            semester=3,
+        )
+
+    def grade(self, student, course, topic_index, value):
+        return Grade.objects.create(
+            student=student,
+            topic=self.topics[course.code][topic_index],
+            value=value,
+        )
+
+    def test_returns_only_enrolled_courses_ordered_by_name(self):
+        self.grade(self.student, self.unenrolled, 0, 90)
+
+        summaries = get_course_summaries(self.student)
+
+        self.assertEqual(
+            [summary.course for summary in summaries],
+            [self.algorithms, self.networks],
+        )
+
+    def test_topics_keep_creation_order_with_grade_or_none(self):
+        self.grade(self.student, self.algorithms, 0, 80)
+        self.grade(self.student, self.algorithms, 1, 60)
+
+        summary = get_course_summaries(self.student)[0]
+
+        self.assertEqual(
+            [(item.topic.name, item.value) for item in summary.topics],
+            [("Variables", 80), ("Condicionales", 60), ("Ciclos", None)],
+        )
+        self.assertEqual(summary.average, Decimal("70.00"))
+
+    def test_course_without_grades_has_no_average(self):
+        self.grade(self.student, self.algorithms, 0, 80)
+
+        summaries = get_course_summaries(self.student)
+
+        networks_summary = summaries[1]
+        self.assertEqual(networks_summary.course, self.networks)
+        self.assertTrue(all(item.value is None for item in networks_summary.topics))
+        self.assertIsNone(networks_summary.average)
+
+    def test_ignores_grades_of_other_students(self):
+        other_student = self.create_student("2026-10002")
+        Enrollment.objects.create(student=other_student, course=self.algorithms)
+        self.grade(other_student, self.algorithms, 0, 100)
+        self.grade(self.student, self.algorithms, 0, 50)
+
+        summary = get_course_summaries(self.student)[0]
+
+        self.assertEqual(summary.topics[0].value, 50)
+        self.assertEqual(summary.average, Decimal("50.00"))
+
+    def test_student_without_enrollments_has_no_summaries(self):
+        student = self.create_student("2026-10003")
+
+        self.assertEqual(get_course_summaries(student), [])
+
+    def test_reads_current_grade_on_each_call(self):
+        grade = self.grade(self.student, self.algorithms, 0, 40)
+        self.assertEqual(
+            get_course_summaries(self.student)[0].average,
+            Decimal("40.00"),
+        )
+
+        grade.value = 90
+        grade.save()
+
+        summary = get_course_summaries(self.student)[0]
+        self.assertEqual(summary.topics[0].value, 90)
+        self.assertEqual(summary.average, Decimal("90.00"))
+
+    def test_uses_three_queries_regardless_of_course_count(self):
+        for topic_index, value in enumerate((80, 65, 70)):
+            self.grade(self.student, self.algorithms, topic_index, value)
+            self.grade(self.student, self.networks, topic_index, value)
+
+        with self.assertNumQueries(3):
+            summaries = get_course_summaries(self.student)
+            self.assertEqual(
+                [summary.average for summary in summaries],
+                [Decimal("71.67"), Decimal("71.67")],
+            )
 
 
 class StudentAccessTests(TestCase):
