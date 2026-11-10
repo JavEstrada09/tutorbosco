@@ -2,8 +2,9 @@
 
 ## Estado
 
-Plan inicial con las 10 specs seleccionadas. Los issues ya están
-creados; todavía no existe ninguna spec funcional fusionada en main.
+El plan reúne las 10 specs seleccionadas y sus issues. S-001 y S-002
+están terminadas. La especificación de S-001 se incorporó en el PR #24
+y su implementación final en el PR #38.
 
 El reparto comienza con:
 - JavEstrada09: S-001, esqueleto funcional.
@@ -36,9 +37,9 @@ specs/S-NNN-nombre/plan.md.
 
 | Spec | Nombre | Requisito | Autor | Verificador | Issue | Estado |
 | --- | --- | --- | --- | --- | --- | --- |
-| S-001 | Esqueleto: login, dato de perfil, respuesta IA y modo demo | RF-01, RF-02 y RF-04 parciales; RNF-04 y RNF-06 parciales | JavEstrada09 | douglas-yasser | #4 | Por especificar |
-| S-002 | Modelo de datos y script de datos sintéticos | RNF-01; soporte de RF-02 y RF-03 | douglas-yasser | JavEstrada09 | #6 | Por especificar |
-| S-003 | Perfil académico | RF-02 | AlexDLG1 | ramosdeleon555 | #7 | Por especificar |
+| S-001 | Esqueleto: login, dato de perfil, respuesta IA y modo demo | RF-01, RF-02 y RF-04 parciales; RNF-04 y RNF-06 parciales | JavEstrada09 | douglas-yasser | #4 | Terminada |
+| S-002 | Modelo de datos y script de datos sintéticos | RNF-01; soporte de RF-02 y RF-03 | douglas-yasser | JavEstrada09 | #6 | Terminada |
+| S-003 | Perfil académico | RF-02 | AlexDLG1 | ramosdeleon555 | #7 | En verificación |
 | S-004 | Gestión académica del docente: temas y asignación | RF-03 parcial | Brayan11Hernandez | AlexDLG1 | #8 | En implementación |
 | S-005 | Registro y corrección de notas | RF-03 parcial | AlexDLG1 | ramosdeleon555 | #9 | Por especificar |
 | S-006 | Tutor personalizado: contexto académico e historial | RF-04; RNF-05 | JavEstrada09 | douglas-yasser | #10 | Por especificar |
@@ -231,6 +232,7 @@ Estados:
 - Spec en revisión.
 - Spec aprobada.
 - Plan en revisión.
+- Plan aprobado.
 - En implementación.
 - En verificación.
 - Terminada.

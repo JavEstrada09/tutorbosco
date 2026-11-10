@@ -4,7 +4,7 @@ Requisito: RF-01, RF-02 y RF-04 parciales; RNF-04 y RNF-06 parciales.
 Autor: JavEstrada09.
 Verificador: douglas-yasser.
 Issue: #4.
-Estado: borrador.
+Estado: aprobada y fusionada en `main` mediante PR #24.
 
 ## Problema
 
@@ -137,3 +137,6 @@ necesarios para este recorrido sí forman parte del esqueleto.
 
 2026-11-05 · Borrador inicial de S-001 · Define el recorrido mínimo,
 sus criterios de aceptación y sus límites respecto de otras specs.
+
+2026-11-06 · Estado documental · Registra la aprobación y fusión de la
+spec mediante PR #24. La implementación y verificación siguen pendientes.

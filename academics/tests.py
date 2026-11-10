@@ -1,0 +1,1112 @@
+import os
+import secrets
+from decimal import Decimal
+from io import StringIO
+from unittest.mock import patch
+
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.management import call_command
+from django.core.management.base import CommandError
+from django.db import IntegrityError, transaction
+from django.test import Client, SimpleTestCase, TestCase, override_settings
+from django.urls import reverse
+
+from academics.management.commands.rebuild_synthetic_data import (
+    COURSE_BLUEPRINTS,
+    DEMO_CAREER,
+    DEMO_SEMESTER,
+    DEMO_STUDENT_ID,
+    DEMO_TEACHER_USERNAMES,
+    DEMO_USERNAME,
+    PILOT_COURSE_CODE,
+    PILOT_COURSE_NAME,
+    TEACHER_ASSIGNMENTS,
+    TOTAL_STUDENTS,
+)
+from academics.models import (
+    Course,
+    Enrollment,
+    Grade,
+    StudentProfile,
+    TeacherProfile,
+    TeachingAssignment,
+    Topic,
+)
+from academics.services import calculate_average, get_course_summaries
+
+
+class AcademicModelTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="modelo_estudiante",
+            password=secrets.token_urlsafe(24),
+        )
+        self.profile = StudentProfile.objects.create(
+            user=self.user,
+            student_id="2025-00001",
+            career="Carrera Sintética",
+            semester=2,
+        )
+        self.course = Course.objects.create(
+            code="CURSO-PRUEBA",
+            name="Curso de prueba",
+        )
+
+    def test_student_id_format_and_semester_are_validated(self):
+        invalid_profile = StudentProfile(
+            user=get_user_model().objects.create_user(username="invalido"),
+            student_id="sin-formato",
+            career="Carrera Sintética",
+            semester=11,
+        )
+
+        with self.assertRaises(ValidationError):
+            invalid_profile.full_clean()
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            StudentProfile.objects.create(
+                user=get_user_model().objects.create_user(username="semestre"),
+                student_id="2025-00002",
+                career="Carrera Sintética",
+                semester=11,
+            )
+
+    def test_student_id_is_unique(self):
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            StudentProfile.objects.create(
+                user=get_user_model().objects.create_user(username="duplicado"),
+                student_id=self.profile.student_id,
+                career="Otra carrera",
+                semester=3,
+            )
+
+    def test_course_code_is_required_and_unique(self):
+        with self.assertRaises(ValidationError):
+            Course(code="", name="Sin código").full_clean()
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Course.objects.create(code=self.course.code, name="Duplicado")
+
+    def test_enrollment_is_unique_per_student_and_course(self):
+        Enrollment.objects.create(student=self.profile, course=self.course)
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Enrollment.objects.create(student=self.profile, course=self.course)
+
+
+class S002AcademicModelTests(TestCase):
+    def setUp(self):
+        self.teacher_user = get_user_model().objects.create_user(
+            username="docente_modelo",
+            password=secrets.token_urlsafe(24),
+        )
+        self.teacher = TeacherProfile.objects.create(user=self.teacher_user)
+        self.course = Course.objects.create(
+            code="S002-CURSO",
+            name="Curso S-002",
+        )
+        self.student_user = get_user_model().objects.create_user(
+            username="estudiante_s002",
+            password=secrets.token_urlsafe(24),
+        )
+        self.student = StudentProfile.objects.create(
+            user=self.student_user,
+            student_id="2026-00999",
+            career="Carrera Sintética",
+            semester=1,
+        )
+        self.topic = Topic.objects.create(
+            course=self.course,
+            name="Tema de prueba",
+        )
+
+    def test_teacher_profile_is_unique_per_user(self):
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            TeacherProfile.objects.create(user=self.teacher_user)
+
+    def test_teaching_assignment_is_unique_per_teacher_and_course(self):
+        TeachingAssignment.objects.create(
+            teacher=self.teacher,
+            course=self.course,
+        )
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            TeachingAssignment.objects.create(
+                teacher=self.teacher,
+                course=self.course,
+            )
+
+    def test_topic_name_is_unique_only_within_the_same_course(self):
+        other_course = Course.objects.create(
+            code="S002-OTRO",
+            name="Otro curso",
+        )
+        Topic.objects.create(course=other_course, name=self.topic.name)
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Topic.objects.create(course=self.course, name=self.topic.name)
+
+    def test_grade_value_is_limited_to_0_and_100(self):
+        for invalid_value in (-1, 101):
+            grade = Grade(
+                student=self.student,
+                topic=self.topic,
+                value=invalid_value,
+            )
+            with self.assertRaises(ValidationError):
+                grade.full_clean()
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Grade.objects.create(
+                student=self.student,
+                topic=self.topic,
+                value=101,
+            )
+
+    def test_grade_is_unique_per_student_and_topic(self):
+        Grade.objects.create(
+            student=self.student,
+            topic=self.topic,
+            value=60,
+        )
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Grade.objects.create(
+                student=self.student,
+                topic=self.topic,
+                value=80,
+            )
+
+    def test_grade_accepts_the_valid_boundaries(self):
+        topic_zero = Topic.objects.create(course=self.course, name="Tema cero")
+        topic_hundred = Topic.objects.create(
+            course=self.course,
+            name="Tema cien",
+        )
+
+        Grade.objects.create(student=self.student, topic=topic_zero, value=0)
+        Grade.objects.create(
+            student=self.student,
+            topic=topic_hundred,
+            value=100,
+        )
+
+
+class CalculateAverageTests(SimpleTestCase):
+    def test_simple_average_is_rounded_to_two_decimals(self):
+        self.assertEqual(calculate_average([80, 65, 70]), Decimal("71.67"))
+
+    def test_topics_without_grade_are_excluded(self):
+        average = calculate_average([80, 60, None])
+
+        self.assertEqual(average, Decimal("70.00"))
+        self.assertEqual(str(average), "70.00")
+
+    def test_returns_none_when_there_are_no_grades(self):
+        self.assertIsNone(calculate_average([None, None]))
+        self.assertIsNone(calculate_average([]))
+
+    def test_ties_are_rounded_half_up(self):
+        self.assertEqual(
+            calculate_average([70, 70, 70, 70, 70, 70, 70, 71]),
+            Decimal("70.13"),
+        )
+
+    def test_accepts_scale_boundaries_and_any_iterable(self):
+        self.assertEqual(calculate_average([0, 100]), Decimal("50.00"))
+        self.assertEqual(
+            calculate_average(value for value in (100,)),
+            Decimal("100.00"),
+        )
+
+
+class GetCourseSummariesTests(TestCase):
+    def setUp(self):
+        self.student = self.create_student("2026-10001")
+        self.networks = Course.objects.create(code="S003-RED", name="Redes de prueba")
+        self.algorithms = Course.objects.create(
+            code="S003-ALG",
+            name="Algoritmos de prueba",
+        )
+        self.unenrolled = Course.objects.create(
+            code="S003-AJENO",
+            name="Curso sin inscripción",
+        )
+        self.topics = {
+            course.code: [
+                Topic.objects.create(course=course, name=name)
+                for name in ("Variables", "Condicionales", "Ciclos")
+            ]
+            for course in (self.networks, self.algorithms, self.unenrolled)
+        }
+        Enrollment.objects.create(student=self.student, course=self.networks)
+        Enrollment.objects.create(student=self.student, course=self.algorithms)
+
+    def create_student(self, student_id):
+        user = get_user_model().objects.create_user(
+            username=f"resumen_{student_id}",
+            password=secrets.token_urlsafe(24),
+        )
+        return StudentProfile.objects.create(
+            user=user,
+            student_id=student_id,
+            career="Carrera Sintética",
+            semester=3,
+        )
+
+    def grade(self, student, course, topic_index, value):
+        return Grade.objects.create(
+            student=student,
+            topic=self.topics[course.code][topic_index],
+            value=value,
+        )
+
+    def test_returns_only_enrolled_courses_ordered_by_name(self):
+        self.grade(self.student, self.unenrolled, 0, 90)
+
+        summaries = get_course_summaries(self.student)
+
+        self.assertEqual(
+            [summary.course for summary in summaries],
+            [self.algorithms, self.networks],
+        )
+
+    def test_topics_keep_creation_order_with_grade_or_none(self):
+        self.grade(self.student, self.algorithms, 0, 80)
+        self.grade(self.student, self.algorithms, 1, 60)
+
+        summary = get_course_summaries(self.student)[0]
+
+        self.assertEqual(
+            [(item.topic.name, item.value) for item in summary.topics],
+            [("Variables", 80), ("Condicionales", 60), ("Ciclos", None)],
+        )
+        self.assertEqual(summary.average, Decimal("70.00"))
+
+    def test_course_without_grades_has_no_average(self):
+        self.grade(self.student, self.algorithms, 0, 80)
+
+        summaries = get_course_summaries(self.student)
+
+        networks_summary = summaries[1]
+        self.assertEqual(networks_summary.course, self.networks)
+        self.assertTrue(all(item.value is None for item in networks_summary.topics))
+        self.assertIsNone(networks_summary.average)
+
+    def test_ignores_grades_of_other_students(self):
+        other_student = self.create_student("2026-10002")
+        Enrollment.objects.create(student=other_student, course=self.algorithms)
+        self.grade(other_student, self.algorithms, 0, 100)
+        self.grade(self.student, self.algorithms, 0, 50)
+
+        summary = get_course_summaries(self.student)[0]
+
+        self.assertEqual(summary.topics[0].value, 50)
+        self.assertEqual(summary.average, Decimal("50.00"))
+
+    def test_student_without_enrollments_has_no_summaries(self):
+        student = self.create_student("2026-10003")
+
+        self.assertEqual(get_course_summaries(student), [])
+
+    def test_reads_current_grade_on_each_call(self):
+        grade = self.grade(self.student, self.algorithms, 0, 40)
+        self.assertEqual(
+            get_course_summaries(self.student)[0].average,
+            Decimal("40.00"),
+        )
+
+        grade.value = 90
+        grade.save()
+
+        summary = get_course_summaries(self.student)[0]
+        self.assertEqual(summary.topics[0].value, 90)
+        self.assertEqual(summary.average, Decimal("90.00"))
+
+    def test_uses_three_queries_regardless_of_course_count(self):
+        for topic_index, value in enumerate((80, 65, 70)):
+            self.grade(self.student, self.algorithms, topic_index, value)
+            self.grade(self.student, self.networks, topic_index, value)
+
+        with self.assertNumQueries(3):
+            summaries = get_course_summaries(self.student)
+            self.assertEqual(
+                [summary.average for summary in summaries],
+                [Decimal("71.67"), Decimal("71.67")],
+            )
+
+
+class StudentProfileViewTests(TestCase):
+    def setUp(self):
+        self.programming = Course.objects.create(
+            code="S003-PROG",
+            name="Programación de prueba",
+        )
+        self.databases = Course.objects.create(
+            code="S003-BD",
+            name="Bases de datos de prueba",
+        )
+        self.networks = Course.objects.create(
+            code="S003-RED",
+            name="Redes sin inscripción",
+        )
+        self.topics = {
+            course.code: [
+                Topic.objects.create(course=course, name=f"{name} {course.code}")
+                for name in ("Variables", "Condicionales", "Ciclos")
+            ]
+            for course in (self.programming, self.databases, self.networks)
+        }
+        self.student_number = 0
+
+    def create_student(self, *, courses=(), first_name="", last_name="", **fields):
+        self.student_number += 1
+        user = get_user_model().objects.create_user(
+            username=f"perfil_{self.student_number}",
+            password=secrets.token_urlsafe(24),
+            first_name=first_name,
+            last_name=last_name,
+        )
+        profile = StudentProfile.objects.create(
+            user=user,
+            student_id=fields.get("student_id", f"2026-2{self.student_number:04d}"),
+            career=fields.get("career", "Carrera Sintética"),
+            semester=fields.get("semester", 2),
+        )
+        for course in courses:
+            Enrollment.objects.create(student=profile, course=course)
+        return user, profile
+
+    def set_grades(self, profile, course, values):
+        for topic, value in zip(self.topics[course.code], values):
+            if value is not None:
+                Grade.objects.create(student=profile, topic=topic, value=value)
+
+    def get_profile(self, user, **params):
+        self.client.force_login(user)
+        return self.client.get(reverse("student_profile"), params)
+
+    def test_anonymous_access_redirects_to_login(self):
+        response = self.client.get(reverse("student_profile"))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('student_profile')}",
+        )
+
+    def test_accounts_without_student_profile_are_denied(self):
+        teacher_user = get_user_model().objects.create_user(username="docente_s003")
+        TeacherProfile.objects.create(user=teacher_user)
+        accounts = {
+            "sin perfil": get_user_model().objects.create_user(username="sin_s003"),
+            "docente": teacher_user,
+            "personal técnico": get_user_model().objects.create_user(
+                username="staff_s003",
+                is_staff=True,
+            ),
+        }
+        for label, user in accounts.items():
+            with self.subTest(cuenta=label):
+                response = self.get_profile(user)
+
+                self.assertContains(
+                    response,
+                    "Su cuenta no tiene autorización académica",
+                    status_code=403,
+                )
+
+    def test_profile_only_accepts_get(self):
+        user, _ = self.create_student(courses=[self.programming])
+        self.client.force_login(user)
+
+        self.assertEqual(self.client.post(reverse("student_profile")).status_code, 405)
+
+    def test_ca1_shows_personal_data_of_authenticated_student(self):
+        user, _ = self.create_student(
+            courses=[self.programming],
+            first_name="Lucía",
+            last_name="Sintética",
+            student_id="2025-01234",
+            career="Ingeniería Ficticia",
+            semester=7,
+        )
+
+        response = self.get_profile(user)
+
+        self.assertEqual(response.status_code, 200)
+        for value in ("Lucía Sintética", "2025-01234", "Ingeniería Ficticia", "7"):
+            self.assertContains(response, f"<dd>{value}</dd>", html=True)
+
+    def test_ca1_uses_username_when_account_has_no_name(self):
+        user, _ = self.create_student(courses=[self.programming])
+
+        response = self.get_profile(user)
+
+        self.assertContains(response, f"<dd>{user.username}</dd>", html=True)
+
+    def test_ca2_shows_only_enrolled_courses(self):
+        user, _ = self.create_student(courses=[self.programming, self.databases])
+
+        response = self.get_profile(user)
+
+        self.assertContains(response, "S003-PROG – Programación de prueba")
+        self.assertContains(response, "S003-BD – Bases de datos de prueba")
+        self.assertNotContains(response, self.networks.code)
+        self.assertNotContains(response, self.networks.name)
+
+    def test_ca3_shows_each_grade_and_course_average(self):
+        user, profile = self.create_student(courses=[self.programming])
+        self.set_grades(profile, self.programming, (80, 65, 70))
+
+        response = self.get_profile(user)
+
+        for value in (80, 65, 70):
+            self.assertContains(response, f"<td>{value}</td>", html=True)
+        self.assertContains(response, "<td>71.67</td>", html=True)
+        self.assertNotContains(response, "71,67")
+
+    def test_ca4_topic_without_grade_is_shown_and_excluded(self):
+        user, profile = self.create_student(courses=[self.programming])
+        self.set_grades(profile, self.programming, (80, 60, None))
+
+        response = self.get_profile(user)
+
+        self.assertContains(response, "<td>Sin nota</td>", count=1, html=True)
+        self.assertContains(response, "<td>70.00</td>", html=True)
+
+    def test_ca5_course_without_grades_shows_sin_notas(self):
+        user, _ = self.create_student(courses=[self.programming])
+
+        response = self.get_profile(user)
+
+        self.assertContains(response, "<td>Sin nota</td>", count=3, html=True)
+        self.assertContains(response, "<td>Sin notas</td>", count=1, html=True)
+
+    def test_ca6_student_without_courses_sees_data_and_notice(self):
+        user, profile = self.create_student(career="Carrera sin cursos")
+
+        response = self.get_profile(user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f"<dd>{profile.student_id}</dd>", html=True)
+        self.assertContains(response, "<dd>Carrera sin cursos</dd>", html=True)
+        self.assertContains(response, "Aún no tiene cursos asignados.")
+
+    def test_ca7_each_student_sees_only_own_profile(self):
+        first_user, first = self.create_student(
+            courses=[self.programming],
+            career="Carrera Primera",
+        )
+        second_user, second = self.create_student(
+            courses=[self.databases],
+            career="Carrera Segunda",
+        )
+        self.set_grades(first, self.programming, (90, 80, 70))
+        self.set_grades(second, self.databases, (50, 55, 45))
+
+        first_response = self.get_profile(first_user, student_id=second.student_id)
+        second_response = self.get_profile(second_user, student_id=first.student_id)
+
+        self.assertContains(first_response, first.student_id)
+        self.assertContains(first_response, "Carrera Primera")
+        self.assertContains(first_response, "<td>80.00</td>", html=True)
+        self.assertNotContains(first_response, second.student_id)
+        self.assertNotContains(first_response, "Carrera Segunda")
+        self.assertNotContains(first_response, self.databases.name)
+
+        self.assertContains(second_response, second.student_id)
+        self.assertContains(second_response, "Carrera Segunda")
+        self.assertContains(second_response, "<td>50.00</td>", html=True)
+        self.assertNotContains(second_response, first.student_id)
+        self.assertNotContains(second_response, "Carrera Primera")
+        self.assertNotContains(second_response, self.programming.name)
+
+    def test_ca8_reload_shows_updated_grade_and_average(self):
+        user, profile = self.create_student(courses=[self.programming])
+        self.set_grades(profile, self.programming, (80, 65, 70))
+        self.assertContains(self.get_profile(user), "<td>71.67</td>", html=True)
+
+        Grade.objects.filter(
+            student=profile,
+            topic=self.topics[self.programming.code][1],
+        ).update(value=95)
+        response = self.client.get(reverse("student_profile"))
+
+        self.assertContains(response, "<td>95</td>", html=True)
+        self.assertNotContains(response, "<td>65</td>", html=True)
+        self.assertContains(response, "<td>81.67</td>", html=True)
+
+
+class StudentAccessTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        self.course = Course.objects.create(
+            code=PILOT_COURSE_CODE,
+            name=PILOT_COURSE_NAME,
+        )
+        self.student_number = 0
+
+    def create_student(self, career, *, enrolled=True, **user_fields):
+        self.student_number += 1
+        user = get_user_model().objects.create_user(
+            username=f"estudiante_{self.student_number}",
+            password=secrets.token_urlsafe(24),
+            **user_fields,
+        )
+        profile = StudentProfile.objects.create(
+            user=user,
+            student_id=f"2026-{self.student_number:05d}",
+            career=career,
+            semester=2,
+        )
+        if enrolled:
+            Enrollment.objects.create(student=profile, course=self.course)
+        return user, profile
+
+    def test_anonymous_access_redirects_to_login_with_safe_next(self):
+        response = self.client.get(reverse("student_home"))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('student_home')}",
+        )
+
+    def test_account_without_profile_is_denied_in_spanish(self):
+        user = get_user_model().objects.create_user(username="sin_perfil")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(
+            response,
+            "Su cuenta no tiene autorización académica",
+            status_code=403,
+        )
+
+    def test_student_without_pilot_enrollment_is_denied(self):
+        user, _ = self.create_student("Carrera sin inscripción", enrolled=False)
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertNotContains(response, "Carrera sin inscripción", status_code=403)
+
+    def test_staff_status_alone_does_not_grant_academic_access(self):
+        user = get_user_model().objects.create_user(
+            username="personal_tecnico",
+            is_staff=True,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "Acceso denegado", status_code=403)
+
+    def test_each_student_only_sees_career_from_authenticated_account(self):
+        first_user, first_profile = self.create_student("Carrera Primera")
+        second_user, second_profile = self.create_student("Carrera Segunda")
+
+        self.client.force_login(first_user)
+        first_response = self.client.get(
+            reverse("student_home"),
+            {"student_id": second_profile.student_id},
+        )
+        self.assertContains(first_response, first_profile.career)
+        self.assertNotContains(first_response, second_profile.career)
+        self.assertNotContains(first_response, first_profile.student_id)
+        self.assertNotContains(first_response, "Semestre")
+
+        self.client.force_login(second_user)
+        second_response = self.client.get(
+            reverse("student_home"),
+            {"student_id": first_profile.student_id},
+        )
+        self.assertContains(second_response, second_profile.career)
+        self.assertNotContains(second_response, first_profile.career)
+        self.assertNotContains(second_response, second_profile.student_id)
+        self.assertNotContains(second_response, "Semestre")
+
+    def test_student_home_links_to_profile(self):
+        user, _ = self.create_student("Carrera con enlace al perfil")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("student_home"))
+
+        self.assertContains(
+            response,
+            f'<a class="profile-link" href="{reverse("student_profile")}">'
+            "Ver su perfil académico</a>",
+            html=True,
+        )
+
+    def test_logout_is_post_only_and_requires_valid_csrf(self):
+        user, _ = self.create_student("Carrera para cerrar sesión")
+        self.client.force_login(user)
+
+        self.assertEqual(self.client.get(reverse("logout")).status_code, 405)
+        self.assertEqual(self.client.post(reverse("logout")).status_code, 403)
+        self.assertIn("_auth_user_id", self.client.session)
+
+        home_response = self.client.get(reverse("student_home"))
+        csrf_token = home_response.cookies["csrftoken"].value
+        response = self.client.post(
+            reverse("logout"),
+            {
+                "csrfmiddlewaretoken": csrf_token,
+                "next": "https://sitio-no-permitido.example/",
+            },
+        )
+
+        self.assertRedirects(response, reverse("login"))
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+
+@override_settings(
+    PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
+)
+class RebuildSyntheticDataTests(TestCase):
+    password = secrets.token_urlsafe(24)
+    teacher_password = secrets.token_urlsafe(24)
+
+    def run_command(self):
+        stdout = StringIO()
+        with patch.dict(
+            os.environ,
+            {
+                "DEMO_STUDENT_PASSWORD": self.password,
+                "DEMO_TEACHER_PASSWORD": self.teacher_password,
+            },
+        ):
+            call_command("rebuild_synthetic_data", stdout=stdout)
+        return stdout.getvalue()
+
+    def test_command_requires_password_without_creating_data(self):
+        with patch.dict(os.environ, {"DEMO_STUDENT_PASSWORD": ""}):
+            with self.assertRaisesMessage(
+                CommandError,
+                "DEMO_STUDENT_PASSWORD es obligatoria.",
+            ):
+                call_command("rebuild_synthetic_data")
+
+        self.assertFalse(get_user_model().objects.filter(username=DEMO_USERNAME))
+        self.assertFalse(Course.objects.filter(code=PILOT_COURSE_CODE))
+
+    def test_command_requires_teacher_password_without_creating_data(self):
+        with patch.dict(
+            os.environ,
+            {
+                "DEMO_STUDENT_PASSWORD": self.password,
+                "DEMO_TEACHER_PASSWORD": "",
+            },
+        ):
+            with self.assertRaisesMessage(
+                CommandError,
+                "DEMO_TEACHER_PASSWORD es obligatoria.",
+            ):
+                call_command("rebuild_synthetic_data")
+
+        self.assertFalse(get_user_model().objects.filter(username=DEMO_USERNAME))
+        self.assertFalse(Course.objects.filter(code=PILOT_COURSE_CODE))
+
+    def test_command_creates_full_synthetic_dataset(self):
+        output = self.run_command()
+
+        user = get_user_model().objects.get(username=DEMO_USERNAME)
+        profile = StudentProfile.objects.get(user=user)
+        course = Course.objects.get(code=PILOT_COURSE_CODE)
+
+        self.assertEqual(profile.student_id, DEMO_STUDENT_ID)
+        self.assertEqual(profile.career, DEMO_CAREER)
+        self.assertEqual(profile.semester, DEMO_SEMESTER)
+        self.assertEqual(course.name, PILOT_COURSE_NAME)
+        self.assertTrue(
+            Enrollment.objects.filter(student=profile, course=course).exists()
+        )
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertNotEqual(user.password, self.password)
+        self.assertTrue(user.check_password(self.password))
+        self.assertNotIn(self.password, output)
+
+        self.assertEqual(StudentProfile.objects.count(), TOTAL_STUDENTS)
+        self.assertEqual(
+            TeacherProfile.objects.count(),
+            len(DEMO_TEACHER_USERNAMES),
+        )
+        self.assertEqual(Course.objects.count(), len(COURSE_BLUEPRINTS))
+        self.assertEqual(
+            Topic.objects.count(),
+            sum(
+                len(blueprint["topics"])
+                for blueprint in COURSE_BLUEPRINTS.values()
+            ),
+        )
+        for code, blueprint in COURSE_BLUEPRINTS.items():
+            self.assertEqual(
+                Topic.objects.filter(course__code=code).count(),
+                len(blueprint["topics"]),
+            )
+        self.assertEqual(
+            set(
+                Topic.objects.filter(course=course).values_list(
+                    "name",
+                    flat=True,
+                )
+            ),
+            set(COURSE_BLUEPRINTS[PILOT_COURSE_CODE]["topics"]),
+        )
+
+        for username in DEMO_TEACHER_USERNAMES:
+            teacher_user = get_user_model().objects.get(username=username)
+            self.assertTrue(teacher_user.check_password(self.teacher_password))
+            self.assertFalse(teacher_user.is_staff)
+            self.assertFalse(teacher_user.is_superuser)
+            self.assertEqual(
+                set(
+                    TeachingAssignment.objects.filter(
+                        teacher__user=teacher_user
+                    ).values_list("course__code", flat=True)
+                ),
+                set(TEACHER_ASSIGNMENTS[username]),
+            )
+            self.assertNotIn(self.teacher_password, output)
+
+    def test_command_generates_distinct_grade_profiles(self):
+        self.run_command()
+
+        demo = StudentProfile.objects.get(student_id=DEMO_STUDENT_ID)
+        no_weak = StudentProfile.objects.get(user__username="estudiante_01")
+        no_grades = StudentProfile.objects.get(user__username="estudiante_02")
+
+        self.assertEqual(
+            Grade.objects.filter(student=demo, value__lt=60).count(),
+            2,
+        )
+        self.assertEqual(
+            Grade.objects.filter(student=no_weak, value__lt=60).count(),
+            0,
+        )
+        self.assertFalse(Grade.objects.filter(student=no_grades).exists())
+
+    def test_command_is_idempotent_and_preserves_unrelated_records(self):
+        unrelated_user = get_user_model().objects.create_user(
+            username="estudiante_ajeno",
+            password=secrets.token_urlsafe(24),
+            first_name="Sin cambios",
+        )
+        unrelated_profile = StudentProfile.objects.create(
+            user=unrelated_user,
+            student_id="2024-99999",
+            career="Carrera ajena",
+            semester=4,
+        )
+        unrelated_course = Course.objects.create(
+            code="CURSO-AJENO",
+            name="Curso ajeno",
+        )
+        unrelated_enrollment = Enrollment.objects.create(
+            student=unrelated_profile,
+            course=unrelated_course,
+        )
+        unrelated_password_hash = unrelated_user.password
+
+        self.run_command()
+        demo_ids = (
+            get_user_model().objects.get(username=DEMO_USERNAME).pk,
+            StudentProfile.objects.get(student_id=DEMO_STUDENT_ID).pk,
+            Course.objects.get(code=PILOT_COURSE_CODE).pk,
+        )
+        output = self.run_command()
+
+        self.assertEqual(
+            demo_ids,
+            (
+                get_user_model().objects.get(username=DEMO_USERNAME).pk,
+                StudentProfile.objects.get(student_id=DEMO_STUDENT_ID).pk,
+                Course.objects.get(code=PILOT_COURSE_CODE).pk,
+            ),
+        )
+        self.assertEqual(get_user_model().objects.count(), TOTAL_STUDENTS + 3 + 1)
+        self.assertEqual(StudentProfile.objects.count(), TOTAL_STUDENTS + 1)
+        self.assertEqual(
+            TeacherProfile.objects.count(),
+            len(DEMO_TEACHER_USERNAMES),
+        )
+        self.assertEqual(Course.objects.count(), len(COURSE_BLUEPRINTS) + 1)
+        self.assertEqual(
+            Topic.objects.count(),
+            sum(
+                len(blueprint["topics"])
+                for blueprint in COURSE_BLUEPRINTS.values()
+            ),
+        )
+        self.assertEqual(
+            Enrollment.objects.count(),
+            1 + (TOTAL_STUDENTS - 1) * 2 + 1,
+        )
+
+        unrelated_user.refresh_from_db()
+        unrelated_profile.refresh_from_db()
+        unrelated_course.refresh_from_db()
+        unrelated_enrollment.refresh_from_db()
+        self.assertEqual(unrelated_user.first_name, "Sin cambios")
+        self.assertEqual(unrelated_user.password, unrelated_password_hash)
+        self.assertEqual(unrelated_profile.career, "Carrera ajena")
+        self.assertEqual(unrelated_course.name, "Curso ajeno")
+        self.assertEqual(unrelated_enrollment.student, unrelated_profile)
+        self.assertNotIn(self.password, output)
+
+    def test_command_preserves_unrelated_grade_on_managed_course(self):
+        self.run_command()
+
+        unrelated_user = get_user_model().objects.create_user(
+            username="estudiante_con_nota_ajena",
+            password=secrets.token_urlsafe(24),
+            first_name="Nota ajena",
+        )
+        unrelated_profile = StudentProfile.objects.create(
+            user=unrelated_user,
+            student_id="2024-77777",
+            career="Carrera ajena",
+            semester=3,
+        )
+        course = Course.objects.get(code=PILOT_COURSE_CODE)
+        topic = Topic.objects.filter(course=course).first()
+        Enrollment.objects.create(
+            student=unrelated_profile,
+            course=course,
+        )
+        unrelated_grade = Grade.objects.create(
+            student=unrelated_profile,
+            topic=topic,
+            value=77,
+        )
+
+        output = self.run_command()
+
+        unrelated_user.refresh_from_db()
+        unrelated_profile.refresh_from_db()
+        unrelated_grade.refresh_from_db()
+        self.assertEqual(unrelated_user.first_name, "Nota ajena")
+        self.assertEqual(unrelated_profile.career, "Carrera ajena")
+        self.assertTrue(
+            Enrollment.objects.filter(
+                student=unrelated_profile,
+                course=course,
+            ).exists()
+        )
+        self.assertTrue(Topic.objects.filter(pk=topic.pk).exists())
+        self.assertEqual(unrelated_grade.value, 77)
+        self.assertNotIn(self.password, output)
+
+    def test_command_preserves_demo_records_outside_manifest(self):
+        self.run_command()
+
+        extra_course = Course.objects.create(
+            code="CURSO-EXTRA",
+            name="Curso fuera del manifiesto",
+        )
+        extra_topic = Topic.objects.create(
+            course=extra_course,
+            name="Tema fuera del manifiesto",
+        )
+        demo_profile = StudentProfile.objects.get(student_id=DEMO_STUDENT_ID)
+        extra_enrollment = Enrollment.objects.create(
+            student=demo_profile,
+            course=extra_course,
+        )
+        extra_grade = Grade.objects.create(
+            student=demo_profile,
+            topic=extra_topic,
+            value=88,
+        )
+        demo_teacher = TeacherProfile.objects.get(
+            user__username=DEMO_TEACHER_USERNAMES[0]
+        )
+        extra_assignment = TeachingAssignment.objects.create(
+            teacher=demo_teacher,
+            course=extra_course,
+        )
+
+        output = self.run_command()
+
+        self.assertTrue(
+            Enrollment.objects.filter(pk=extra_enrollment.pk).exists()
+        )
+        self.assertEqual(Grade.objects.get(pk=extra_grade.pk).value, 88)
+        self.assertTrue(
+            TeachingAssignment.objects.filter(pk=extra_assignment.pk).exists()
+        )
+        self.assertNotIn(self.password, output)
+
+    def test_command_preserves_records_outside_each_account_manifest(self):
+        self.run_command()
+
+        demo_profile = StudentProfile.objects.get(student_id=DEMO_STUDENT_ID)
+        course = Course.objects.get(code="BD-APL")
+        topic = Topic.objects.filter(course=course).first()
+        extra_enrollment = Enrollment.objects.create(
+            student=demo_profile,
+            course=course,
+        )
+        extra_grade = Grade.objects.create(
+            student=demo_profile,
+            topic=topic,
+            value=88,
+        )
+        demo_teacher = TeacherProfile.objects.get(
+            user__username=DEMO_TEACHER_USERNAMES[0]
+        )
+        extra_assignment = TeachingAssignment.objects.create(
+            teacher=demo_teacher,
+            course=course,
+        )
+
+        self.run_command()
+
+        self.assertTrue(
+            Enrollment.objects.filter(pk=extra_enrollment.pk).exists()
+        )
+        self.assertEqual(Grade.objects.get(pk=extra_grade.pk).value, 88)
+        self.assertTrue(
+            TeachingAssignment.objects.filter(pk=extra_assignment.pk).exists()
+        )
+
+    def test_command_rejects_profile_outside_manifest_for_demo_user(self):
+        user = get_user_model().objects.create_user(
+            username=DEMO_USERNAME,
+            password=secrets.token_urlsafe(24),
+            first_name="Nombre original",
+        )
+        profile = StudentProfile.objects.create(
+            user=user,
+            student_id="2023-88888",
+            career="Carrera original",
+            semester=5,
+        )
+        original_password_hash = user.password
+
+        with self.assertRaisesMessage(
+            CommandError,
+            "La cuenta sintética existente no coincide con el manifiesto.",
+        ):
+            self.run_command()
+
+        user.refresh_from_db()
+        profile.refresh_from_db()
+        self.assertEqual(user.first_name, "Nombre original")
+        self.assertEqual(user.password, original_password_hash)
+        self.assertEqual(profile.student_id, "2023-88888")
+        self.assertEqual(profile.career, "Carrera original")
+        self.assertFalse(Course.objects.filter(code=PILOT_COURSE_CODE).exists())
+
+    def test_command_rejects_student_id_owned_by_unrelated_profile(self):
+        unrelated_user = get_user_model().objects.create_user(
+            username="propietario_ajeno",
+            password=secrets.token_urlsafe(24),
+        )
+        StudentProfile.objects.create(
+            user=unrelated_user,
+            student_id=DEMO_STUDENT_ID,
+            career="Carrera ajena",
+            semester=6,
+        )
+
+        with self.assertRaisesMessage(
+            CommandError,
+            "El carné sintético ya pertenece a un perfil fuera del manifiesto.",
+        ):
+            self.run_command()
+
+        self.assertFalse(get_user_model().objects.filter(username=DEMO_USERNAME))
+        self.assertFalse(Course.objects.filter(code=PILOT_COURSE_CODE).exists())
+
+    def test_command_rejects_demo_username_without_profile_unchanged(self):
+        user = get_user_model().objects.create_user(
+            username=DEMO_USERNAME,
+            password=secrets.token_urlsafe(24),
+            first_name="Nombre original",
+            last_name="Apellido original",
+            is_active=False,
+        )
+        original_state = (
+            user.password,
+            user.first_name,
+            user.last_name,
+            user.is_active,
+            user.is_staff,
+            user.is_superuser,
+        )
+
+        with self.assertRaisesMessage(
+            CommandError,
+            "La cuenta sintética existente no coincide con el manifiesto.",
+        ):
+            self.run_command()
+
+        user.refresh_from_db()
+        self.assertEqual(
+            (
+                user.password,
+                user.first_name,
+                user.last_name,
+                user.is_active,
+                user.is_staff,
+                user.is_superuser,
+            ),
+            original_state,
+        )
+        self.assertFalse(StudentProfile.objects.filter(user=user).exists())
+        self.assertFalse(Course.objects.filter(code=PILOT_COURSE_CODE).exists())
+
+    def test_command_rejects_privileged_demo_username_unchanged(self):
+        for privilege in ("is_staff", "is_superuser"):
+            with self.subTest(privilege=privilege):
+                user = get_user_model().objects.create_user(
+                    username=DEMO_USERNAME,
+                    password=secrets.token_urlsafe(24),
+                    first_name="Nombre privilegiado",
+                    last_name="Apellido privilegiado",
+                    **{privilege: True},
+                )
+                StudentProfile.objects.create(
+                    user=user,
+                    student_id=DEMO_STUDENT_ID,
+                    career="Carrera privilegiada",
+                    semester=7,
+                )
+                original_state = (
+                    user.password,
+                    user.first_name,
+                    user.last_name,
+                    user.is_staff,
+                    user.is_superuser,
+                )
+
+                with self.assertRaisesMessage(
+                    CommandError,
+                    "La cuenta sintética existente tiene privilegios.",
+                ):
+                    self.run_command()
+
+                user.refresh_from_db()
+                self.assertEqual(
+                    (
+                        user.password,
+                        user.first_name,
+                        user.last_name,
+                        user.is_staff,
+                        user.is_superuser,
+                    ),
+                    original_state,
+                )
+                self.assertFalse(
+                    Course.objects.filter(code=PILOT_COURSE_CODE).exists()
+                )
+
+                StudentProfile.objects.filter(user=user).delete()
+                user.delete()
