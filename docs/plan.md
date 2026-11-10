@@ -39,7 +39,7 @@ specs/S-NNN-nombre/plan.md.
 | --- | --- | --- | --- | --- | --- | --- |
 | S-001 | Esqueleto: login, dato de perfil, respuesta IA y modo demo | RF-01, RF-02 y RF-04 parciales; RNF-04 y RNF-06 parciales | JavEstrada09 | douglas-yasser | #4 | Terminada |
 | S-002 | Modelo de datos y script de datos sintéticos | RNF-01; soporte de RF-02 y RF-03 | douglas-yasser | JavEstrada09 | #6 | Terminada |
-| S-003 | Perfil académico | RF-02 | AlexDLG1 | ramosdeleon555 | #7 | Por especificar |
+| S-003 | Perfil académico | RF-02 | AlexDLG1 | ramosdeleon555 | #7 | En implementación |
 | S-004 | Gestión académica del docente: temas y asignación | RF-03 parcial | Brayan11Hernandez | AlexDLG1 | #8 | Por especificar |
 | S-005 | Registro y corrección de notas | RF-03 parcial | AlexDLG1 | ramosdeleon555 | #9 | Por especificar |
 | S-006 | Tutor personalizado: contexto académico e historial | RF-04; RNF-05 | JavEstrada09 | douglas-yasser | #10 | Por especificar |
