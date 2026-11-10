@@ -20,3 +20,12 @@ class TutorQuestionForm(forms.Form):
             }
         ),
     )
+
+
+class TutorActionForm(forms.Form):
+    course = forms.CharField(max_length=20, widget=forms.HiddenInput)
+    revision = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
+    action = forms.ChoiceField(
+        choices=(("ask", "ask"), ("new", "new"), ("continue_demo", "continue_demo")),
+        widget=forms.HiddenInput,
+    )

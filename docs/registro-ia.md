@@ -901,3 +901,19 @@ Las pruebas ejecutadas en Linux usan datos sintéticos, proveedor simulado
 y red bloqueada para el demo. No se llamó a Gemini real ni se generó gasto
 del producto. La lectura y ejecución por Jav en Windows y la verificación
 independiente de Douglas quedan pendientes para este cambio.
+
+
+## S-006 · 10-11-2026 · Bloque 3b: integración de la conversación
+
+ChatGPT (Codex) ayudó a integrar la vista y la plantilla con el hilo del
+curso, las revisiones, el historial, el reinicio y la continuación en
+demo con la pregunta pendiente. Se sustituyó el formulario anterior de
+continuación, que siempre usaba la pregunta de ejemplo, según el contrato
+del plan aprobado. Las respuestas siguen mostrándose como texto escapado.
+
+Se ejecutaron pruebas automatizadas en Linux con cuentas sintéticas y
+Gemini simulado; no se hicieron llamadas reales ni hubo gasto del producto.
+La lectura y ejecución del cambio por Jav en Windows y la aceptación
+independiente de Douglas quedan pendientes. La matriz de los nueve
+criterios está en `specs/S-006-tutor/plan.md`; su evidencia y el commit
+probado deben registrarse en `verificacion.md` antes de fusionar.

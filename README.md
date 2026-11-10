@@ -216,8 +216,10 @@ estudiante y el conteo de estudiantes con cada tema débil. Solo se muestran
 los cursos asignados al docente; el resto responde 403.
 
 Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
-`Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
-muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.
+`Continuar en modo demo`. Esa acción usa en el servidor la pregunta pendiente
+del mismo hilo, muestra la etiqueta `Respuesta grabada del modo demo` y no
+inicializa Gemini. Si no hay una grabación aplicable, muestra un aviso y
+conserva los turnos completados.
 
 ### Registro de notas del docente
 
@@ -290,7 +292,7 @@ de Douglas.
 - python-dotenv 1.2.4.
 
 
-### S-006 · Proveedores personalizados (bloque 3a)
+### S-006 · Tutor personalizado
 
 El servicio `conversation_context` prepara exclusivamente los temas y notas
 capturados al abrir el hilo y sus cuatro últimos turnos. Para la llamada se
@@ -306,7 +308,17 @@ adicionales grabados para los seis temas del piloto. Sin una grabación
 aplicable, devuelve un aviso; no reutiliza respuestas del piloto en otro
 curso. Se comparte el cálculo `is_weak` y se distinguen las notas ausentes.
 
-Este bloque prepara los proveedores. La conexión de estos contextos con
-la vista, el historial visible, el reinicio y la pregunta pendiente se
-entrega en el bloque 3b. El recorrido actual de pantalla continúa usando
-el contexto básico hasta esa integración.
+La pantalla conserva un hilo por sesión y curso, muestra sus mensajes y
+permite cambiar entre los cursos inscritos. «Nueva conversación» borra
+los mensajes del curso seleccionado y consulta de nuevo sus notas. Cerrar
+sesión elimina todos los hilos de esa sesión. Los formularios mantienen
+CSRF e incluyen curso, revisión y acción; una revisión desactualizada se
+rechaza antes de consultar al proveedor, y un resultado que llega después
+de un reinicio se descarta.
+
+Para probar el recorrido en demo, inicie sesión, pregunte qué tema debería
+repasar y pida otro ejemplo. Cambie de curso y vuelva al primero para ver
+su historial. Actualice una nota con la pantalla docente, vuelva al tutor
+y pulse «Nueva conversación»: la recomendación usará la nota actualizada.
+La aceptación completa de S-006 continúa pendiente de la verificación
+independiente de los nueve criterios por Douglas.

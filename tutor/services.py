@@ -18,6 +18,7 @@ from tutor.providers import (
     InvalidTutorResponseError,
     TutorConfigurationError,
     TutorContext,
+    TutorError,
 )
 
 
@@ -192,12 +193,15 @@ def store_pending_question(conversation, revision, question):
     _update_conversation(conversation, revision, pending_question=question)
 
 
-def append_conversation_turn(conversation, revision, *, question, answer):
+def append_conversation_turn(conversation, revision, *, question, answer, mode=None):
     """Guarda el turno ya validado y consume la pregunta pendiente."""
+    turn = {"question": question, "answer": answer}
+    if mode is not None:
+        turn["mode"] = mode
     _update_conversation(
         conversation,
         revision,
-        turns=[*conversation.turns, {"question": question, "answer": answer}],
+        turns=[*conversation.turns, turn],
         pending_question="",
     )
 
@@ -231,3 +235,22 @@ def conversation_context(conversation):
             for turn in conversation.turns[-CONTEXT_TURN_LIMIT:]
         ),
     )
+
+
+def reply_to_conversation(conversation, revision, *, question, mode=None):
+    """Consulta fuera de transacciones y guarda solo sobre la revisión vigente."""
+    check_conversation_revision(conversation, revision)
+    context = conversation_context(conversation)
+    try:
+        reply = ask_tutor(
+            question=question, career=context.career,
+            course_name=context.course_name, context=context, mode=mode,
+        )
+    except TutorError:
+        if (mode or get_tutor_mode()) != "demo":
+            store_pending_question(conversation, revision, question)
+        raise
+    append_conversation_turn(
+        conversation, revision, question=question, answer=reply.text, mode=reply.mode,
+    )
+    return reply
