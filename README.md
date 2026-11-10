@@ -36,15 +36,18 @@ sintéticos. La verificación independiente quedó registrada en
 S-003 agrega el perfil académico del estudiante en `/perfil/`: datos
 personales, cursos inscritos, nota por tema y promedio del curso. El promedio
 se calcula en una sola función, `academics.services.calculate_average`. La
-verificación independiente de ramosdeleon555 está pendiente.
+verificación independiente de ramosdeleon555 quedó registrada en
+[verificacion.md](specs/S-003-perfil-academico/verificacion.md).
 
 S-005 agrega la pantalla del docente para registrar y corregir notas en
 `/docente/cursos/<código>/notas/`. La regla de guardado vive en
 `academics.services.record_grade`, que comprueba en el servidor que el
 docente imparta el curso, que el tema sea del curso, que el estudiante esté
 inscrito y que la nota sea un entero de 0 a 100. La verificación
-independiente de ramosdeleon555 está pendiente. La gestión de temas y
-estudiantes de S-004 incluye el enlace a esta pantalla.
+independiente de ramosdeleon555 quedó registrada en
+[verificacion.md](specs/S-005-registro-notas/verificacion.md). La
+gestión de temas y estudiantes de S-004 incluye el enlace a esta
+pantalla.
 
 ## Requisitos
 
