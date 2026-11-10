@@ -15,6 +15,11 @@ class TopicForm(forms.ModelForm):
         labels = {
             "name": "Nombre del tema",
         }
+        error_messages = {
+            "name": {
+                "required": "El nombre del tema es obligatorio.",
+            },
+        }
         widgets = {
             "name": forms.TextInput(
                 attrs={

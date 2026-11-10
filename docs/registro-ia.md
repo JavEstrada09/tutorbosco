@@ -774,3 +774,38 @@ de conversación. Se reutilizó el cálculo de temas débiles de S-008.
 Se usaron respuestas locales y dobles de prueba para comprobar este
 bloque, sin llamadas a Gemini. La revisión del cambio por el autor y
 la verificación independiente de la funcionalidad quedan pendientes.
+
+## S-004 · 10-11-2026 · Continuación de implementación
+
+Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: revisión de la implementación, ajustes de interfaz,
+pruebas automatizadas y documentación.
+
+Instrucción clave:
+Continuar la parte de Brayan correspondiente a S-004 siguiendo el plan
+aprobado y los lineamientos del repositorio.
+
+Trabajo realizado:
+- Se comparó la implementación existente con los ocho criterios de
+  aceptación y el plan aprobado.
+- Se corrigió la edición inválida de temas para conservar el valor enviado
+  y mostrar el error junto al campo correspondiente.
+- Se agregó el mensaje específico para nombres de tema obligatorios.
+- Se ampliaron las pruebas para comprobar aislamiento entre cursos,
+  confirmaciones visibles, datos actualizados, prevención de duplicados y
+  conservación de datos ante una edición inválida.
+- Se documentaron en README las tres pantallas de gestión académica.
+- Se ejecutaron 17 pruebas específicas de S-004 y las 129 pruebas de
+  `accounts`, `academics` y `tutor`; todas finalizaron correctamente.
+
+Pendiente:
+- Las pruebas de vistas todavía simulan `get_taught_course()`. La
+  autorización real de CA-7 se probará después de que la implementación de
+  S-005 se fusione en `main`, conforme al plan aprobado de S-004.
+- AlexDLG1 debe realizar la verificación independiente; no se registra aquí
+  ninguna aprobación ni evidencia en su nombre.
+
+Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
+producto. El consumo de la herramienta de desarrollo no se cuantificó.

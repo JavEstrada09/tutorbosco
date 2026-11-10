@@ -198,6 +198,14 @@ promedio y sus temas débiles, ordenables por promedio, el detalle de cada
 estudiante y el conteo de estudiantes con cada tema débil. Solo se muestran
 los cursos asignados al docente; el resto responde 403.
 
+La gestión académica de S-004 está disponible en
+`http://127.0.0.1:8000/docente/cursos/`. Desde esa pantalla, el docente puede
+consultar únicamente sus cursos, registrar o modificar sus temas y asignar
+estudiantes existentes. Los formularios evitan temas e inscripciones
+duplicados y muestran estados vacíos y errores comprensibles. Las rutas de un
+curso ajeno o inexistente responden 403. La autorización compartida con S-005
+se integrará cuando esa spec esté disponible en `main`.
+
 Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
 `Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
 muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.

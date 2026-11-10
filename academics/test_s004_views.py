@@ -64,7 +64,7 @@ class S004TeacherViewsTests(TestCase):
         self.client.force_login(self.user)
 
     def request_with_course(
-        self, url, data=None, authorized=True
+        self, url, data=None, authorized=True, follow=False
     ):
         course = self.course if authorized else None
 
@@ -76,13 +76,21 @@ class S004TeacherViewsTests(TestCase):
             if data is None:
                 return self.client.get(url)
 
-            return self.client.post(url, data)
+            return self.client.post(url, data, follow=follow)
 
     # CA-2: Consultar temas
     def test_view_lists_topics(self):
         Topic.objects.create(
             course=self.course,
             name="Variables",
+        )
+        other_course = Course.objects.create(
+            code="BD-APL",
+            name="Bases de Datos Aplicadas",
+        )
+        Topic.objects.create(
+            course=other_course,
+            name="Tema de otro curso",
         )
 
         response = self.request_with_course(
@@ -91,6 +99,7 @@ class S004TeacherViewsTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Variables")
+        self.assertNotContains(response, "Tema de otro curso")
 
     # CA-3: Crear temas
     def test_view_creates_topic(self):
@@ -100,9 +109,15 @@ class S004TeacherViewsTests(TestCase):
                 "action": "create",
                 "name": "Estructuras de datos",
             },
+            follow=True,
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "El tema académico se registró correctamente.",
+        )
+        self.assertContains(response, "Estructuras de datos")
         self.assertTrue(
             Topic.objects.filter(
                 course=self.course,
@@ -124,9 +139,15 @@ class S004TeacherViewsTests(TestCase):
                 "topic_id": topic.pk,
                 "name": "Variables avanzadas",
             },
+            follow=True,
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "El tema académico se actualizó correctamente.",
+        )
+        self.assertContains(response, "Variables avanzadas")
         topic.refresh_from_db()
         self.assertEqual(
             topic.name, "Variables avanzadas"
@@ -140,9 +161,15 @@ class S004TeacherViewsTests(TestCase):
                 "action": "enroll",
                 "student": self.student.pk,
             },
+            follow=True,
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "El estudiante fue asignado correctamente.",
+        )
+        self.assertContains(response, self.student.student_id)
         self.assertEqual(
             Enrollment.objects.filter(
                 student=self.student,
@@ -167,6 +194,10 @@ class S004TeacherViewsTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Este estudiante ya está asignado a este curso.",
+        )
         self.assertEqual(
             Enrollment.objects.filter(
                 student=self.student,
@@ -203,9 +234,38 @@ class S004TeacherViewsTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "El nombre del tema es obligatorio.")
         self.assertEqual(
             Topic.objects.filter(
                 course=self.course
             ).count(),
             0,
         )
+
+    def test_view_preserves_invalid_topic_update(self):
+        Topic.objects.create(
+            course=self.course,
+            name="Variables",
+        )
+        topic = Topic.objects.create(
+            course=self.course,
+            name="Condicionales",
+        )
+
+        response = self.request_with_course(
+            self.topics_url,
+            {
+                "action": "update",
+                "topic_id": topic.pk,
+                "name": "Variables",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Este tema ya está registrado en el curso.",
+        )
+        self.assertContains(response, 'value="Variables"', html=False)
+        topic.refresh_from_db()
+        self.assertEqual(topic.name, "Condicionales")

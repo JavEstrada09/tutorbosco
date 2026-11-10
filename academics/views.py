@@ -180,6 +180,8 @@ def teacher_course_topics(request, course_code):
         )
 
     topic_form = TopicForm(course=course)
+    update_form = None
+    editing_topic_id = None
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -251,9 +253,7 @@ def teacher_course_topics(request, course_code):
                     course_code=course.code,
                 )
 
-            for errors in update_form.errors.values():
-                for error in errors:
-                    messages.error(request, str(error))
+            editing_topic_id = topic.pk
 
         else:
             messages.error(
@@ -270,8 +270,10 @@ def teacher_course_topics(request, course_code):
         "academics/teacher_course_topics.html",
         {
             "course": course,
+            "editing_topic_id": editing_topic_id,
             "topics": topics,
             "topic_form": topic_form,
+            "update_form": update_form,
         },
     )
 
