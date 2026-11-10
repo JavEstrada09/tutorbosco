@@ -1,0 +1,64 @@
+
+{% extends "base.html" %}
+
+{% block title %}Mis cursos | TutoBosco{% endblock %}
+
+{% block content %}
+<section class="student-layout" aria-labelledby="courses-title">
+
+    <div>
+        <p class="eyebrow">Panel docente</p>
+        <h1 id="courses-title">Mis cursos</h1>
+        <p class="lead">
+            Consulte los cursos que tiene asignados y administre
+            sus temas académicos y estudiantes.
+        </p>
+    </div>
+
+    {% for course in courses %}
+        <article class="panel course-card"
+                 aria-labelledby="course-{{ course.pk }}">
+
+            <h2 id="course-{{ course.pk }}">
+                {{ course.code }} - {{ course.name }}
+            </h2>
+
+            <p>
+                Seleccione la opción que desea administrar
+                para este curso.
+            </p>
+
+            <nav aria-label="Opciones del curso {{ course.code }}">
+
+                <a class="button"
+                   href="{% url 'teacher_course_topics' course_code=course.code %}">
+                    Administrar temas
+                </a>
+
+                <a class="button button-secondary"
+                   href="{% url 'teacher_course_students' course_code=course.code %}">
+                    Ver estudiantes
+                </a>
+
+                {% if show_grades_link %}
+                    <a class="button button-secondary"
+                       href="{% url 'teacher_course_grades' course_code=course.code %}">
+                        Consultar notas
+                    </a>
+                {% endif %}
+
+            </nav>
+        </article>
+
+    {% empty %}
+        <section class="panel empty-state" role="status">
+            <h2>No tiene cursos asignados</h2>
+            <p>
+                Actualmente no tiene cursos registrados
+                como docente.
+            </p>
+        </section>
+    {% endfor %}
+
+</section>
+{% endblock %}
