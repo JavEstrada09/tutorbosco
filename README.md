@@ -45,9 +45,9 @@ S-005 agrega la pantalla del docente para registrar y corregir notas en
 docente imparta el curso, que el tema sea del curso, que el estudiante esté
 inscrito y que la nota sea un entero de 0 a 100. La verificación
 independiente de ramosdeleon555 quedó registrada en
-[verificacion.md](specs/S-005-registro-notas/verificacion.md). La gestión de temas y
-estudiantes, con el enlace a esta pantalla (S-004), todavía no está
-implementada.
+[verificacion.md](specs/S-005-registro-notas/verificacion.md). La
+gestión de temas y estudiantes de S-004 incluye el enlace a esta
+pantalla.
 
 ## Requisitos
 
@@ -217,6 +217,14 @@ promedio y sus temas débiles, ordenables por promedio, el detalle de cada
 estudiante y el conteo de estudiantes con cada tema débil. Solo se muestran
 los cursos asignados al docente; el resto responde 403.
 
+La gestión académica de S-004 está disponible en
+`http://127.0.0.1:8000/docente/cursos/`. Desde esa pantalla, el docente puede
+consultar únicamente sus cursos, registrar o modificar sus temas y asignar
+estudiantes existentes. Los formularios evitan temas e inscripciones
+duplicados y muestran estados vacíos y errores comprensibles. Las rutas de un
+curso ajeno o inexistente responden 403 mediante la autorización compartida
+con S-005. Cada curso incluye también el enlace a su planilla de notas.
+
 Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
 `Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
 muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.
@@ -226,9 +234,9 @@ muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.
 Abra `http://127.0.0.1:8000/acceso/?next=/docente/cursos/PROG-COM/notas/` y
 use `docente_01` con la contraseña definida localmente en
 `DEMO_TEACHER_PASSWORD`. Si inicia sesión desde `/acceso/` sin `next`, el
-acceso lo lleva al panel del docente (`/docente/panel/`), que todavía no
-enlaza a esta pantalla; el enlace llegará con S-004. `docente_01` imparte
-`PROG-COM` y `DES-WEB`; para el otro curso cambie el código en la URL.
+acceso lo lleva al panel del docente (`/docente/panel/`). La gestión académica
+de `/docente/cursos/` enlaza la planilla de cada curso. `docente_01` imparte
+`PROG-COM` y `DES-WEB`.
 
 La pantalla muestra la planilla del curso, con una fila por estudiante
 inscrito y una columna por tema; un tema sin nota aparece como `Sin nota`.

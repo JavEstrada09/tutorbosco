@@ -158,7 +158,7 @@ def teacher_courses(request):
         "academics/teacher_courses.html",
         {
             "courses": courses,
-            "show_grades_link": False,
+            "show_grades_link": True,
         },
     )
 
@@ -171,10 +171,6 @@ def teacher_courses(request):
 @login_required
 @require_http_methods(["GET", "POST"])
 def teacher_course_topics(request, course_code):
-    # Dependencia compartida con S-005.
-    # Importación local hasta integrar su implementación.
-    from academics.services import get_taught_course
-
     course = get_taught_course(request.user, course_code)
 
     if course is None:
@@ -185,6 +181,8 @@ def teacher_course_topics(request, course_code):
         )
 
     topic_form = TopicForm(course=course)
+    update_form = None
+    editing_topic_id = None
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -256,9 +254,7 @@ def teacher_course_topics(request, course_code):
                     course_code=course.code,
                 )
 
-            for errors in update_form.errors.values():
-                for error in errors:
-                    messages.error(request, str(error))
+            editing_topic_id = topic.pk
 
         else:
             messages.error(
@@ -275,8 +271,10 @@ def teacher_course_topics(request, course_code):
         "academics/teacher_course_topics.html",
         {
             "course": course,
+            "editing_topic_id": editing_topic_id,
             "topics": topics,
             "topic_form": topic_form,
+            "update_form": update_form,
         },
     )
 
@@ -293,9 +291,6 @@ def teacher_course_students(request, course_code):
     Permite consultar y asignar estudiantes a los
     cursos impartidos por el docente autenticado.
     """
-
-    # Función compartida desarrollada en S-005.
-    from academics.services import get_taught_course
 
     course = get_taught_course(request.user, course_code)
 

@@ -71,15 +71,37 @@
                             Nombre del tema
                         </label>
 
-                        <input
-                            class="form-control"
-                            type="text"
-                            id="topic-{{ topic.pk }}"
-                            name="name"
-                            value="{{ topic.name }}"
-                            maxlength="150"
-                            required
-                        >
+                        {% if editing_topic_id == topic.pk %}
+                            <input
+                                class="form-control"
+                                type="text"
+                                id="topic-{{ topic.pk }}"
+                                name="name"
+                                value="{{ update_form.name.value|default_if_none:'' }}"
+                                maxlength="150"
+                                required
+                                aria-invalid="true"
+                                aria-describedby="topic-{{ topic.pk }}-error"
+                            >
+
+                            {% for error in update_form.name.errors %}
+                                <p class="field-error"
+                                   id="topic-{{ topic.pk }}-error"
+                                   role="alert">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        {% else %}
+                            <input
+                                class="form-control"
+                                type="text"
+                                id="topic-{{ topic.pk }}"
+                                name="name"
+                                value="{{ topic.name }}"
+                                maxlength="150"
+                                required
+                            >
+                        {% endif %}
                     </div>
 
                     <button class="button button-secondary" type="submit">
