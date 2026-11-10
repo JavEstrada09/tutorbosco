@@ -679,6 +679,74 @@ ni una aprobación humana inexistente. S-003 continúa en verificación.
 Costo o cuota consumida: sin llamadas a Gemini ni uso pagado del producto.
 El consumo de la herramienta de desarrollo no se cuantificó.
 
+## S-005 · 09-11-2026 y 10-11-2026 · Plan e implementación
+
+Herramienta y modelo: Claude Code · Claude Opus 5.5 (`claude-opus-5-5`),
+para el plan y la implementación. Claude (chat) · Claude Opus 5.5, como
+apoyo de AlexDLG1 para revisar el plan.
+Usado por: AlexDLG1.
+
+Fases en que se usó: plan, implementación, pruebas y documentación.
+
+Instrucción clave:
+Proponer el plan de S-005 en modo de solo lectura, con las reglas de guardado
+en `academics/services.py`, validación en el servidor, `update_or_create` para
+corregir y una ruta mínima del docente coordinada con S-004 y S-010. Después,
+implementar las tareas una por una, mostrando el diff y deteniéndose antes de
+cada commit, sin hacer push.
+
+Revisión del plan:
+AlexDLG1 se apoyó en Claude (chat, Claude Opus 5.5) para revisar el plan que
+propuso Claude Code. Las decisiones y las correcciones las tomó AlexDLG1; las
+que dependían de S-004 y S-010 las confirmó antes con Brayan11Hernandez.
+
+Qué se aceptó sin cambios:
+- El enfoque del plan: `get_taught_course`, `record_grade` y
+  `get_course_grade_sheet` en `academics/services.py`, y una sola pantalla en
+  `/docente/cursos/<código>/notas/`.
+- El formulario solo valida el formato; la pertenencia del estudiante y del
+  tema al curso la decide el servicio (CA-8).
+- La misma respuesta 403 para un curso ajeno, un curso inexistente y una
+  cuenta sin perfil docente.
+
+Qué se corrigió o descartó, y por qué:
+- AlexDLG1 fijó con Brayan11Hernandez los nombres de las rutas de S-004 y
+  S-005, y que `get_taught_course` reciba `user` y devuelva `None` en los tres
+  casos de rechazo. Por coherencia, `record_grade` también recibe `user`.
+- AlexDLG1 movió `get_taught_course` al primer commit de servicios, porque la
+  rama de S-004 parte de la de S-005, y descartó el rebase y el force push.
+- AlexDLG1 decidió entregar un solo PR con `Closes #9`, sin dividirlo en
+  entregas, y justificar su tamaño en la descripción del PR.
+- AlexDLG1 confirmó que `estudiante_08` tiene 60 en "Git y GitHub avanzado"
+  para CA-2 y que el enlace a la planilla lo agrega S-004.
+- El agente propuso rechazar en `record_grade` a un usuario no autenticado sin
+  consultar la base; AlexDLG1 lo aprobó con su prueba.
+- La primera versión de esa prueba contó tres `SAVEPOINT` de la transacción.
+  La comprobación se movió fuera de `transaction.atomic`.
+- Dos pruebas de vista fallaron por errores de las pruebas, no de la vista:
+  `assertRedirects` consumía el mensaje de confirmación, y cambiar la
+  contraseña invalidaba la sesión de CA-5. Se corrigieron ambas.
+- Al documentar el README se comprobó que `rebuild_synthetic_data` no borra
+  las notas registradas a estudiantes sin notas en el manifiesto, como
+  `estudiante_02`. Se documentó; el comando no se modificó porque pertenece
+  a S-002.
+
+Resultado registrado por el autor:
+- Suite de `accounts`, `academics` y `tutor`: 120 pruebas superadas.
+- `manage.py check`: sin problemas.
+- `makemigrations --check --dry-run`: no detectó cambios.
+- `pip check`: no detectó dependencias incompatibles.
+- Revisión en el navegador con `docente_01`: CA-1 (85 a `estudiante_02`),
+  CA-2 (`estudiante_08` de 60 a 75), CA-3 (`-5`, `101` y vacío con errores en
+  español), CA-4 (`estudiante_02` ve 85 y 85.00 en `/perfil/`), CA-6 (DES-WEB
+  sin `estudiante_demo` ni `estudiante_01`) y CA-8 (`BD-APL` responde 403).
+  CA-5 y CA-7 quedaron cubiertos por las pruebas automatizadas.
+- La verificación independiente de ramosdeleon555 sigue pendiente.
+
+Costo o cuota consumida:
+No se realizaron llamadas a Gemini ni a la API de IA del producto.
+El consumo de las conversaciones de Claude Code y Claude no se cuantificó.
+
 ## S-004 · 09-11-2026 · Especificación y planificación
 
 Herramienta y modelo: ChatGPT (OpenAI) · GPT-6.
@@ -762,6 +830,43 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida (si aplica): sin llamadas a Gemini ni uso
 pagado del producto. El consumo de la herramienta de desarrollo no se
 cuantificó.
+
+## S-005 · 10-11-2026 · Verificación independiente asistida
+
+Herramienta y modelo: OpenCode · GPT-6.1 Sol (`openai/gpt-6.1-sol`).
+Usado por: ramosdeleon555, según la confirmación del usuario de la sesión.
+
+Fases en que se usó: pruebas y documentación de la verificación.
+
+Instrucción clave:
+Verificar el commit `1c26d94` del PR #45 en la misma rama, registrar solo
+resultados comprobados, obtener capturas reales del navegador, restaurar
+los datos y avisar al autor ante cualquier fallo sin corregir su código.
+
+Qué se aceptó sin cambios:
+- El usuario confirmó la estructura y el plan de verificación de S-005 y
+  autorizó los dos auxiliares temporales fuera del repositorio.
+- Suite completa: 150 pruebas OK. Recorrido de CA-1 a CA-8 en Chrome
+  automatizado, con formularios reales de acceso, cierre de sesión y notas.
+- Registro de consultas de persistencia, nota única, promedio y aislamiento;
+  capturas reales en `specs/S-005-registro-notas/img/`.
+- Limpieza posterior comprobada: `estudiante_02` sin notas y `estudiante_08`
+  nuevamente con 60 en Git y GitHub avanzado de PROG-COM.
+
+Qué se corrigió o descartó, y por qué:
+- La suite se repitió después de una interrupción por el tiempo máximo del
+  comando. Solo se declara aprobada la ejecución completa de 150 pruebas.
+- Se reutilizó el servidor local identificado del repositorio porque el
+  puerto 8000 ya estaba ocupado. Se desactivó la caché de Chrome en lugar
+  de declarar una pulsación manual de Ctrl+F5.
+- Se repitió la captura del 403 sin el aviso de guardar contraseña de Chrome.
+- Los POST no autorizados de CA-8 se atribuyen a la suite; no se presentan
+  como formularios manipulados manualmente ni se atribuye al usuario un
+  recorrido manual realizado por el agente.
+- No se modificó el código de la aplicación ni se instalaron paquetes.
+
+Costo o cuota consumida: sin llamadas a Gemini ni a la API de IA del
+producto. El consumo de la herramienta de desarrollo no está disponible.
 
 ## S-006 · 10-11-2026 · Plan y primer bloque
 

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Notas de {{ course.code }} | TutoBosco{% endblock %}
+
+{% block content %}
+<section class="teacher-layout" aria-labelledby="grades-title">
+    <div>
+        <p class="eyebrow">{{ course.code }} – {{ course.name }}</p>
+        <h1 id="grades-title">Notas del curso</h1>
+        <p class="lead">Registre o corrija la nota de los estudiantes asignados en los temas de este curso.</p>
+    </div>
+
+    {% for message in messages %}
+        <div class="notice" role="status">{{ message }}</div>
+    {% endfor %}
+
+    {% if grade_sheet.rows and grade_sheet.topics %}
+        <section class="panel grade-form-card" aria-labelledby="grade-form-title">
+            <h2 id="grade-form-title">Registrar o corregir una nota</h2>
+
+            {% if registration_error %}
+                <div class="alert" role="alert">{{ registration_error }}</div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="field">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <p class="form-help">Si el estudiante ya tiene nota en ese tema, la nueva nota reemplaza la anterior.</p>
+                <button class="button button-primary grade-submit" type="submit">Guardar nota</button>
+            </form>
+        </section>
+    {% endif %}
+
+    <section class="panel grade-sheet-card" aria-labelledby="sheet-title">
+        <h2 id="sheet-title">Notas registradas</h2>
+        {% if not grade_sheet.rows %}
+            <p class="empty-note" role="status">Este curso aún no tiene estudiantes asignados.</p>
+        {% endif %}
+        {% if not grade_sheet.topics %}
+            <p class="empty-note" role="status">Este curso aún no tiene temas registrados.</p>
+        {% endif %}
+        {% if grade_sheet.rows and grade_sheet.topics %}
+            <div class="table-scroll" role="region" aria-labelledby="sheet-title" tabindex="0">
+                <table class="grade-table grade-sheet">
+                    <thead>
+                        <tr>
+                            <th scope="col">Estudiante</th>
+                            {% for topic in grade_sheet.topics %}
+                                <th scope="col">{{ topic.name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in grade_sheet.rows %}
+                            <tr>
+                                <th scope="row">
+                                    <span class="student-id">{{ row.student.student_id }}</span>
+                                    {{ row.student.user.get_full_name|default:row.student.user.get_username }}
+                                </th>
+                                {% for value in row.grades %}
+                                    <td>{% if value is None %}Sin nota{% else %}{{ value }}{% endif %}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
+
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="button button-secondary" type="submit">Cerrar sesión</button>
+    </form>
+</section>
+{% endblock %}
