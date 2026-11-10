@@ -9,7 +9,7 @@ from django.db.models import Exists, F
 from django.utils import timezone
 
 from academics.models import Enrollment
-from academics.services import get_course_summaries
+from academics.services import get_course_summaries, is_weak
 from tutor.models import TutorConversation
 
 from tutor.providers import (
@@ -96,9 +96,9 @@ def _validate_response(response, context):
 
 
 def ask_tutor(
-    *, question: str, career: str, course_name: str, mode=None
+    *, question: str, career: str, course_name: str, mode=None, context=None
 ) -> TutorReply:
-    context = TutorContext(career=career, course_name=course_name)
+    context = context or TutorContext(career=career, course_name=course_name)
     provider, mode = _select_provider(mode)
     response = provider.answer(question=question, context=context)
     return TutorReply(text=_validate_response(response, context), mode=mode)
@@ -199,4 +199,35 @@ def append_conversation_turn(conversation, revision, *, question, answer):
         revision,
         turns=[*conversation.turns, {"question": question, "answer": answer}],
         pending_question="",
+    )
+
+
+# Cuatro turnos recientes; cada pregunta ya está limitada a 500 caracteres.
+# Se limita la respuesta enviada, conservando completos los turnos en la base.
+CONTEXT_TURN_LIMIT = 4
+CONTEXT_ANSWER_LIMIT = 2000
+
+
+def conversation_context(conversation):
+    """Proyecta solo los datos permitidos del hilo, sin identificadores."""
+    snapshot = tuple(
+        {"topic": item["topic"], "grade": item["grade"]}
+        for item in conversation.academic_snapshot
+    )
+    weak_topics = tuple(item["topic"] for item in snapshot if is_weak(item["grade"]))
+    has_grades = any(item["grade"] is not None for item in snapshot)
+    return TutorContext(
+        career=conversation.student.career,
+        course_name=conversation.course.name,
+        course_code=conversation.course.code,
+        academic_snapshot=snapshot,
+        weak_topics=weak_topics,
+        academic_status=(
+            "weak_topics" if weak_topics else "no_weak_topics" if has_grades else "no_grades"
+        ),
+        turns=tuple(
+            {"question": turn["question"][:500],
+             "answer": turn["answer"][:CONTEXT_ANSWER_LIMIT]}
+            for turn in conversation.turns[-CONTEXT_TURN_LIMIT:]
+        ),
     )
