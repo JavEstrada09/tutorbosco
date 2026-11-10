@@ -1,0 +1,77 @@
+Commit probado: 7b2a79b6c2f7e80c3348b76b8d51c8f66c223118
+
+Fecha local: 2026-11-09T22:39:46.706323-06:00
+
+Ejecutor: OpenCode; no es una verificacion manual de Ramos.
+
+COMANDO: manage.py test academics.tests.StudentProfileViewTests.test_ca4_topic_without_grade_is_shown_and_excluded academics.tests.StudentProfileViewTests.test_ca6_student_without_courses_sees_data_and_notice academics.tests.StudentProfileViewTests.test_ca8_reload_shows_updated_grade_and_average --verbosity 2
+
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+Found 3 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: messages, staticfiles, tutor
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial...test_ca4_topic_without_grade_is_shown_and_excluded (academics.tests.StudentProfileViewTests.test_ca4_topic_without_grade_is_shown_and_excluded) ... ok
+test_ca6_student_without_courses_sees_data_and_notice (academics.tests.StudentProfileViewTests.test_ca6_student_without_courses_sees_data_and_notice) ... ok
+test_ca8_reload_shows_updated_grade_and_average (academics.tests.StudentProfileViewTests.test_ca8_reload_shows_updated_grade_and_average) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.043s
+
+OK
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+ OK
+System check identified no issues (0 silenced).
+
+
+{"captura": "img/ca1-datos.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil principal Sintético\nCarné\n2026-30001\nCarrera\nCarrera de prueba 1\nSemestre\n2\nS003-BD – Bases de datos de prueba\nTema\tNota\nTablas\tSin nota\nConsultas\tSin nota\nRelaciones\tSin nota\nPromedio del curso\tSin notas\nS003-PROG – Programación de prueba\nTema\tNota\nVariables\t80\nCondicionales\t65\nCiclos\t70\nPromedio del curso\t71.67\nCerrar sesión", "cells": ["Sin nota", "Sin nota", "Sin nota", "Sin notas", "80", "65", "70", "71.67"], "courses": ["S003-BD – Bases de datos de prueba", "S003-PROG – Programación de prueba"], "personal": ["Perfil principal Sintético", "2026-30001", "Carrera de prueba 1", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+{"captura": "img/ca2-cursos.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil principal Sintético\nCarné\n2026-30001\nCarrera\nCarrera de prueba 1\nSemestre\n2\nS003-BD – Bases de datos de prueba\nTema\tNota\nTablas\tSin nota\nConsultas\tSin nota\nRelaciones\tSin nota\nPromedio del curso\tSin notas\nS003-PROG – Programación de prueba\nTema\tNota\nVariables\t80\nCondicionales\t65\nCiclos\t70\nPromedio del curso\t71.67\nCerrar sesión", "cells": ["Sin nota", "Sin nota", "Sin nota", "Sin notas", "80", "65", "70", "71.67"], "courses": ["S003-BD – Bases de datos de prueba", "S003-PROG – Programación de prueba"], "personal": ["Perfil principal Sintético", "2026-30001", "Carrera de prueba 1", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+{"captura": "img/ca3-promedio.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil principal Sintético\nCarné\n2026-30001\nCarrera\nCarrera de prueba 1\nSemestre\n2\nS003-BD – Bases de datos de prueba\nTema\tNota\nTablas\tSin nota\nConsultas\tSin nota\nRelaciones\tSin nota\nPromedio del curso\tSin notas\nS003-PROG – Programación de prueba\nTema\tNota\nVariables\t80\nCondicionales\t65\nCiclos\t70\nPromedio del curso\t71.67\nCerrar sesión", "cells": ["Sin nota", "Sin nota", "Sin nota", "Sin notas", "80", "65", "70", "71.67"], "courses": ["S003-BD – Bases de datos de prueba", "S003-PROG – Programación de prueba"], "personal": ["Perfil principal Sintético", "2026-30001", "Carrera de prueba 1", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+{"captura": "img/ca4-sin-nota.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil parcial Sintético\nCarné\n2026-30002\nCarrera\nCarrera de prueba 2\nSemestre\n2\nS003-PROG – Programación de prueba\nTema\tNota\nVariables\t80\nCondicionales\t60\nCiclos\tSin nota\nPromedio del curso\t70.00\nCerrar sesión", "cells": ["80", "60", "Sin nota", "70.00"], "courses": ["S003-PROG – Programación de prueba"], "personal": ["Perfil parcial Sintético", "2026-30002", "Carrera de prueba 2", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+{"captura": "img/ca5-sin-notas.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil sin notas Sintético\nCarné\n2026-30003\nCarrera\nCarrera de prueba 3\nSemestre\n2\nS003-PROG – Programación de prueba\nTema\tNota\nVariables\tSin nota\nCondicionales\tSin nota\nCiclos\tSin nota\nPromedio del curso\tSin notas\nCerrar sesión", "cells": ["Sin nota", "Sin nota", "Sin nota", "Sin notas"], "courses": ["S003-PROG – Programación de prueba"], "personal": ["Perfil sin notas Sintético", "2026-30003", "Carrera de prueba 3", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+{"captura": "img/ca6-sin-cursos.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil sin cursos Sintético\nCarné\n2026-30004\nCarrera\nCarrera de prueba 4\nSemestre\n2\n\nAún no tiene cursos asignados.\n\nCerrar sesión", "cells": [], "courses": [], "personal": ["Perfil sin cursos Sintético", "2026-30004", "Carrera de prueba 4", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+{"captura": "img/ca7-primer-perfil.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil principal Sintético\nCarné\n2026-30001\nCarrera\nCarrera de prueba 1\nSemestre\n2\nS003-BD – Bases de datos de prueba\nTema\tNota\nTablas\tSin nota\nConsultas\tSin nota\nRelaciones\tSin nota\nPromedio del curso\tSin notas\nS003-PROG – Programación de prueba\nTema\tNota\nVariables\t80\nCondicionales\t65\nCiclos\t70\nPromedio del curso\t71.67\nCerrar sesión", "cells": ["Sin nota", "Sin nota", "Sin nota", "Sin notas", "80", "65", "70", "71.67"], "courses": ["S003-BD – Bases de datos de prueba", "S003-PROG – Programación de prueba"], "personal": ["Perfil principal Sintético", "2026-30001", "Carrera de prueba 1", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+{"captura": "img/ca7-segundo-perfil.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nSegundo perfil Sintético\nCarné\n2026-30005\nCarrera\nCarrera de prueba 5\nSemestre\n2\nS003-BD – Bases de datos de prueba\nTema\tNota\nTablas\tSin nota\nConsultas\tSin nota\nRelaciones\tSin nota\nPromedio del curso\tSin notas\nCerrar sesión", "cells": ["Sin nota", "Sin nota", "Sin nota", "Sin notas"], "courses": ["S003-BD – Bases de datos de prueba"], "personal": ["Segundo perfil Sintético", "2026-30005", "Carrera de prueba 5", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+{"captura": "img/ca8-antes.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil principal Sintético\nCarné\n2026-30001\nCarrera\nCarrera de prueba 1\nSemestre\n2\nS003-BD – Bases de datos de prueba\nTema\tNota\nTablas\tSin nota\nConsultas\tSin nota\nRelaciones\tSin nota\nPromedio del curso\tSin notas\nS003-PROG – Programación de prueba\nTema\tNota\nVariables\t80\nCondicionales\t65\nCiclos\t70\nPromedio del curso\t71.67\nCerrar sesión", "cells": ["Sin nota", "Sin nota", "Sin nota", "Sin notas", "80", "65", "70", "71.67"], "courses": ["S003-BD – Bases de datos de prueba", "S003-PROG – Programación de prueba"], "personal": ["Perfil principal Sintético", "2026-30001", "Carrera de prueba 1", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+CA-8: actualizacion ORM confirmada: Condicionales 65 -> 95, una fila; recarga del mismo navegador.
+
+{"captura": "img/ca8-despues.png", "resultado": "OK", "dom": {"ready": "complete", "text": "TB\nTutoBosco\n\nPERFIL ACADÉMICO\n\nSu perfil académico\n\nEsta información corresponde a su cuenta autenticada.\n\nSus datos\nNombre\nPerfil principal Sintético\nCarné\n2026-30001\nCarrera\nCarrera de prueba 1\nSemestre\n2\nS003-BD – Bases de datos de prueba\nTema\tNota\nTablas\tSin nota\nConsultas\tSin nota\nRelaciones\tSin nota\nPromedio del curso\tSin notas\nS003-PROG – Programación de prueba\nTema\tNota\nVariables\t80\nCondicionales\t95\nCiclos\t70\nPromedio del curso\t81.67\nCerrar sesión", "cells": ["Sin nota", "Sin nota", "Sin nota", "Sin notas", "80", "95", "70", "81.67"], "courses": ["S003-BD – Bases de datos de prueba", "S003-PROG – Programación de prueba"], "personal": ["Perfil principal Sintético", "2026-30001", "Carrera de prueba 1", "2"], "css": 1, "font": "Georgia, \"Times New Roman\", serif"}}
+
+10 capturas PNG de Chrome headless, DOM comprobado, CSS local presente, sin peticiones externas de la pagina ni errores HTTP >=400 en recursos requeridos (favicon excluido).
+
+Servidor y navegador temporales detenidos. Base y perfil de navegador temporales descartados. Base demo no modificada.

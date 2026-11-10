@@ -639,3 +639,42 @@ Decisiones de documentación:
 
 Costo o cuota consumida: no hubo llamadas reales a Gemini; las pruebas
 simularon el proveedor. El consumo de OpenCode no se cuantificó.
+
+## S-003 · 09-11-2026 · Evidencia complementaria posterior al PR #41
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Fases en que se usó: pruebas automatizadas de navegador y documentación.
+
+Instrucción clave:
+Corregir los pendientes de evidencia señalados tras fusionar el PR #41,
+ejecutar los casos y tomar las capturas faltantes, sin hacerse pasar por
+el verificador humano ni aprobar la spec en su nombre.
+
+Trabajo realizado:
+- Se creó `s-003-evidencia-complementaria` desde `7b2a79b`, main después
+  del PR #41. No se modificó el código de la aplicación.
+- Se ejecutaron las tres pruebas existentes de CA-4, CA-6 y CA-8:
+  3 OK en 2.043 segundos. Se guardó su salida real en
+  `specs/S-003-perfil-academico/evidencia/ca4-ca6-ca8.txt`.
+- Se preparó una base SQLite temporal con cinco perfiles sintéticos y
+  un servidor Django de loopback, sin alterar la base demo.
+- Se utilizó Chrome headless con CDP y el WebSocket integrado de Node.js.
+  Python estándar y dos scripts temporales fuera del repositorio
+  coordinaron los escenarios; no se instalaron dependencias.
+- Se generaron diez capturas reales de página completa para CA-1 a CA-8,
+  con aserciones sobre el DOM y CSS local cargado. CA-7 usa dos sesiones
+  diferentes y CA-8 captura la recarga antes/después de cambiar 65 a 95,
+  con promedios 71.67 y 81.67. Las sesiones se inyectaron desde
+  `Client.force_login`; no se presenta esto como prueba del login.
+- Se cerraron los procesos temporales y se descartaron base y perfil de
+  navegador al terminar. No se versionaron claves, cookies ni bases.
+- Se documentó que los merges previos precedieron a la confirmación
+  formal; esta evidencia posterior no corrige retroactivamente el proceso.
+
+Qué requiere revisión humana:
+Ramos debe revisar el registro y confirmar explícitamente su aceptación;
+otro integrante revisa el PR documental. No se registra esa confirmación
+ni una aprobación humana inexistente. S-003 continúa en verificación.
+
+Costo o cuota consumida: sin llamadas a Gemini ni uso pagado del producto.
+El consumo de la herramienta de desarrollo no se cuantificó.
