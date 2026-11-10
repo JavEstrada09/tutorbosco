@@ -1,0 +1,124 @@
+
+{% extends "base.html" %}
+
+{% block title %}Estudiantes del curso | TutoBosco{% endblock %}
+
+{% block content %}
+<section class="student-layout" aria-labelledby="students-title">
+
+    <div>
+        <p class="eyebrow">Panel docente</p>
+
+        <h1 id="students-title">
+            Estudiantes del curso
+        </h1>
+
+        <p class="lead">
+            {{ course.code }} - {{ course.name }}
+        </p>
+
+        <a class="profile-link"
+           href="{% url 'teacher_courses' %}">
+            Volver a mis cursos
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p role="status">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <article class="panel course-card">
+
+        <h2>Asignar estudiante</h2>
+
+        <p>
+            Seleccione un estudiante registrado para
+            asignarlo a este curso.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="hidden"
+                   name="action"
+                   value="enroll">
+
+            {% if student_form.non_field_errors %}
+                <div role="alert">
+                    {{ student_form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="field">
+
+                <label for="{{ student_form.student.id_for_label }}">
+                    Seleccionar estudiante
+                </label>
+
+                {{ student_form.student }}
+
+                {% for error in student_form.student.errors %}
+                    <p class="field-error" role="alert">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+
+            </div>
+
+            <button class="button button-primary"
+                    type="submit">
+                Asignar estudiante
+            </button>
+
+        </form>
+    </article>
+
+    <div>
+        <h2>Estudiantes asignados</h2>
+
+        {% for enrollment in enrollments %}
+
+            <article class="panel course-card">
+
+                <h3>
+                    {{ enrollment.student.user.get_full_name|default:enrollment.student.user.username }}
+                </h3>
+
+                <p>
+                    <strong>Carné:</strong>
+                    {{ enrollment.student.student_id }}
+                </p>
+
+                <p>
+                    <strong>Carrera:</strong>
+                    {{ enrollment.student.career }}
+                </p>
+
+                <p>
+                    <strong>Semestre:</strong>
+                    {{ enrollment.student.semester }}
+                </p>
+
+            </article>
+
+        {% empty %}
+
+            <section class="panel empty-state" role="status">
+
+                <h2>No hay estudiantes asignados</h2>
+
+                <p>
+                    Actualmente este curso no tiene
+                    estudiantes inscritos.
+                </p>
+
+            </section>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+{% endblock %}
