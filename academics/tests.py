@@ -637,6 +637,259 @@ class GetCourseGradeSheetTests(TestCase):
         self.assertEqual(sheet.rows[0].grades, (80, 80, 80))
 
 
+class TeacherCourseGradesViewTests(TestCase):
+    def setUp(self):
+        self.programming = Course.objects.create(code="S005-PC", name="Programación")
+        self.web = Course.objects.create(code="S005-DW", name="Desarrollo web")
+        self.databases = Course.objects.create(code="S005-BDA", name="Bases de datos")
+        self.topics = {
+            course.code: [
+                Topic.objects.create(course=course, name=f"{name} {course.code}")
+                for name in ("Variables", "Ciclos")
+            ]
+            for course in (self.programming, self.web, self.databases)
+        }
+        self.teacher = create_s005_teacher("docente_vista", self.programming, self.web)
+        create_s005_teacher("docente_bd_vista", self.databases)
+        self.without_grades = create_s005_student(
+            "2026-20051", self.programming, self.web
+        )
+        self.with_grade = create_s005_student("2026-20052", self.programming)
+        self.outsider = create_s005_student("2026-20053", self.databases)
+        Grade.objects.create(
+            student=self.with_grade,
+            topic=self.topics["S005-PC"][0],
+            value=60,
+        )
+        self.client.force_login(self.teacher.user)
+
+    def url(self, course):
+        code = course if isinstance(course, str) else course.code
+        return reverse("teacher_course_grades", args=[code])
+
+    def post_grade(self, course, student, topic, value, **kwargs):
+        return self.client.post(
+            self.url(course),
+            {"student": student.pk, "topic": topic.pk, "value": value},
+            **kwargs,
+        )
+
+    def grade_snapshot(self):
+        return list(
+            Grade.objects.order_by("pk").values_list("student_id", "topic_id", "value")
+        )
+
+    def choice_values(self, response, field_name):
+        widget = response.context["form"].fields[field_name].widget
+        return [value for value, _ in widget.choices if value != ""]
+
+    def test_ca1_registers_new_grade_and_shows_confirmation(self):
+        topic = self.topics["S005-PC"][0]
+
+        response = self.post_grade(self.programming, self.without_grades, topic, "85")
+
+        self.assertRedirects(
+            response,
+            self.url(self.programming),
+            fetch_redirect_response=False,
+        )
+        self.assertEqual(
+            Grade.objects.get(student=self.without_grades, topic=topic).value,
+            85,
+        )
+        page = self.client.get(self.url(self.programming))
+        self.assertContains(page, "Se guardó la nota 85 de notas_2026-20051")
+        self.assertContains(page, "<td>85</td>", html=True)
+
+    def test_ca2_correction_replaces_previous_grade(self):
+        topic = self.topics["S005-PC"][0]
+
+        response = self.post_grade(
+            self.programming, self.with_grade, topic, "75", follow=True
+        )
+
+        self.assertContains(response, "Se actualizó la nota 75")
+        self.assertContains(response, "<td>75</td>", html=True)
+        self.assertNotContains(response, "<td>60</td>", html=True)
+        self.assertEqual(
+            list(
+                Grade.objects.filter(student=self.with_grade, topic=topic).values_list(
+                    "value", flat=True
+                )
+            ),
+            [75],
+        )
+
+    def test_ca3_invalid_values_show_spanish_error_and_keep_grade(self):
+        topic = self.topics["S005-PC"][0]
+        cases = {
+            "-5": "La nota debe estar entre 0 y 100.",
+            "101": "La nota debe estar entre 0 y 100.",
+            "": "Ingrese una nota.",
+            "abc": "La nota debe ser un número entero.",
+            "85.5": "La nota debe ser un número entero.",
+        }
+
+        for value, message in cases.items():
+            with self.subTest(value=value):
+                response = self.post_grade(self.programming, self.with_grade, topic, value)
+
+                self.assertContains(response, message, status_code=400)
+                self.assertEqual(
+                    Grade.objects.get(student=self.with_grade, topic=topic).value,
+                    60,
+                )
+
+    def test_ca4_student_profile_shows_new_grade_and_average(self):
+        topic = self.topics["S005-PC"][1]
+        self.post_grade(self.programming, self.without_grades, topic, "85")
+
+        self.client.force_login(self.without_grades.user)
+        response = self.client.get(reverse("student_profile"))
+
+        self.assertContains(response, "<td>85</td>", html=True)
+        self.assertContains(response, "85.00")
+
+    def test_ca5_grade_persists_after_logging_in_again(self):
+        password = secrets.token_urlsafe(24)
+        self.teacher.user.set_password(password)
+        self.teacher.user.save()
+        credentials = {"username": self.teacher.user.username, "password": password}
+        self.assertTrue(self.client.login(**credentials))
+        topic = self.topics["S005-PC"][1]
+        saved = self.post_grade(self.programming, self.without_grades, topic, "85")
+        self.assertEqual(saved.status_code, 302)
+
+        self.client.post(reverse("logout"))
+        self.assertTrue(self.client.login(**credentials))
+        response = self.client.get(self.url(self.programming))
+
+        self.assertContains(response, "<td>85</td>", html=True)
+
+    def test_ca6_only_enrolled_students_appear(self):
+        response = self.client.get(self.url(self.web))
+
+        self.assertContains(response, self.without_grades.student_id)
+        self.assertNotContains(response, self.with_grade.student_id)
+        self.assertNotContains(response, self.outsider.student_id)
+        self.assertEqual(
+            self.choice_values(response, "student"),
+            [self.without_grades.pk],
+        )
+
+    def test_ca7_only_course_topics_appear(self):
+        response = self.client.get(self.url(self.programming))
+
+        for topic in self.topics["S005-PC"]:
+            self.assertContains(response, topic.name)
+        for code in ("S005-DW", "S005-BDA"):
+            for topic in self.topics[code]:
+                self.assertNotContains(response, topic.name)
+        self.assertEqual(
+            self.choice_values(response, "topic"),
+            [topic.pk for topic in self.topics["S005-PC"]],
+        )
+
+    def test_ca8_rejects_student_not_enrolled_in_course(self):
+        before = self.grade_snapshot()
+
+        response = self.post_grade(
+            self.web, self.with_grade, self.topics["S005-DW"][0], "90"
+        )
+
+        self.assertContains(
+            response,
+            "El estudiante no está asignado a este curso. La nota no se guardó.",
+            status_code=400,
+        )
+        self.assertEqual(self.grade_snapshot(), before)
+
+    def test_ca8_rejects_topic_from_another_course(self):
+        before = self.grade_snapshot()
+
+        response = self.post_grade(
+            self.programming, self.with_grade, self.topics["S005-BDA"][0], "90"
+        )
+
+        self.assertContains(
+            response,
+            "El tema no pertenece a este curso. La nota no se guardó.",
+            status_code=400,
+        )
+        self.assertEqual(self.grade_snapshot(), before)
+
+    def test_ca8_rejects_course_taught_by_another_teacher(self):
+        before = self.grade_snapshot()
+
+        response = self.post_grade(
+            self.databases, self.outsider, self.topics["S005-BDA"][0], "90"
+        )
+
+        self.assertContains(response, "Acceso denegado", status_code=403)
+        self.assertEqual(self.grade_snapshot(), before)
+
+    def test_anonymous_user_is_redirected_to_login(self):
+        self.client.logout()
+        url = self.url(self.programming)
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={url}",
+            fetch_redirect_response=False,
+        )
+
+    def test_accounts_without_teacher_role_are_denied(self):
+        staff = get_user_model().objects.create_user(
+            username="personal_vista",
+            password=secrets.token_urlsafe(24),
+            is_staff=True,
+        )
+        for user in (self.without_grades.user, create_s005_user("sin_perfil_vista"), staff):
+            with self.subTest(username=user.username):
+                self.client.force_login(user)
+                response = self.client.get(self.url(self.programming))
+                self.assertContains(response, "Acceso denegado", status_code=403)
+
+    def test_unknown_course_code_is_denied_like_foreign_course(self):
+        response = self.client.get(self.url("NO-EXISTE"))
+
+        self.assertContains(response, "Acceso denegado", status_code=403)
+
+    def test_post_without_csrf_token_is_rejected(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.teacher.user)
+        before = self.grade_snapshot()
+
+        response = client.post(
+            self.url(self.programming),
+            {
+                "student": self.without_grades.pk,
+                "topic": self.topics["S005-PC"][0].pk,
+                "value": "85",
+            },
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.grade_snapshot(), before)
+
+    def test_empty_course_shows_empty_states_without_form(self):
+        empty_course = Course.objects.create(code="S005-VACIO-V", name="Vacío")
+        TeachingAssignment.objects.create(teacher=self.teacher, course=empty_course)
+
+        response = self.client.get(self.url(empty_course))
+
+        self.assertContains(response, "Este curso aún no tiene estudiantes asignados.")
+        self.assertContains(response, "Este curso aún no tiene temas registrados.")
+        self.assertNotContains(response, "Guardar nota")
+
+    def test_missing_grade_is_shown_as_sin_nota(self):
+        response = self.client.get(self.url(self.programming))
+
+        self.assertContains(response, "<td>Sin nota</td>", html=True)
+
+
 class StudentProfileViewTests(TestCase):
     def setUp(self):
         self.programming = Course.objects.create(
