@@ -128,10 +128,10 @@ class S004TeacherCoursesTests(TestCase):
         )
 
     # =================================================
-    # NAVEGACIÓN HACIA TEMAS Y ESTUDIANTES
+    # NAVEGACIÓN HACIA TEMAS, ESTUDIANTES Y NOTAS
     # =================================================
 
-    def test_teacher_can_navigate_to_topics_and_students(self):
+    def test_teacher_can_navigate_to_course_management(self):
         self.client.force_login(self.teacher_user)
 
         response = self.client.get(self.url)
@@ -145,9 +145,14 @@ class S004TeacherCoursesTests(TestCase):
             "teacher_course_students",
             kwargs={"course_code": self.course.code},
         )
+        grades_url = reverse(
+            "teacher_course_grades",
+            kwargs={"course_code": self.course.code},
+        )
 
         self.assertContains(response, topics_url)
         self.assertContains(response, students_url)
+        self.assertContains(response, grades_url)
 
     # =================================================
     # CA-8: RECHAZAR TEMAS DUPLICADOS

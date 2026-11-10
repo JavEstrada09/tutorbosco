@@ -880,6 +880,73 @@ Se usaron respuestas locales y dobles de prueba para comprobar este
 bloque, sin llamadas a Gemini. La revisión del cambio por el autor y
 la verificación independiente de la funcionalidad quedan pendientes.
 
+## S-004 · 10-11-2026 · Continuación de implementación
+
+Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: revisión de la implementación, ajustes de interfaz,
+pruebas automatizadas y documentación.
+
+Instrucción clave:
+Continuar la parte de Brayan correspondiente a S-004 siguiendo el plan
+aprobado y los lineamientos del repositorio.
+
+Trabajo realizado:
+- Se comparó la implementación existente con los ocho criterios de
+  aceptación y el plan aprobado.
+- Se corrigió la edición inválida de temas para conservar el valor enviado
+  y mostrar el error junto al campo correspondiente.
+- Se agregó el mensaje específico para nombres de tema obligatorios.
+- Se ampliaron las pruebas para comprobar aislamiento entre cursos,
+  confirmaciones visibles, datos actualizados, prevención de duplicados y
+  conservación de datos ante una edición inválida.
+- Se documentaron en README las tres pantallas de gestión académica.
+- Se ejecutaron 17 pruebas específicas de S-004 y las 129 pruebas de
+  `accounts`, `academics` y `tutor`; todas finalizaron correctamente.
+
+Pendiente:
+- Las pruebas de vistas todavía simulan `get_taught_course()`. La
+  autorización real de CA-7 se probará después de que la implementación de
+  S-005 se fusione en `main`, conforme al plan aprobado de S-004.
+- AlexDLG1 debe realizar la verificación independiente; no se registra aquí
+  ninguna aprobación ni evidencia en su nombre.
+
+Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
+producto. El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-004 · 10-11-2026 · Integración final con S-005
+
+Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: integración, pruebas de autorización y documentación.
+
+Trabajo realizado:
+- Se fusionó `main` después de la incorporación de S-005, sin fusionar
+  directamente su rama.
+- Las vistas de temas y estudiantes quedaron conectadas con la función
+  compartida `get_taught_course()` y se habilitó el enlace a la planilla de
+  notas desde el listado de cursos.
+- Se eliminaron los mocks de autorización de S-004. Las pruebas ahora usan
+  perfiles docentes, asignaciones y cursos reales de la base de pruebas.
+- CA-7 cubre un docente ajeno, una cuenta estudiantil, un curso inexistente,
+  POST no autorizados sin cambios, acceso anónimo y protección CSRF.
+- Se ejecutaron 21 pruebas específicas de S-004 y las 173 pruebas de
+  `accounts`, `academics` y `tutor`; todas finalizaron correctamente.
+- `manage.py check`, `makemigrations --check --dry-run` y `pip check`
+  finalizaron correctamente.
+
+Pendiente:
+- AlexDLG1 debe ejecutar CA-1 a CA-8 en su computadora y crear
+  `specs/S-004-temas-asignacion/verificacion.md`. No se registra ninguna
+  verificación ni aprobación en su nombre.
+- S-004 no debe marcarse como terminada ni cerrar el issue #8 antes de que
+  esa evidencia independiente sea revisada e integrada.
+
+Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
+producto. El consumo de la herramienta de desarrollo no se cuantificó.
+
 ## S-006 · 10-11-2026 · Segundo bloque
 
 ChatGPT (Codex) ayudó a implementar el modelo de conversación, su
