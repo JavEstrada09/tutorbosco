@@ -196,6 +196,7 @@ Los resultados, comandos y evidencias se documentarán posteriormente en `verifi
 
 05-11-2026 — Creación del borrador inicial de S-010. Se definieron los comportamientos de acceso, seguridad por roles, protección de sesiones, interfaz y criterios de aceptación.
 
-05-11-2026 — Especificación revisada por AlexDLG1 y fusionada mediante el PR #28.
+05-11-2026 — Especificación aprobada por AlexDLG1 y fusionada por
+ramosdeleon555 mediante el PR #28.
 
 10-11-2026 — Brayan11Hernandez aprobó el plan de implementación. Se precisaron las respuestas 302 y 403, el cierre de sesión POST con CSRF, la navegación esperada y la prioridad estudiantil para cuentas con ambos perfiles.
