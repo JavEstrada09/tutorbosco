@@ -806,3 +806,5 @@ input[type="number"]:focus {
         font-size: clamp(2rem, 11vw, 2.8rem);
     }
 }
+
+.teacher-layout > * { min-width: 0; }
