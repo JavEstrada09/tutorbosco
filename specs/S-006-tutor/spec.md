@@ -1,7 +1,7 @@
 # S-006 Tutor personalizado
 
 Requisito: RF-04; RNF-05 · Autor: JavEstrada09 · Verificador: douglas-yasser · Issue: #10
-Estado: en implementación
+Estado: Terminada
 
 ## Problema
 
@@ -151,3 +151,12 @@ hilo de cada curso al cambiar entre cursos durante la misma sesión.
 
 10-11-2026 · JavEstrada09 aprobó el plan técnico. Se inicia el bloque de
 validación del umbral y acceso al tutor por curso inscrito.
+
+
+10-11-2026 · Cierre documental por JavEstrada09 tras la verificación
+independiente de douglas-yasser. Los nueve criterios tienen resultado
+satisfactorio: CA-2, CA-3, CA-4, CA-6, CA-7 y CA-8 se comprobaron sobre
+`ece9dee`; CA-1, CA-5 y CA-9 se repitieron satisfactoriamente con Gemini
+real sobre `30ad0c3`, que también pasó las 191 pruebas. El fallo inicial
+y su corrección se conservan en `verificacion.md`. Implementación y
+evidencia integradas en `main` mediante el PR #53 (`6bf31b6`).
