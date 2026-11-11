@@ -57,36 +57,85 @@ test: Ran 202 tests ... OK
 
 No se encontraron fallos que requieran corrección.
 
-## Ampliación de interfaz · pendiente de verificación
+## Ampliación de interfaz (CA-9) · verificación
 
-El 11-11-2026 se amplió S-010 con CA-9: el rediseño visual cubre todas las
-pantallas y ya no solo la navegación común. El informe anterior sigue siendo
-válido para CA-1 a CA-8 sobre `3c3907a`, pero las capturas de CA-8 ya no
-reflejan el aspecto actual y CA-9 no tiene evidencia todavía.
+Verificador: AlexDLG1 · Computadora: equipo de AlexDLG1, Windows, Python 3.12.10 · Commit: e871bbb · Fecha: 11-11-2026
 
-Estado: **sin verificar**. No se registran resultados, capturas ni
-aprobaciones de esta ampliación hasta que AlexDLG1 la ejecute en su
-computadora.
+CA-9 se añadió a S-010 el 11-11-2026: el rediseño visual cubre todas las
+pantallas. Las capturas de CA-8 muestran el aspecto anterior al rediseño;
+el aspecto actual queda en las capturas de esta sección.
 
-Pasos previstos para la nueva verificación:
+### Procedencia de la evidencia
+
+- Las pruebas automatizadas las ejecuté yo en mi computadora (rama local
+  `verificacion-s010`), primero sobre `dca29aa` y al final sobre
+  `e871bbb`.
+- Las capturas las tomó Claude (Claude Opus 5.5) controlando el navegador
+  integrado de la app de Claude en mi computadora, contra mi servidor
+  local, con las cuentas `estudiante_demo` y `docente_01`, en tamaño de
+  teléfono (375 px) y de escritorio (1100 px). En cada pantalla midió el
+  ancho del documento frente al ancho de la ventana. Cada captura lleva
+  un encabezado con la pantalla, la URL, la cuenta, la medida y el commit.
+  Revisé cada captura y su resultado antes de registrarlo aquí.
+- La primera ronda fue sobre `dca29aa` y encontró la observación 2. La
+  segunda fue sobre `e871bbb`: se repitieron en el navegador las pantallas
+  que cambiaron (panel del curso y práctica) y se volvió a medir en
+  teléfono cada pantalla de la tabla. Las capturas de pantallas que
+  `e871bbb` no modifica son de `dca29aa`.
+- Antes, sobre `196df60`, Claude hizo una revisión previa en un entorno en
+  la nube (no en mi computadora). Ahí encontró la observación 1 y comparó
+  texto, enlaces y campos de formulario entre `f2753cf` y `196df60` sin
+  encontrar pérdidas.
+- La redacción de este registro se apoyó en Claude (chat, Claude Opus 5.5).
+
+### Controles
 
 ```powershell
 git switch verificacion-s010
-git pull --ff-only
-& ".\.venv\Scripts\python.exe" manage.py check
+git pull --ff-only origin s-010-acceso-seguridad
+git log --oneline -1
+& ".\.venv\Scripts\python.exe" manage.py migrate
 & ".\.venv\Scripts\python.exe" manage.py test accounts academics tutor
-& ".\.venv\Scripts\python.exe" manage.py makemigrations --check --dry-run
 & ".\.venv\Scripts\python.exe" manage.py runserver
 ```
 
-Recorrido de CA-9 en escritorio y en ancho reducido:
+```text
+dca29aa: Ran 202 tests in 155.389s ... OK
+4698763 (merge de main con S-007): migrate aplicó tutor.0002_practiceexercise; Ran 223 tests in 190.869s ... OK
+e871bbb: git log --oneline -1: e871bbb S-010: corrige panel movil y encabezado de practica
+e871bbb: Ran 223 tests in 155.447s ... OK
+manage.py check (al iniciar las pruebas y el servidor): System check identified no issues (0 silenced).
+```
 
-1. `/acceso/` y credenciales incorrectas.
-2. Inicio y perfil de `estudiante_demo`.
-3. `/docente/panel/` y `/docente/cursos/` como estudiante (403).
-4. Panel, mis cursos, notas, temas y estudiantes con `docente_01`.
-5. Comprobar títulos centrados, botones identificables, tablas legibles y la
-   misma cabecera en todas las pantallas.
+### Resultados
 
-Pendiente de completar por el verificador: commit probado, resultado de cada
-paso, capturas y observaciones.
+| Paso | Pantalla | Resultado | Evidencia |
+| --- | --- | --- | --- |
+| 1 | `/acceso/` con contraseña incorrecta en teléfono | Cumple: título centrado, tarjeta y mensaje "Las credenciales ingresadas no son válidas." legible; 375 px. | [acceso](img/ca9-pc-acceso-error-movil.png) |
+| 2 | Inicio y perfil de `estudiante_demo` en teléfono | Cumple: cabecera común, títulos centrados y tarjetas; 375 px. | [inicio](img/ca9-pc-inicio-movil.png), [perfil](img/ca9-pc-perfil-movil.png) |
+| 3 | Práctica de `estudiante_demo` (`/practica/PROG-COM/`, llegó con S-007) en teléfono | Cumple en `e871bbb`: título centrado como en las demás pantallas; 375 px. | [práctica](img/ca9-pc-practica-movil.png) |
+| 4 | `/docente/cursos/` y `/docente/panel/` como estudiante | Cumple: 403 en tarjeta centrada con "Volver al inicio"; 375 px en ambas (captura de la primera). | [403](img/ca9-pc-403-movil.png) |
+| 5 | Panel docente, mis cursos, temas y estudiantes de `docente_01` en teléfono | Cumple: misma cabecera, títulos centrados, botones identificables; 375 px. | [panel](img/ca9-pc-panel-movil.png), [cursos](img/ca9-pc-mis-cursos-movil.png), [temas](img/ca9-pc-temas-movil.png), [estudiantes](img/ca9-pc-estudiantes-movil.png) |
+| 6 | Notas del curso en teléfono | Cumple (corregido en `dca29aa`): 375 px; la tabla de notas se desplaza dentro de su propio recuadro. | [formulario](img/ca9-pc-notas-movil.png), [tabla](img/ca9-pc-notas-tabla-movil.png) |
+| 7 | Panel del curso (PROG-COM y DES-WEB) en teléfono | Cumple en `e871bbb`: 375 px en ambos cursos; las tablas se desplazan dentro de su recuadro y todas las columnas siguen accesibles. En `dca29aa` medía 523 px (observación 2). | [PROG-COM](img/ca9-pc-panel-curso-movil.png), [tabla](img/ca9-pc-panel-curso-tabla-movil.png), [DES-WEB](img/ca9-pc-panel-des-web-movil.png), [antes](img/ca9-pc-panel-curso-movil-antes.png) |
+| 8 | Detalle del estudiante desde el panel del curso en teléfono | Cumple: 375 px. | [detalle](img/ca9-pc-detalle-estudiante-movil.png) |
+| 9 | Notas y panel del curso en escritorio | Cumple: título centrado, tarjetas y tabla legible. | [notas](img/ca9-pc-notas-escritorio.png), [panel del curso](img/ca9-pc-panel-curso-escritorio.png) |
+
+### Observaciones
+
+1. **Notas en teléfono: corregida en `dca29aa`.** Con
+   `.teacher-layout > * { min-width: 0; }` el documento vuelve al ancho de
+   la ventana.
+2. **Panel del curso en teléfono: corregida en `e871bbb`.** En `dca29aa`
+   el documento medía 523 px en una ventana de 375 px y el título y la
+   tabla quedaban cortados. El autor envolvió las dos tablas de
+   `teacher_course_panel.html` en `<div class="table-scroll">` y añadió
+   `.student-layout > * { min-width: 0; }`. En la misma corrección centró
+   el encabezado de la práctica (`templates/tutor/practice.html`), que
+   había llegado con S-007 alineado a la izquierda.
+3. Los selectores de la pantalla de notas siguen sin flecha de despliegue
+   (observación ya anotada sobre `3c3907a`). El selector de curso del
+   inicio del estudiante sí la muestra. No bloquea.
+
+CA-9: **cumple** en escritorio y en teléfono sobre `e871bbb`. CA-1 a CA-8
+siguen verificados sobre `3c3907a`.
