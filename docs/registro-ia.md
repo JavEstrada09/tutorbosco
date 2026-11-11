@@ -915,6 +915,69 @@ Pendiente:
 Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
 producto. El consumo de la herramienta de desarrollo no se cuantificó.
 
+## S-007 · 10-11-2026 · Implementación local de práctica
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: ramosdeleon555, autor de S-007 y S-009.
+
+- Se propuso el plan en modo de solo lectura. El autor confirmó el contrato
+  PracticeExercise con S-009, la rama s-007-ejercicios y aprobó el plan completo.
+- Se integró main conservando el historial; la integración y el desarrollo
+  quedaron sin commit a la espera de revisión del autor.
+- El asistente implementó persistencia UUID, catálogo demo por curso/tema,
+  proveedores reutilizando el transporte Gemini, validación de lotes,
+  autorización, pantalla y pruebas. No instaló dependencias.
+- Las 19 pruebas específicas y las 215 de regresión pasaron. También
+  pasaron check, makemigrations --check --dry-run y pip check.
+- La migración se aplicó localmente y el recorrido HTTP con estudiante_03
+  creó un ejercicio demo y lo consultó por UUID desde localhost.
+- El autor debe leer y ejecutar los cambios antes de solicitar commits.
+  Brayan11Hernandez tiene pendiente la verificación independiente de CA-1 a CA-10.
+  No se presenta S-007 como terminada ni se atribuye aprobación al verificador.
+
+Costo del producto durante el bloque inicial de implementación y pruebas:
+USD 0.00; ninguna llamada real a Gemini en ese bloque. El proveedor real y
+el error 429 se simularon. El consumo de la herramienta de desarrollo no
+se cuantificó. La prueba real posterior se registra en la entrada siguiente.
+
+## S-007 · 10-11-2026 · Prueba real con Gemini y evidencia detallada
+
+Herramienta y modelo de desarrollo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: ramosdeleon555. Modelo del producto: `gemini-3.5-flash-lite`.
+
+El autor informó que probó el modo demo y solicitó una prueba real con la
+clave ya configurada. El asistente inició temporalmente el servidor en el
+puerto 8001 con `AI_MODE=real`, sin modificar `.env` ni mostrar secretos.
+Realizó acceso HTTP como estudiante_03 y un POST de práctica con CSRF.
+
+- Curso: PROG-COM, Programación Comercial; tema: Ingeniería de prompts.
+- Nota comprobada: 58; umbral: 60. El tema cumple la comparación estricta.
+- Resultado: HTTP 200 en 6,12 segundos, un ejercicio persistido con modo
+  `real`, sin clave demo ni aviso de alternativa grabada.
+- UUID: `04ee22d6-a90a-485a-ae8e-0d227530cb94`.
+- Persistido a las 19:44 del 10-11-2026, Guatemala
+  (`2026-11-11T01:44:04.025239+00:00`).
+
+Enunciado completo recuperado del ejercicio persistido:
+
+> Diseñe un prompt estructurado utilizando la técnica de pocos ejemplos (few-shot prompting) para que un modelo de lenguaje extraiga correctamente los datos fiscales de una factura en formato de texto libre y los devuelva en un formato JSON estandarizado para su posterior registro contable.
+
+El asistente comprobó el texto en español, trato formal y correspondencia
+con el tema débil, así como los datos persistidos y la etiqueta de IA en
+el HTML. No conservó la respuesta HTTP cruda del proveedor ni realizó una
+revisión visual en navegador. Después detuvo el servidor temporal;
+el puerto 8000 continuó en demo con el ejercicio real disponible.
+
+El autor solicitó incluir la respuesta completa y mayores detalles en la
+evidencia; revisó la propuesta y autorizó actualizar verificacion.md,
+registro-ia.md y gasto.md. El recorrido y sus límites se documentan en
+`specs/S-007-ejercicios/verificacion.md`. La verificación independiente
+de Brayan11Hernandez y el cierre de S-007 permanecen pendientes.
+
+Consumo: una solicitud real a Gemini. Tokens y costo monetario pendientes
+de confirmar con el proveedor; no se afirma costo cero para esta llamada.
+No se habilitó facturación ni se modificó su configuración durante la prueba.
+
 ## S-004 · 10-11-2026 · Integración final con S-005
 
 Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.

@@ -31,12 +31,29 @@ pagos automáticos.
 | 09-11-2026 | douglas-yasser | Gemini simulado / `gemini-3.5-flash-lite` | 50 pruebas y recorrido demo con Python 3.12.10 y 3.13.14 | No aplica; Gemini y la red fueron simulados o bloqueados | No aplica | Suite completa y recorrido demo sin solicitudes al servicio |
 | 10-11-2026 | douglas-yasser | Gemini / `gemini-3.5-flash-lite` | Verificación independiente S-006: CA-1 y CA-5 en modo real, incluidos diagnósticos de respuestas crudas y repetición por HTTP | Nivel gratuito; 10 solicitudes reales; tokens no confirmados | 0.00 | Respuestas reales y análisis de validación; ver `specs/S-006-tutor/verificacion.md` |
 | 10-11-2026 | douglas-yasser | Gemini / `gemini-3.5-flash-lite` | Repetición independiente S-006 sobre `30ad0c3`: CA-1 (2 solicitudes) y CA-5 (2 solicitudes) en modo real | Nivel gratuito; 4 solicitudes reales; tokens no confirmados | 0.00 | Respuestas reales mostradas en la interfaz; ver `specs/S-006-tutor/verificacion.md` |
+| 10-11-2026 | ramosdeleon555, prueba ejecutada mediante OpenCode | Gemini / `gemini-3.5-flash-lite` | S-007: generación real por HTTP para estudiante_03, PROG-COM, Ingeniería de prompts (nota 58; umbral 60) | 1 solicitud real; 1 ejercicio; HTTP 200 en 6,12 s; tokens no recuperados | Por confirmar | UUID `04ee22d6-a90a-485a-ae8e-0d227530cb94`; enunciado completo y recorrido en `specs/S-007-ejercicios/verificacion.md` |
 
-Se utilizó el nivel gratuito sin habilitar facturación de pago. El total de
-solicitudes y los tokens consumidos no están confirmados.
+Las entradas anteriores a la prueba real de S-007 registran uso del nivel
+gratuito sin habilitar facturación de pago. En la prueba S-007 no se cambió
+la configuración de facturación ni se consultó el panel del proveedor;
+su costo queda pendiente de confirmar. El total global de solicitudes y
+los tokens consumidos no están confirmados.
 
-Gasto monetario registrado total: USD 0.00. Este valor registra que no hubo
-cargo monetario; no afirma que el consumo de solicitudes o tokens fuera cero.
+Gasto monetario confirmado hasta las entradas con costo informado: USD 0.00.
+El total global actualizado queda pendiente del costo de la llamada S-007;
+no se interpreta la ausencia de un dato de facturación como costo cero.
+
+### Detalle de consumo de la prueba real S-007
+
+- Fecha local: 10-11-2026, 19:44, Guatemala (UTC−06:00).
+- Registro persistido: `2026-11-11T01:44:04.025239+00:00`.
+- Una generación real con el modelo configurado `gemini-3.5-flash-lite`.
+  No se utilizó la alternativa demo y no se efectuaron reintentos de la prueba.
+- Fuente disponible: ejecución HTTP del asistente y ejercicio guardado con
+  procedencia `real`. No se conservó respuesta cruda ni metadata de tokens.
+- Pendiente: contrastar consumo y costo en los registros del proveedor y
+  actualizar esta entrada con la fuente y el valor confirmados.
+- La latencia HTTP de 6,12 segundos no permite calcular tokens ni costo.
 
 ## Reglas
 
