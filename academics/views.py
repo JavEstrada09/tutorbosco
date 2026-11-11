@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -23,9 +24,13 @@ from academics.services import (
 )
 from academics.teacher_forms import StudentEnrollmentForm, TopicForm
 from tutor.demo_responses import DEMO_QUESTION
-from tutor.forms import TutorQuestionForm
+from tutor.forms import TutorActionForm, TutorQuestionForm
 from tutor.providers import TutorError
-from tutor.services import ask_tutor, get_tutor_mode
+from tutor.models import TutorConversation
+from tutor.services import (
+    StaleConversationError, check_conversation_revision, get_tutor_mode,
+    open_conversation, reply_to_conversation, reset_conversation,
+)
 
 
 @login_required
@@ -39,6 +44,12 @@ def student_home(request):
     if not enrollments:
         return render(request, "academics/access_denied.html", status=403)
 
+    if request.method == "POST" and (
+        not request.POST.get("course") or
+        {"student", "student_id", "conversation", "conversation_id", "session", "session_key"}
+        & request.POST.keys()
+    ):
+        return render(request, "academics/access_denied.html", status=403)
     course_code = request.POST.get("course", request.GET.get("course"))
     by_code = {item.course.code: item for item in enrollments}
     if course_code is None:
@@ -51,32 +62,50 @@ def student_home(request):
     profile = enrollment.student
     tutor_mode = get_tutor_mode()
     demo_question = DEMO_QUESTION if enrollment.course.code == "PROG-COM" else None
-    continue_in_demo = request.POST.get("continue_in_demo") == "1"
-    form_data = {"question": demo_question} if continue_in_demo else request.POST or None
-    form = TutorQuestionForm(form_data)
+    try:
+        conversation, created = open_conversation(
+            session_key=request.session.session_key, student=profile, course=enrollment.course,
+        )
+    except PermissionDenied:
+        return render(request, "academics/access_denied.html", status=403)
+    form = TutorQuestionForm(request.POST if request.method == "POST" else None)
     tutor_reply = None
     tutor_error = None
-    offer_demo = False
     if request.method == "POST":
-        if not demo_question and (continue_in_demo or tutor_mode == "demo"):
-            tutor_error = "El modo demo aún no tiene respuestas grabadas para este curso."
-        elif form.is_valid():
-            try:
-                tutor_reply = ask_tutor(
-                    question=form.cleaned_data["question"],
-                    career=profile.career,
-                    course_name=enrollment.course.name,
-                    mode="demo" if continue_in_demo else None,
-                )
-            except TutorError as error:
-                if demo_question:
-                    tutor_error = str(error)
-                    offer_demo = True
-                else:
-                    tutor_error = (
-                        "No fue posible obtener una respuesta del tutor. "
-                        "El modo demo aún no tiene respuestas grabadas para este curso."
+        action_form = TutorActionForm(request.POST)
+        try:
+            if not action_form.is_valid() or created:
+                raise StaleConversationError
+            revision = action_form.cleaned_data["revision"]
+            action = action_form.cleaned_data["action"]
+            check_conversation_revision(conversation, revision)
+            if action == "new":
+                reset_conversation(conversation, revision)
+                form = TutorQuestionForm()
+            elif action == "continue_demo" and not conversation.pending_question:
+                tutor_error = "No hay una pregunta pendiente para continuar en modo demo."
+                form = TutorQuestionForm()
+            else:
+                if action == "continue_demo":
+                    form = TutorQuestionForm({"question": conversation.pending_question})
+                if form.is_valid():
+                    tutor_reply = reply_to_conversation(
+                        conversation, revision, question=form.cleaned_data["question"],
+                        mode="demo" if action == "continue_demo" else None,
                     )
+                    form = TutorQuestionForm()
+        except TutorError as error:
+            tutor_error = str(error)
+        except StaleConversationError:
+            tutor_error = "La conversación cambió. Recargue la página para continuar."
+            tutor_reply = None
+        except PermissionDenied:
+            return render(request, "academics/access_denied.html", status=403)
+        try:
+            conversation.refresh_from_db()
+        except TutorConversation.DoesNotExist:
+            return render(request, "academics/access_denied.html", status=403)
+    offer_demo = bool(conversation.pending_question)
 
     return render(
         request,
@@ -91,6 +120,7 @@ def student_home(request):
             "tutor_error": tutor_error,
             "tutor_form": form,
             "tutor_reply": tutor_reply,
+            "conversation": conversation,
         },
     )
 
