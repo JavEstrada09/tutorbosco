@@ -1,5 +1,22 @@
 # Registro de uso de inteligencia artificial
 
+## S-009 · 2026-11-11 · Verificación asistida de d6e6092
+
+- Herramienta y modelo: OpenCode, OpenAI `gpt-6-astra`.
+- Fases: pruebas, automatización de navegador y documentación de evidencia.
+- Instrucción: ejecutar la estructura y nueve capturas aprobadas, con
+  aislamiento y procedencia diferenciada de la evidencia de `360da36`.
+- Resultado: 27 pruebas específicas y 244 generales correctas; nueve PNG
+  reales mediante Edge/CDP; comparación de 342 notas sin cambios.
+- Correcciones: puertos y perfil del arnés, esperas de carga y expectativas
+  textuales ajustadas al catálogo y las plantillas existentes. No se cambió
+  la implementación para pasar las pruebas.
+- Se preservaron los registros históricos y se documentaron intentos
+  fallidos, límites y pendientes en la evidencia del verificador.
+- No hubo llamadas nuevas a Gemini ni instalaciones. El costo del asistente
+  no fue informado. La calidad de Gemini real en este commit, aprobación
+  humana final y decisión de tamaño permanecen pendientes.
+
 Registrar una entrada por spec.
 No incluir claves, contraseñas ni datos reales de estudiantes.
 

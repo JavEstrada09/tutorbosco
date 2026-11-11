@@ -1,5 +1,26 @@
 # Verificación S-009
 
+## Actualización asistida del verificador · 2026-11-11
+
+Se ejecutó la verificación técnica en el worktree aislado fijado a
+`d6e6092e2fd243b1cfb45de15c7cc0d027af9331`, con Python 3.12.10:
+27 pruebas específicas y 244 generales correctas, controles Django/pip
+correctos y nueve capturas reales de Edge. El usuario aprobó previamente
+la estructura y la captura; la aprobación humana final sigue pendiente.
+
+- [Matriz CA-1 a CA-10 y límites](evidencia/brayan-d6e6092-resultados.md).
+- [Equipo, sistema y aislamiento](evidencia/brayan-d6e6092-entorno.txt).
+- [Comandos, salidas e intentos del arnés](evidencia/brayan-d6e6092-pruebas.txt).
+- [Índice de nueve capturas](evidencia/capturas-d6e6092/indice.md).
+- [Consultas de intentos y notas](evidencia/brayan-d6e6092-consultas.json).
+
+La evidencia `brayan-360da36-*` conserva la procedencia histórica.
+No se realizó una llamada real nueva: sigue pendiente la autorización
+separada para evaluar la corrección pedagógica con Gemini. También sigue
+pendiente la decisión expresa sobre la excepción de tamaño del PR.
+
+## Registro previo a esta ejecución (histórico)
+
 Autor: Jeffersson Ramos (ramosdeleon555).
 Estado: entrega 360da36 en PR #60; informe técnico de Brayan recibido por
 medio del autor, pendiente de incorporar evidencia y cerrar revisión humana.

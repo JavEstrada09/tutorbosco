@@ -1,0 +1,8 @@
+Commit: d6e6092e2fd243b1cfb45de15c7cc0d027af9331
+Python: 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]
+Equipo: Croczy11
+Sistema: Windows-11-10.0.26200-SP0
+Ejecutable reutilizado: C:\Users\herna\AppData\Local\Temp\opencode\tutorbosco-s009-brayan\.venv\Scripts\python.exe
+Worktree: C:\Users\herna\AppData\Local\Temp\opencode\tutorbosco-s009-brayan-d6e6092
+Base nueva exclusiva: C:\Users\herna\AppData\Local\Temp\opencode\s009-d6-verificacion-9f76db78fe.sqlite3
+AI_MODE=demo; GEMINI_API_KEY vacía. Sin instalaciones.
