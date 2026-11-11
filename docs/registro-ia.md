@@ -1479,3 +1479,29 @@ Consumo del producto: una solicitud real; tokens y costo monetario pendientes
 de confirmar con el proveedor. No se afirma costo cero ni se cambió la
 configuración de facturación. El consumo de desarrollo no se cuantificó.
 La revisión del autor y la verificación de Brayan11Hernandez siguen pendientes.
+
+## S-009 · 11-11-2026 · Cierre documental posterior al merge
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: Jeffersson Daniel Ramos (`ramosdeleon555`).
+
+El autor aprobó la estructura de seis archivos y confirmó «yo ya terminé y
+Brayan ya realizó las verificaciones que le tocaba hacer». El asistente
+contrastó GitHub: aprobación de Brayan11Hernandez y merge del PR #60 en
+`64e8043`, con evidencia independiente incorporada en `558c5f9` sobre `d6e6092`.
+
+Se actualizan README, docs/plan.md y el estado de spec.md y plan.md; se añade
+un cierre vigente a verificacion.md sin alterar los archivos originales de
+Brayan, sus capturas ni resultados. Se elimina la duplicación de filas S-009
+y S-010 de la tabla, conservando para S-010 el estado Terminada ya existente.
+El cambio de spec.md es de estado y registro, sin alterar los criterios.
+
+La confirmación del autor es la fuente del cierre de las revisiones humanas;
+no se inventa una nueva ejecución sobre main, una aprobación específica de
+la excepción de tamaño ni una llamada real posterior a la corrección.
+Los límites técnicos y tokens/costos pendientes siguen explícitos.
+
+Trabajo preparado en `s-009-cierre-documental`, desde main `64e8043`.
+Solo documentación: no se repitieron suites, instalaron dependencias ni
+realizaron llamadas a Gemini. Sin consumo de cuota del producto; el consumo
+de la herramienta de desarrollo no se cuantificó.

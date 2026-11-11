@@ -285,7 +285,7 @@ S-007 cuenta con verificación independiente de Brayan11Hernandez sobre
 incluida la repetición de CA-4, CA-9 y CA-10, está en
 `specs/S-007-ejercicios/verificacion.md`.
 
-## S-009 · Respuestas y retroalimentación (implementación local)
+## S-009 · Respuestas y retroalimentación
 
 Aplique `manage.py migrate` después de actualizar. Inicie sesión como
 estudiante, genere práctica y pulse **Responder y consultar sus intentos**.
@@ -318,12 +318,17 @@ solo si el ejercicio y la respuesta corresponden exactamente a un caso
 grabado. No se inventa una evaluación para ejercicios reales sin grabación.
 
 Pruebas específicas: `manage.py test tutor.test_feedback`.
-La implementación local tiene 27 pruebas específicas y pasó las 244 de
-regresión con clave externa vacía. Una prueba real con gemini-3.5-flash-lite
-guardó una devolución en 4,69 segundos sin modificar notas; el texto completo
-y sus límites están en specs/S-009-retroalimentacion/verificacion.md.
-La verificación independiente de Brayan11Hernandez y la revisión del autor
-siguen pendientes; S-009 no está terminada.
+S-009 está terminada e integrada mediante el PR #60, aprobado por
+Brayan11Hernandez y fusionado en `64e8043`. La verificación independiente
+sobre `d6e6092`, con Python 3.12.10, pasó 27 pruebas específicas y 244 de
+regresión, además de los controles Django/pip, y registró nueve capturas.
+Jeffersson confirmó su revisión final y la finalización de las verificaciones
+de Brayan. La matriz, la procedencia de esa confirmación y las limitaciones
+están en `specs/S-009-retroalimentacion/verificacion.md`.
+
+Las llamadas reales anteriores no prueban la calidad pedagógica de Gemini
+tras corregir sus instrucciones: no hubo una llamada real nueva sobre
+`d6e6092`. Los tokens y costos no confirmados siguen en `docs/gasto.md`.
 
 ## Comprobación real de CA-4 (S-001)
 

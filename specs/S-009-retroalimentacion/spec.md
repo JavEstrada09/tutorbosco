@@ -3,7 +3,7 @@
 Requisito: RF-05 parcial; RNF-04 · Issue: #13
 Autor: Jeffersson Ramos (ramosdeleon555)
 Verificador: Brayan11Hernandez
-Estado: aprobada
+Estado: terminada; PR #60 aprobado por Brayan11Hernandez y fusionado en `64e8043`.
 
 ## Problema
 
@@ -151,6 +151,11 @@ CA-10 Dada retroalimentación válida de IA o del modo demo,
   aprobar el plan técnico y disponer de las dependencias.
 
 ## Registro de cambios
+
+2026-11-11 · Cierre documental tras la aprobación y fusión del PR #60.
+Jeffersson confirmó su revisión final y que Brayan completó sus verificaciones.
+Se actualiza el estado sin modificar comportamiento ni criterios. La evidencia
+y sus límites se conservan en verificacion.md.
 
 2026-11-05 · Borrador inicial para Jeffersson Ramos (ramosdeleon555),
 basado en docs/plan.md y docs/guia-trabajo.md; delimita la recepción

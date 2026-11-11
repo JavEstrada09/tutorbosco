@@ -1,9 +1,10 @@
 # Plan S-009 — Respuestas y retroalimentación
 
 Autor: Jeffersson Ramos (ramosdeleon555).
-Estado: plan actualizado aprobado por Jeffersson en la conversación actual;
-implementación entregada en el PR #60 sobre 360da36; corrección pedagógica
-en curso, pendiente de revisión humana y cierre de verificación independiente.
+Estado: ejecución terminada; implementación y corrección pedagógica integradas
+en el PR #60, aprobado por Brayan11Hernandez y fusionado en `64e8043`.
+La cronología siguiente conserva decisiones y pendientes de cada etapa;
+el cierre vigente y sus límites se registran al final y en verificacion.md.
 Propuesto por: OpenCode · openai/gpt-6.1-sol · análisis de solo lectura.
 Revisión de la propuesta anterior: usuario de esa sesión, 2026-11-09, mediante
 «entonces hazlo, adelante», después de presentar contrato, flujo,
@@ -322,3 +323,22 @@ La corrección pasó 27 pruebas específicas y 244 de regresión con Python
 3.12.10 y Gemini simulado; check, migraciones pendientes y pip check también
 correctos. Comandos, duraciones y alcance en verificacion.md. Estos resultados
 corresponden a cambios locales sobre 360da36, sin commit de corrección todavía.
+
+## Cierre documental · 11-11-2026
+
+- Corrección publicada en `d6e6092`; evidencia independiente incorporada en
+  `558c5f9`, con 27 pruebas específicas, 244 de regresión y nueve capturas.
+- Brayan11Hernandez aprobó el PR #60 sobre `35e0a5f`; se fusionó a main en
+  `64e80433bdcd176c74cd0b58536f9566817a8644` el 11-11-2026.
+- Jeffersson aprobó la estructura del cierre y confirmó en esta conversación:
+  «yo ya terminé y Brayan ya realizó las verificaciones que le tocaba hacer».
+  Esta declaración completa el registro de revisión del autor y de verificación
+  posterior al merge; no añade comandos, fechas de ejecución ni resultados
+  técnicos nuevos a la evidencia de Brayan.
+- El PR se integró como una entrega mayor a la prevista. La aprobación y el
+  merge son verificables; no se encontró una aceptación escrita específica de
+  la excepción de tamaño y no se inventa mediante este cierre.
+- No hubo una llamada real nueva tras el ajuste pedagógico ni confirmación
+  adicional de tokens/costos. Se conservan esos límites de la evidencia.
+
+Este cierre solo actualiza documentación; no modifica código ni repite suites.
