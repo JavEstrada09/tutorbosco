@@ -968,3 +968,46 @@ Las pruebas ejecutadas en Linux usan datos sintéticos, proveedor simulado
 y red bloqueada para el demo. No se llamó a Gemini real ni se generó gasto
 del producto. La lectura y ejecución por Jav en Windows y la verificación
 independiente de Douglas quedan pendientes para este cambio.
+
+
+## S-006 · 10-11-2026 · Bloque 3b: integración de la conversación
+
+ChatGPT (Codex) ayudó a integrar la vista y la plantilla con el hilo del
+curso, las revisiones, el historial, el reinicio y la continuación en
+demo con la pregunta pendiente. Se sustituyó el formulario anterior de
+continuación, que siempre usaba la pregunta de ejemplo, según el contrato
+del plan aprobado. Las respuestas siguen mostrándose como texto escapado.
+
+Se ejecutaron pruebas automatizadas en Linux con cuentas sintéticas y
+Gemini simulado; no se hicieron llamadas reales ni hubo gasto del producto.
+La lectura y ejecución del cambio por Jav en Windows y la aceptación
+independiente de Douglas quedan pendientes. La matriz de los nueve
+criterios está en `specs/S-006-tutor/plan.md`; su evidencia y el commit
+probado deben registrarse en `verificacion.md` antes de fusionar.
+
+
+## S-006 · 10-11-2026 · Corrección tras verificación independiente
+
+Douglas reportó sobre `ece9dee` que Gemini recomendaba el tema correcto o
+rechazaba solicitudes de terceros, pero la validación descartaba respuestas
+formales que usaban «le» y «su» sin el pronombre literal «usted».
+ChatGPT (Codex) ayudó a retirar esa condición y a añadir pruebas simuladas
+de recomendación, privacidad y guardado en el historial sin activar demo.
+Se conservan las instrucciones de trato formal, la mención del curso,
+la comprobación de español, los límites de longitud y los errores esperados.
+
+No se llamó a Gemini real durante esta corrección. No se modifican los
+resultados ni el consumo registrados por Douglas en su worktree. Queda
+pendiente la ejecución del autor en Windows y la repetición independiente
+de CA-1, CA-5 y CA-9 en modo real sobre el nuevo commit antes de aprobar.
+
+
+## S-006 · 10-11-2026 · Cierre documental
+
+ChatGPT (Codex) ayudó a actualizar el estado de la spec, la tabla de
+`docs/plan.md` y la nota del README a partir de la evidencia independiente
+de douglas-yasser incorporada en el PR #53. Se mantuvieron sin cambios
+`verificacion.md` y `docs/gasto.md`, incluidos los resultados originales,
+la repetición sobre `30ad0c3` y el consumo de Gemini. Este cambio es solo
+documental; no se ejecutaron nuevas consultas a Gemini ni pruebas de la
+aplicación para el cierre. El PR documental queda pendiente de revisión.

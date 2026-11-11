@@ -36,15 +36,18 @@ sintéticos. La verificación independiente quedó registrada en
 S-003 agrega el perfil académico del estudiante en `/perfil/`: datos
 personales, cursos inscritos, nota por tema y promedio del curso. El promedio
 se calcula en una sola función, `academics.services.calculate_average`. La
-verificación independiente de ramosdeleon555 está pendiente.
+verificación independiente de ramosdeleon555 quedó registrada en
+[verificacion.md](specs/S-003-perfil-academico/verificacion.md).
 
 S-005 agrega la pantalla del docente para registrar y corregir notas en
 `/docente/cursos/<código>/notas/`. La regla de guardado vive en
 `academics.services.record_grade`, que comprueba en el servidor que el
 docente imparta el curso, que el tema sea del curso, que el estudiante esté
 inscrito y que la nota sea un entero de 0 a 100. La verificación
-independiente de ramosdeleon555 está pendiente. La gestión de temas y
-estudiantes de S-004 incluye el enlace a esta pantalla.
+independiente de ramosdeleon555 quedó registrada en
+[verificacion.md](specs/S-005-registro-notas/verificacion.md). La
+gestión de temas y estudiantes de S-004 incluye el enlace a esta
+pantalla.
 
 ## Requisitos
 
@@ -223,8 +226,10 @@ curso ajeno o inexistente responden 403 mediante la autorización compartida
 con S-005. Cada curso incluye también el enlace a su planilla de notas.
 
 Si Gemini falla en modo real, la pantalla muestra un mensaje seguro y ofrece
-`Continuar en modo demo`. Esa acción usa en el servidor la pregunta de ejemplo,
-muestra la etiqueta `Respuesta grabada del modo demo` y no inicializa Gemini.
+`Continuar en modo demo`. Esa acción usa en el servidor la pregunta pendiente
+del mismo hilo, muestra la etiqueta `Respuesta grabada del modo demo` y no
+inicializa Gemini. Si no hay una grabación aplicable, muestra un aviso y
+conserva los turnos completados.
 
 ### Registro de notas del docente
 
@@ -297,7 +302,7 @@ de Douglas.
 - python-dotenv 1.2.4.
 
 
-### S-006 · Proveedores personalizados (bloque 3a)
+### S-006 · Tutor personalizado
 
 El servicio `conversation_context` prepara exclusivamente los temas y notas
 capturados al abrir el hilo y sus cuatro últimos turnos. Para la llamada se
@@ -313,7 +318,22 @@ adicionales grabados para los seis temas del piloto. Sin una grabación
 aplicable, devuelve un aviso; no reutiliza respuestas del piloto en otro
 curso. Se comparte el cálculo `is_weak` y se distinguen las notas ausentes.
 
-Este bloque prepara los proveedores. La conexión de estos contextos con
-la vista, el historial visible, el reinicio y la pregunta pendiente se
-entrega en el bloque 3b. El recorrido actual de pantalla continúa usando
-el contexto básico hasta esa integración.
+La pantalla conserva un hilo por sesión y curso, muestra sus mensajes y
+permite cambiar entre los cursos inscritos. «Nueva conversación» borra
+los mensajes del curso seleccionado y consulta de nuevo sus notas. Cerrar
+sesión elimina todos los hilos de esa sesión. Los formularios mantienen
+CSRF e incluyen curso, revisión y acción; una revisión desactualizada se
+rechaza antes de consultar al proveedor, y un resultado que llega después
+de un reinicio se descarta.
+
+Para probar el recorrido en demo, inicie sesión, pregunte qué tema debería
+repasar y pida otro ejemplo. Cambie de curso y vuelva al primero para ver
+su historial. Actualice una nota con la pantalla docente, vuelva al tutor
+y pulse «Nueva conversación»: la recomendación usará la nota actualizada.
+S-006 cuenta con verificación independiente de douglas-yasser para los nueve
+criterios. La repetición de CA-1, CA-5 y CA-9 con Gemini real y las 191
+pruebas pasaron sobre `30ad0c3`; el PR #53 integró la implementación y la
+evidencia en `main`. El detalle, incluido el fallo inicial y su corrección,
+está en `specs/S-006-tutor/verificacion.md`. El consumo real registrado
+para S-006 fue de 14 solicitudes en el nivel gratuito, con costo USD 0.00;
+los tokens no están confirmados (véase `docs/gasto.md`).

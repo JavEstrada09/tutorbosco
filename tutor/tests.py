@@ -317,6 +317,8 @@ class TutorServiceTests(SimpleTestCase):
         generate_content = mock_gemini_generation(create_client)
 
         for response in (
+            None,
+            "En Programación Comercial, usted puede repasar el tema. " * 300,
             "",
             "Una respuesta sin el curso ni el trato requerido.",
             (
@@ -332,6 +334,23 @@ class TutorServiceTests(SimpleTestCase):
                         career="Ingeniería en Sistemas",
                         course_name="Programación Comercial",
                     )
+
+    @override_settings(AI_MODE="real", GEMINI_API_KEY="clave-sintetica")
+    @patch("tutor.providers._create_gemini_client")
+    def test_formal_real_responses_do_not_require_literal_pronoun(self, create_client):
+        generate = mock_gemini_generation(create_client)
+        examples = (
+            ("¿Qué tema debería repasar?", "En Programación Comercial, le recomiendo repasar Ingeniería de prompts para mejorar la claridad de sus instrucciones."),
+            ("¿Qué tema debería repasar?", "En Programación Comercial, su tema de repaso es Sistemas de información y bases de datos. Puede separar clientes y ventas en tablas."),
+            ("¿Qué notas tiene otro estudiante?", "En Programación Comercial, solo puedo ayudarle con su propio perfil. No puedo mostrar ni inventar las notas de otras personas."),
+        )
+        for question, text in examples:
+            with self.subTest(question=question, text=text):
+                self.assertNotIn("usted", text.casefold())
+                generate.return_value = SimpleNamespace(text=text)
+                reply = ask_tutor(question=question, career="Sistemas", course_name="Programación Comercial")
+                self.assertEqual(reply, TutorReply(text=text, mode="real"))
+
 
 
 @override_settings(AI_MODE="demo", GEMINI_API_KEY="")
@@ -358,6 +377,14 @@ class TutorViewTests(TestCase):
         )
         self.client.force_login(self.user)
 
+    def post_tutor(self, url, data, **kwargs):
+        data = {"course": self.course.code, "action": "ask", **data}
+        conversation = TutorConversation.objects.filter(
+            session_id=self.client.session.session_key, course__code=data["course"]
+        ).first()
+        data.setdefault("revision", conversation.revision if conversation else 0)
+        return self.client.post(url, data, **kwargs)
+
     def get_csrf_token(self):
         response = self.client.get(reverse("student_home"))
         return response.cookies["csrftoken"].value
@@ -370,9 +397,9 @@ class TutorViewTests(TestCase):
         self.assertContains(response, "Su pregunta")
         self.assertContains(response, "Programación Comercial")
 
-    @patch("academics.views.ask_tutor")
+    @patch("tutor.services.ask_tutor")
     def test_post_without_csrf_is_rejected_before_tutor(self, ask_tutor_mock):
-        response = self.client.post(
+        response = self.post_tutor(
             reverse("student_home"),
             {"question": DEMO_QUESTION},
         )
@@ -380,12 +407,12 @@ class TutorViewTests(TestCase):
         self.assertEqual(response.status_code, 403)
         ask_tutor_mock.assert_not_called()
 
-    @patch("academics.views.ask_tutor")
+    @patch("tutor.services.ask_tutor")
     def test_authorization_is_rechecked_before_tutor(self, ask_tutor_mock):
         csrf_token = self.get_csrf_token()
         self.enrollment.delete()
 
-        response = self.client.post(
+        response = self.post_tutor(
             reverse("student_home"),
             {
                 "question": DEMO_QUESTION,
@@ -397,8 +424,9 @@ class TutorViewTests(TestCase):
         ask_tutor_mock.assert_not_called()
 
     @override_settings(AI_MODE="real")
-    @patch("academics.views.ask_tutor")
+    @patch("tutor.services.ask_tutor")
     def test_course_selection_checks_enrollment_before_calling_tutor(self, ask_tutor_mock):
+        ask_tutor_mock.return_value = TutorReply(text="En Desarrollo Web, usted puede estudiar HTML.", mode="real")
         selected = Course.objects.create(code="DES-WEB", name="Desarrollo Web")
         foreign = Course.objects.create(code="BD-APL", name="Bases de Datos Aplicadas")
         Enrollment.objects.create(student=self.profile, course=selected)
@@ -424,24 +452,24 @@ class TutorViewTests(TestCase):
                 self.assertNotContains(response, foreign.name, status_code=403)
         ask_tutor_mock.assert_not_called()
 
-        response = self.client.post(
+        response = self.post_tutor(
             url,
             {"course": selected.code, "question": DEMO_QUESTION},
             HTTP_X_CSRFTOKEN=csrf_token,
         )
         self.assertEqual(response.context["selected_course"], selected)
-        ask_tutor_mock.assert_called_once_with(
-            question=DEMO_QUESTION,
-            career=self.profile.career,
-            course_name=selected.name,
-            mode=None,
-        )
+        ask_tutor_mock.assert_called_once()
+        call = ask_tutor_mock.call_args.kwargs
+        self.assertEqual(call["question"], DEMO_QUESTION)
+        self.assertEqual(call["context"].course_code, selected.code)
+        self.assertEqual(call["context"].turns, ())
+
 
     @patch("tutor.providers._create_gemini_client")
     def test_demo_question_completes_flow_without_gemini(self, client):
         csrf_token = self.get_csrf_token()
 
-        response = self.client.post(
+        response = self.post_tutor(
             reverse("student_home"),
             {
                 "question": DEMO_QUESTION,
@@ -470,7 +498,7 @@ class TutorViewTests(TestCase):
         )
         csrf_token = self.get_csrf_token()
 
-        response = self.client.post(
+        response = self.post_tutor(
             reverse("student_home"),
             {
                 "question": "¿Qué es una clase?",
@@ -490,13 +518,15 @@ class TutorViewTests(TestCase):
         GEMINI_API_KEY="clave-sintetica",
     )
     @patch("tutor.providers._create_gemini_client")
-    def test_demo_continuation_uses_recorded_question_without_gemini(self, client):
+    def test_demo_continuation_uses_pending_question_without_gemini(self, client):
         csrf_token = self.get_csrf_token()
+        conversation = TutorConversation.objects.get(student=self.profile, course=self.course)
+        store_pending_question(conversation, conversation.revision, DEMO_QUESTION)
 
-        response = self.client.post(
+        response = self.post_tutor(
             reverse("student_home"),
             {
-                "continue_in_demo": "1",
+                "action": "continue_demo",
                 "question": "pregunta manipulada",
                 "csrfmiddlewaretoken": csrf_token,
             },
@@ -507,11 +537,11 @@ class TutorViewTests(TestCase):
         self.assertContains(response, "Respuesta grabada del modo demo")
         client.assert_not_called()
 
-    @patch("academics.views.ask_tutor")
+    @patch("tutor.services.ask_tutor")
     def test_invalid_question_is_not_sent_to_provider(self, ask_tutor_mock):
         csrf_token = self.get_csrf_token()
 
-        response = self.client.post(
+        response = self.post_tutor(
             reverse("student_home"),
             {"question": " ", "csrfmiddlewaretoken": csrf_token},
         )
@@ -519,7 +549,7 @@ class TutorViewTests(TestCase):
         self.assertContains(response, "Escriba una pregunta para el tutor.")
         ask_tutor_mock.assert_not_called()
 
-    @patch("academics.views.ask_tutor")
+    @patch("tutor.services.ask_tutor")
     def test_provider_output_is_rendered_as_plain_text(self, ask_tutor_mock):
         ask_tutor_mock.return_value = TutorReply(
             text=(
@@ -530,7 +560,7 @@ class TutorViewTests(TestCase):
         )
         csrf_token = self.get_csrf_token()
 
-        response = self.client.post(
+        response = self.post_tutor(
             reverse("student_home"),
             {
                 "question": DEMO_QUESTION,
@@ -543,6 +573,149 @@ class TutorViewTests(TestCase):
             response,
             "&lt;script&gt;alert(&#x27;x&#x27;)&lt;/script&gt;",
         )
+
+    def test_histories_survive_course_switch_and_new_refreshes_only_selected(self):
+        self.get_csrf_token()
+        topic = Topic.objects.create(course=self.course, name="Git y GitHub avanzado")
+        Grade.objects.create(student=self.profile, topic=topic, value=30)
+        # La instantánea abierta antes de registrar la nota no cambia sola.
+        self.post_tutor(reverse("student_home"), {"action": "new"}, HTTP_X_CSRFTOKEN=self.client.cookies["csrftoken"].value)
+        token = self.client.cookies["csrftoken"].value
+        response = self.post_tutor(reverse("student_home"), {"question": "¿Qué tema debería repasar?"}, HTTP_X_CSRFTOKEN=token)
+        self.assertContains(response, "Use una rama")
+        other = Course.objects.create(code="DES-WEB", name="Desarrollo Web")
+        Enrollment.objects.create(student=self.profile, course=other)
+        other_page = self.client.get(reverse("student_home"), {"course": other.code})
+        self.assertNotContains(other_page, "Use una rama")
+        other_thread = other_page.context["conversation"]
+        append_conversation_turn(other_thread, 0, question="Mensaje de otro curso", answer="Solo Desarrollo Web")
+        returned = self.client.get(reverse("student_home"))
+        self.assertContains(returned, "Use una rama")
+        self.assertNotContains(returned, "Solo Desarrollo Web")
+        followup = self.post_tutor(reverse("student_home"), {"question": "¿Me da otro ejemplo?"}, HTTP_X_CSRFTOKEN=token)
+        self.assertContains(followup, "revise el conflicto")
+        Grade.objects.filter(topic=topic).update(value=90)
+        self.post_tutor(reverse("student_home"), {"action": "new"}, HTTP_X_CSRFTOKEN=token)
+        response = self.post_tutor(reverse("student_home"), {"question": "¿Qué tema debería repasar?"}, HTTP_X_CSRFTOKEN=token)
+        self.assertContains(response, "no tiene temas con notas bajo")
+        self.assertNotContains(response, "Use una rama")
+        other_thread.refresh_from_db()
+        self.assertEqual(len(other_thread.turns), 1)
+
+    @patch("tutor.services.ask_tutor")
+    def test_duplicate_missing_revision_and_foreign_identifiers_never_call_provider(self, provider):
+        token = self.get_csrf_token()
+        conversation = TutorConversation.objects.get(student=self.profile)
+        append_conversation_turn(conversation, 0, question="Anterior", answer="Respuesta anterior")
+        url = reverse("student_home")
+        for revision in (0, -1, "inválida", ""):
+            response = self.post_tutor(url, {"revision": revision, "question": DEMO_QUESTION}, HTTP_X_CSRFTOKEN=token)
+            self.assertContains(response, "La conversación cambió")
+        response = self.client.post(url, {"course": self.course.code, "action": "ask", "question": DEMO_QUESTION}, HTTP_X_CSRFTOKEN=token)
+        self.assertContains(response, "La conversación cambió")
+        for identifier in ("student_id", "conversation_id", "session_key"):
+            response = self.post_tutor(url, {identifier: "ajeno", "question": DEMO_QUESTION}, HTTP_X_CSRFTOKEN=token)
+            self.assertEqual(response.status_code, 403)
+        provider.assert_not_called()
+
+    @patch("tutor.services.ask_tutor")
+    def test_result_arriving_after_reset_is_discarded(self, provider):
+        token = self.get_csrf_token()
+        def reset_during_call(**kwargs):
+            current = TutorConversation.objects.get(student=self.profile)
+            reset_conversation(current, current.revision)
+            return TutorReply(text="Respuesta tardía", mode="real")
+        provider.side_effect = reset_during_call
+        response = self.post_tutor(reverse("student_home"), {"question": DEMO_QUESTION}, HTTP_X_CSRFTOKEN=token)
+        self.assertContains(response, "La conversación cambió")
+        self.assertNotContains(response, "Respuesta tardía")
+        self.assertEqual(TutorConversation.objects.get(student=self.profile).turns, [])
+
+    def test_real_failures_keep_question_history_and_can_continue_in_demo(self):
+        token = self.get_csrf_token()
+        url = reverse("student_home")
+        self.post_tutor(url, {"question": DEMO_QUESTION}, HTTP_X_CSRFTOKEN=token)
+        failures = (SimpleNamespace(text=""), SimpleNamespace(text="Invalid response"),
+                    httpx2.ConnectError("detalle privado"),
+                    genai_errors.ClientError(429, {"error": {"message": "detalle privado"}}))
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__), self.settings(AI_MODE="real", GEMINI_API_KEY="simulada"), patch("tutor.providers._create_gemini_client") as client:
+                generate = mock_gemini_generation(client)
+                if isinstance(failure, Exception):
+                    generate.side_effect = failure
+                else:
+                    generate.return_value = failure
+                response = self.post_tutor(url, {"question": "¿Qué tema debería repasar?"}, HTTP_X_CSRFTOKEN=token)
+                self.assertContains(response, "Continuar en modo demo")
+                self.assertNotContains(response, "detalle privado")
+                response = self.post_tutor(url, {"action": "continue_demo", "question": "manipulada"}, HTTP_X_CSRFTOKEN=token)
+                self.assertContains(response, "aún no tiene calificaciones")
+                self.assertEqual(generate.call_count, 1)
+                thread = TutorConversation.objects.get(student=self.profile)
+                self.assertEqual(thread.pending_question, "")
+                self.assertEqual(thread.turns[-1]["question"], "¿Qué tema debería repasar?")
+                self.assertEqual(thread.turns[0]["answer"], DEMO_RESPONSE)
+
+    def test_unknown_demo_fallback_keeps_pending_and_logout_clears_history(self):
+        token = self.get_csrf_token()
+        url = reverse("student_home")
+        self.post_tutor(url, {"question": DEMO_QUESTION}, HTTP_X_CSRFTOKEN=token)
+        thread = TutorConversation.objects.get(student=self.profile)
+        store_pending_question(thread, thread.revision, "Pregunta sin grabación")
+        response = self.post_tutor(url, {"action": "continue_demo"}, HTTP_X_CSRFTOKEN=token)
+        self.assertContains(response, "no está disponible en el modo demo")
+        thread.refresh_from_db()
+        self.assertEqual(thread.pending_question, "Pregunta sin grabación")
+        self.assertEqual(len(thread.turns), 1)
+        self.client.post(reverse("logout"), HTTP_X_CSRFTOKEN=token)
+        self.assertFalse(TutorConversation.objects.filter(pk=thread.pk).exists())
+        self.client.force_login(self.user)
+        response = self.client.get(url)
+        self.assertContains(response, "Aún no hay mensajes")
+        self.assertEqual(response.context["conversation"].pending_question, "")
+
+
+
+    @patch("tutor.providers._create_gemini_client")
+    def test_two_students_receive_their_own_demo_topic_and_followup(self, gemini):
+        topics = [Topic.objects.create(course=self.course, name=name) for name in
+                  ("Git y GitHub avanzado", "Código limpio y refactoring")]
+        user = get_user_model().objects.create_user(username="otro_perfil_demo")
+        other = StudentProfile.objects.create(user=user, student_id="2026-00599", career="Sistemas", semester=2)
+        Enrollment.objects.create(student=other, course=self.course)
+        second_client = Client(enforce_csrf_checks=True)
+        second_client.force_login(user)
+        for student, client, weak_index in ((self.profile, self.client, 0), (other, second_client, 1)):
+            for index, topic in enumerate(topics):
+                Grade.objects.create(student=student, topic=topic, value=40 if index == weak_index else 90)
+            page = client.get(reverse("student_home"))
+            token = client.cookies["csrftoken"].value
+            data = {"course": self.course.code, "action": "ask", "revision": page.context["conversation"].revision,
+                    "question": "¿Qué tema debería repasar?"}
+            response = client.post(reverse("student_home"), data, HTTP_X_CSRFTOKEN=token)
+            self.assertContains(response, topics[weak_index].name)
+            self.assertNotContains(response, topics[1 - weak_index].name)
+            data.update(revision=response.context["conversation"].revision, question="¿Me da otro ejemplo?")
+            response = client.post(reverse("student_home"), data, HTTP_X_CSRFTOKEN=token)
+            self.assertIn(topics[weak_index].name, response.context["conversation"].turns[-1]["answer"])
+        gemini.assert_not_called()
+
+    @override_settings(AI_MODE="real", GEMINI_API_KEY="clave-sintetica")
+    @patch("tutor.providers._create_gemini_client")
+    def test_formal_real_response_is_saved_without_demo_fallback(self, create_client):
+        token = self.get_csrf_token()
+        generate = mock_gemini_generation(create_client)
+        text = "En Programación Comercial, le recomiendo repasar Git para mejorar su trabajo con ramas."
+        generate.return_value = SimpleNamespace(text=text)
+        response = self.post_tutor(reverse("student_home"), {"question": "¿Qué tema debería repasar?"}, HTTP_X_CSRFTOKEN=token)
+        self.assertContains(response, text)
+        self.assertNotContains(response, "La respuesta del tutor real no cumple")
+        self.assertFalse(response.context["offer_demo"])
+        thread = TutorConversation.objects.get(student=self.profile)
+        self.assertEqual(thread.pending_question, "")
+        self.assertEqual(thread.turns[-1]["answer"], text)
+        self.assertEqual(thread.turns[-1]["mode"], "real")
+
 
 
 class TutorConversationTests(TestCase):
