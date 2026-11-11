@@ -2,12 +2,12 @@
 {% block title %}Su práctica | TutoBosco{% endblock %}
 {% block content %}
 <section class="student-layout" aria-labelledby="practice-title">
-    <div>
+    <header class="page-intro">
         <p class="eyebrow">{{ state.summary.course.name }}</p>
         <h1 id="practice-title">Practique sus temas débiles</h1>
-        <p>Solicite ejercicios según sus calificaciones vigentes.</p>
+        <p class="lead">Solicite ejercicios según sus calificaciones vigentes.</p>
         <a class="profile-link" href="{% url 'student_home' %}?course={{ state.summary.course.code|urlencode }}">Volver a su tutor</a>
-    </div>
+    </header>
     <nav class="panel" aria-label="Sus cursos para practicar">
         <h2>Seleccione su curso</h2>
         {% for course in state.courses %}

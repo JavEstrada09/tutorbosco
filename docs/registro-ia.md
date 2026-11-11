@@ -36,6 +36,21 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida (si aplica):
 ```
 
+## S-010 · 11-11-2026 · Cierre documental
+
+Herramienta y modelo: OpenCode · OpenAI GPT-6 Astra (`openai/gpt-6-astra`).
+Usado por: Brayan11Hernandez.
+Fases en que se usó: documentación y preparación del PR de cierre.
+Instrucción clave: actualizar main después del merge del PR #57 y abrir
+el PR que marca S-010 como Terminada para revisión humana.
+Qué se aceptó sin cambios: pendiente de revisión del PR de cierre.
+Qué se corrigió o descartó, y por qué: se actualizó el estado en la spec
+y en docs/plan.md usando la evidencia existente de AlexDLG1 para CA-1
+a CA-9. Las 223 pruebas OK corresponden a su ejecución sobre `e871bbb`;
+en este cierre documental se revisó el diff, sin repetir pruebas de aplicación.
+Costo o cuota consumida: sin llamadas a la API de IA del producto;
+el costo de la herramienta no se registra desde este entorno.
+
 ## S-000 · 27-10-2026 · Preparación documental
 
 Herramienta y modelo: ChatGPT · GPT-6.1 Sol.
@@ -885,6 +900,33 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida: sin llamadas a Gemini ni a la API de IA del
 producto. El consumo de la herramienta de desarrollo no está disponible.
 
+## S-010 · 10-11-2026 · Plan e implementación
+
+Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: auditoría de cobertura, propuesta del plan,
+implementación de navegación y pruebas de regresión.
+
+Instrucción clave:
+Completar únicamente los criterios pendientes de S-010 sin duplicar el
+redirect por rol implementado por S-008.
+
+Qué se aceptó sin cambios:
+- Reutilizar `LOGIN_REDIRECT_URL` y `role_home` de S-008.
+- Centralizar la navegación por perfiles y el cierre de sesión POST con CSRF.
+- Mantener la autorización académica existente y agregar pruebas de regresión.
+
+Qué corrigió o decidió el autor:
+- Brayan11Hernandez aprobó el plan propuesto antes de modificar código.
+- Decidió conservar la prioridad estudiantil de S-008 para cuentas con ambos
+  perfiles, manteniendo sus permisos docentes válidos.
+- Solicitó limitar S-010 a los criterios faltantes para evitar funcionalidad
+  duplicada antes de la entrega.
+
+Costo o cuota consumida: sin llamadas a Gemini ni uso pagado del producto.
+El consumo de la herramienta de desarrollo no está disponible.
+
 ## S-006 · 10-11-2026 · Plan y primer bloque
 
 ChatGPT (Codex) ayudó a proponer y ajustar el plan técnico aprobado por
@@ -1200,6 +1242,17 @@ la repetición sobre `30ad0c3` y el consumo de Gemini. Este cambio es solo
 documental; no se ejecutaron nuevas consultas a Gemini ni pruebas de la
 aplicación para el cierre. El PR documental queda pendiente de revisión.
 
+## S-010 · 11-11-2026 · Ampliación de la identidad visual
+
+OpenCode (`opencode/deepseek-v4.1-flash-free`) escribió el sistema visual de
+`static/css/tutobosco.css` y adaptó las plantillas de acceso, estudiante y
+docente para reutilizarlo. Se conservaron textos, destinos de enlaces, campos
+y comprobaciones de permisos; solo cambió la presentación. Las capturas de
+revisión se tomaron con Edge en modo headless contra un servidor local y una
+base temporal con datos sintéticos, sin llamadas a Gemini. La suite
+`accounts academics tutor` se ejecutó después del cambio (202 pruebas, OK) y
+no se modificaron pruebas para hacerlas pasar. La verificación independiente
+de CA-9 por AlexDLG1 está pendiente.
 ## S-007 · 11-11-2026 · Cierre documental
 
 Herramienta y modelo: OpenCode · `deepseek-v4.1-flash-free`.

@@ -4,11 +4,11 @@
 
 {% block content %}
 <section class="student-layout" aria-labelledby="student-title">
-    <div>
+    <header class="page-intro">
         <p class="eyebrow">{{ selected_course.name }}</p>
         <h1 id="student-title">Su espacio académico</h1>
         <p class="lead">Esta información corresponde a su cuenta autenticada.</p>
-    </div>
+    </header>
 
     <article class="panel career-card">
         <p class="card-label">Su carrera</p>
@@ -31,13 +31,17 @@
         </div>
 
         <form method="get">
-            <label for="tutor-course">Su curso</label>
-            <select id="tutor-course" name="course">
-                {% for course in courses %}
-                    <option value="{{ course.code }}"{% if course == selected_course %} selected{% endif %}>{{ course.name }}</option>
-                {% endfor %}
-            </select>
-            <button class="button button-secondary" type="submit">Cambiar curso</button>
+            <div class="field">
+                <label for="tutor-course">Su curso</label>
+                <select id="tutor-course" name="course">
+                    {% for course in courses %}
+                        <option value="{{ course.code }}"{% if course == selected_course %} selected{% endif %}>{{ course.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="button-row">
+                <button class="button button-secondary" type="submit">Cambiar curso</button>
+            </div>
         </form>
 
         {% if demo_question %}
@@ -111,9 +115,5 @@
         </section>
     </section>
 
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button class="button button-secondary" type="submit">Cerrar sesión</button>
-    </form>
 </section>
 {% endblock %}
