@@ -38,6 +38,7 @@
                 <span class="mode-badge">{% if exercise.mode == 'demo' %}Ejercicio grabado del modo demo{% else %}Ejercicio generado por IA{% endif %}</span>
                 <p>{{ exercise.statement|linebreaksbr }}</p>
                 <a class="profile-link" href="{% url 'student_practice' exercise.course.code %}?exercise={{ exercise.id }}">Consultar este ejercicio</a>
+                <a class="button button-primary" href="{% url 'exercise_answer' exercise.id %}">Responder y consultar sus intentos</a>
                 <p>Identificador: {{ exercise.id }}</p>
             </article>
         {% empty %}
