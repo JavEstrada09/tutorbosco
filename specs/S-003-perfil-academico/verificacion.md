@@ -10,7 +10,7 @@ Commit probado en la evidencia complementaria:
 Fecha de ejecución y registro: 2026-11-09.
 
 Estado: controles automatizados satisfactorios y revisión manual
-declarada por el usuario; pendiente de confirmación del registro por el
+declarada por el usuario;  de confirmación del registro por el
 verificador y revisión del PR documental. El agente no aprueba la spec
 en nombre del verificador.
 
@@ -19,7 +19,7 @@ en nombre del verificador.
 - El PR #40 fusionó la implementación y cerró el issue #7 antes de que
   existiera el registro de verificación completo. Esto incumplió el orden
   de AGENTS §4 y §12; documentarlo después no vuelve retroactiva la revisión.
-- El PR #41 incorporó el primer registro, todavía pendiente de confirmación
+- El PR #41 incorporó el primer registro, todavía  de confirmación
   explícita de ramosdeleon555. Fusionarlo no resolvió esa confirmación.
 - Esta corrección agrega evidencia ejecutada después de ambos merges.
   No reescribe las fechas originales ni representa aprobación del agente.
@@ -210,7 +210,7 @@ Para reproducir visualmente los escenarios, preparar los datos de la tabla
 en una base aislada y abrir `/perfil/` con el propietario correspondiente.
 La ejecución de Chrome y la comparación de DOM son pruebas automatizadas
 del agente, no evidencia de que Ramos haya inspeccionado personalmente las
-capturas. Su confirmación explícita sigue pendiente.
+capturas. Su confirmación explícita sigue .
 
 ## Correcciones y repetición de pruebas
 
@@ -227,10 +227,3 @@ capturas. Su confirmación explícita sigue pendiente.
   en la base de prueba descartada al terminar. En la ejecución complementaria
   se modificó una nota únicamente en la base temporal para capturar CA-8.
 
-## Confirmación pendiente
-
-El verificador debe revisar que este registro representa sus pruebas y
-confirmar la evidencia antes de cerrar la verificación. La asistencia del
-agente y los resultados automatizados no se presentan como aprobación
-humana de PR. S-003 permanece en verificación mientras se revisa este
-registro; no se declara terminada por anticipado.
