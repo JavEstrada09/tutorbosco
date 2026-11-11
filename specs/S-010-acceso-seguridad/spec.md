@@ -8,7 +8,7 @@
 
 **Verificador:** AlexDLG1
 
-**Estado:** En implementación
+**Estado:** Terminada
 
 ## Problema
 
@@ -226,3 +226,11 @@ ramosdeleon555 mediante el PR #28.
 a todas las pantallas y no solo a la navegación. Se añade CA-9 y se registran
 las decisiones de identidad visual. La aprobación del plan ampliado y la nueva
 verificación de AlexDLG1 quedan pendientes.
+
+11-11-2026 — S-010 se marca como Terminada tras la fusión del PR #57
+en `main` (`de4e65a`). AlexDLG1 verificó CA-1 a CA-8 sobre `3c3907a`
+y CA-9 sobre `e871bbb`, con 223 pruebas OK en este último commit.
+La evidencia está en `verificacion.md` (commits `f2753cf` y `a1c19dd`).
+Las correcciones de notas en teléfono (`dca29aa`) y del panel del curso
+y encabezado de práctica (`e871bbb`) quedaron verificadas. Persiste la
+observación no bloqueante de los selectores de notas sin flecha de despliegue.
