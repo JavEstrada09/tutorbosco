@@ -96,3 +96,28 @@ repetir ambas suites sin depender de una clave local y crear un nuevo commit.
   GEMINI_API_KEY explícitamente vacía en el proceso externo. Los casos
   simulados obtienen únicamente la clave sintética del override de pruebas.
 - Brayan repetirá las suites sobre el nuevo commit antes de aprobar.
+
+### Corrección de trato formal tras la revisión de código del PR #56
+
+Jeffersson trasladó la revisión que detectó el rechazo de enunciados formales
+válidos sin palabras de una lista literal y aprobó modificar el servicio,
+sus pruebas, este plan y el registro de IA.
+
+- Retirar la exigencia de palabras como «usted», «su» o «explique», de acuerdo
+  con la decisión de S-006 (`30ad0c3`). «Defina» y «Diseñe» son formas válidas.
+- Conservar detección de tuteo explícito y validaciones de estructura, tamaño,
+  enunciado, HTML, duplicados y pertenencia del tema. Conservar la validación
+  atómica del lote: un contenido realmente inválido impide persistirlo.
+- El español y el trato formal se exigen en las instrucciones al proveedor
+  y se revisan humanamente en CA-10, sin afirmar que una lista de palabras
+  identifique de forma fiable el idioma o todas las formas de tratamiento.
+- Añadir regresiones para «Defina…», el enunciado real sin «su» y un lote
+  completo de seis enunciados formales sin los marcadores anteriores.
+- Sustituir el caso en inglés que dependía de la lista retirada por más
+  casos de tuteo explícito. Comprobar que las instrucciones enviadas a Gemini
+  siguen exigiendo español y trato de usted.
+- Repetir ambas suites sin clave real y registrar resultados del autor;
+  Brayan debe realizar la repetición independiente antes de aprobar.
+
+Es una corrección de implementación para cumplir CA-4 y CA-10; no modifica
+el comportamiento especificado ni requiere cambios en spec.md.

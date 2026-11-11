@@ -98,10 +98,9 @@ def validate_exercises(raw, allowed_topics):
             or re.search(r"<[^>]*>", text)
         ):
             raise _invalid_response()
-        # Heurística conservadora; el español y trato formal también se revisan manualmente.
+        # No exigir palabras literales: «Defina» y «Diseñe» también son formales.
+        # Idioma y trato formal se indican al proveedor y se revisan en CA-10.
         words = set(re.findall(r"\b\w+\b", text.casefold()))
-        if not words.intersection({"usted", "su", "explique", "escriba", "proponga", "describa", "determine", "compare", "redacte"}):
-            raise _invalid_response()
         if words.intersection({"tú", "vosotros", "vos", "haz", "escribe", "explica"}):
             raise _invalid_response()
         seen.add(topic_id)

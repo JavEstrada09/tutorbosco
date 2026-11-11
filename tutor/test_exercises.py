@@ -132,14 +132,65 @@ class PracticeTests(TestCase):
         self.assertEqual(exercises[0].demo_key, "")
 
     @override_settings(AI_MODE="real")
+    def test_formal_statements_without_literal_markers_are_accepted(self):
+        self.set_grades([45, 59, None, 40])
+        cases = [
+            (self.topics[0], "Defina las etapas del ciclo de integración de una rama."),
+            (
+                self.topics[3],
+                "Diseñe un prompt estructurado utilizando la técnica de pocos ejemplos "
+                "(few-shot prompting) para que un modelo de lenguaje extraiga correctamente "
+                "los datos fiscales de una factura en formato de texto libre y los devuelva "
+                "en un formato JSON estandarizado para posterior registro contable.",
+            ),
+        ]
+        for topic, statement in cases:
+            with self.subTest(statement=statement), patch.object(
+                GeminiExerciseProvider, "generate",
+                return_value=self.response(topic_id=topic.pk, statement=statement),
+            ) as provider:
+                exercises, _ = self.generate()
+                provider.assert_called_once()
+                self.assertEqual(len(exercises), 1)
+                saved = PracticeExercise.objects.get(pk=exercises[0].pk)
+                self.assertEqual(saved.statement, statement)
+                self.assertEqual(saved.topic, topic)
+                self.assertEqual(saved.student, self.student)
+                self.assertEqual(saved.course, self.course)
+                self.assertEqual(saved.mode, "real")
+
+    @override_settings(AI_MODE="real")
+    def test_valid_formal_batch_is_persisted_in_full(self):
+        self.set_grades([45] * 6)
+        statements = [
+            "Detalle el proceso de integración de ramas y resolución de conflictos.",
+            "Separe las responsabilidades de una función que calcula totales y guarda archivos.",
+            "Identifique las entidades y relaciones necesarias para registrar ventas.",
+            "Diseñe un prompt estructurado para extraer datos fiscales de una factura.",
+            "Enumere las medidas necesarias para proteger la clave de una API de IA.",
+            "Defina criterios de aceptación verificables antes de solicitar código a un agente.",
+        ]
+        raw = json.dumps({"exercises": [
+            {"topic_id": topic.pk, "statement": statement}
+            for topic, statement in zip(self.topics, statements)
+        ]}, ensure_ascii=False)
+        with patch.object(GeminiExerciseProvider, "generate", return_value=raw):
+            exercises, _ = self.generate()
+        self.assertEqual(len(exercises), 6)
+        self.assertEqual(PracticeExercise.objects.filter(student=self.student).count(), 6)
+        self.assertEqual([e.statement for e in exercises], statements)
+        self.assertEqual({e.topic_id for e in exercises}, {t.pk for t in self.topics})
+
+    @override_settings(AI_MODE="real")
     def test_invalid_provider_output_is_never_persisted_ca9(self):
         bad_outputs = [
             "", "null", "[]", "invalid JSON", "x" * 24001,
             self.response(statement=" "), self.response(statement="x" * 3001),
             self.response(topic_id=self.topics[2].pk), self.response(topic_id=True),
             self.response(statement="<script>alert(1)</script> Explique usted su respuesta."),
-            self.response(statement="Explain how you would merge your branch."),
             self.response(statement="Explica tú cómo se integra una rama."),
+            self.response(statement="Haz una integración de las ramas del repositorio."),
+            self.response(statement="Escribe los pasos para integrar una rama."),
             json.dumps({"exercises": [{"topic_id": self.topics[0].pk}]}),
         ]
         for raw in bad_outputs:
@@ -186,7 +237,9 @@ class PracticeTests(TestCase):
             client.aio.__aenter__.return_value.models.generate_content = generate
             exercises, _ = self.generate()
         self.assertEqual(exercises[0].mode, "real")
-        self.assertIn("JSON", generate.call_args.kwargs["config"]["system_instruction"])
+        instructions = generate.call_args.kwargs["config"]["system_instruction"]
+        self.assertIn("JSON", instructions)
+        self.assertIn("en español con trato de usted", instructions)
         payload = json.loads(generate.call_args.kwargs["contents"])
         self.assertEqual(payload["datos_academicos"]["temas_debiles"][0]["topic_id"], self.topics[0].pk)
 

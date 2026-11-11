@@ -1029,6 +1029,63 @@ Consumo del producto en esta corrección: ninguna llamada real a Gemini;
 sin consumo de cuota ni costo del servicio. No se instalaron dependencias.
 El consumo de la herramienta de desarrollo no se cuantificó.
 
+## S-007 · Corrección de enunciados formales tras la revisión del PR #56
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: Jeffersson Ramos (`ramosdeleon555`), autor de S-007.
+Base de la corrección: `8a7a72c`, rama `s-007-ejercicios`.
+
+El autor trasladó una revisión de código que encontró una heurística de
+trato formal demasiado restrictiva. Un enunciado válido podía rechazarse
+por no incluir palabras de una lista literal. El autor aprobó la propuesta
+de cambios en exercise_services.py, test_exercises.py, plan.md y este registro.
+
+Reproducción antes de corregir:
+
+- Se añadieron dos pruebas de regresión: una con dos enunciados formales
+  y otra con un lote completo de seis ejercicios.
+- «Defina las etapas del ciclo de integración de una rama.» fue rechazado.
+- El enunciado real documentado, sustituyendo «para su posterior registro
+  contable» por «para posterior registro contable», también fue rechazado.
+- Un lote de seis enunciados formales fue rechazado sin persistir ejercicios.
+- Ejecución de esas dos pruebas sobre el servicio anterior: tres errores
+  InvalidTutorResponseError (dos subcasos y un lote), reproduciendo el bloqueo.
+
+Corrección:
+
+- Se retiró la exigencia de palabras literales, siguiendo la decisión de
+  S-006 (`30ad0c3`). Se conserva el rechazo de tuteo explícito.
+- Se mantienen las validaciones estructurales, de tamaño, HTML, duplicados
+  y pertenencia de temas, así como la persistencia atómica del lote.
+- La regresión comprueba que los enunciados formales se guardan con el
+  propietario, curso, tema y procedencia correctos y que se guardan los
+  seis ejercicios de un lote válido.
+- Se sustituyó la expectativa de rechazar una frase inglesa por más casos
+  de tuteo explícito. La lista retirada no era una detección fiable de idioma.
+  La prueba de transporte comprueba ahora que las instrucciones enviadas
+  exigen «en español con trato de usted»; CA-10 conserva revisión humana.
+
+Resultados locales del asistente en Windows, sin clave real en el proceso:
+
+| Ejecución | Configuración externa | Resultado |
+| --- | --- | --- |
+| tutor.test_exercises, verbosity 2 | GEMINI_API_KEY vacía; AI_MODE=real | 21 pruebas, OK, 0.715 s |
+| accounts academics tutor --noinput | GEMINI_API_KEY vacía; AI_MODE=demo | 217 pruebas, OK, 236.405 s |
+| manage.py check | Configuración local | Sin errores |
+| manage.py makemigrations --check --dry-run | Configuración local | Sin cambios pendientes |
+
+Se usaron los mismos comandos con Python/runpy registrados en la corrección
+anterior para fijar la clave vacía antes de cargar Django y dotenv. Los
+proveedores reales se simularon; no se modificó .env ni se instalaron paquetes.
+Consumo del producto en esta corrección: ninguna llamada real a Gemini,
+sin consumo de cuota ni costo del servicio. El consumo de desarrollo no se cuantificó.
+
+No se alteró la evidencia de Brayan ni se declara aprobada la verificación.
+Los resultados anteriores son comprobaciones del autor asistido. Brayan debe
+repetir ambas suites sobre la entrega corregida antes de aprobar el PR.
+No se modificó spec.md porque se corrige el cumplimiento de CA-4 y CA-10,
+sin cambiar los requisitos.
+
 ## S-004 · 10-11-2026 · Integración final con S-005
 
 Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
