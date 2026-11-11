@@ -330,5 +330,10 @@ Para probar el recorrido en demo, inicie sesión, pregunte qué tema debería
 repasar y pida otro ejemplo. Cambie de curso y vuelva al primero para ver
 su historial. Actualice una nota con la pantalla docente, vuelva al tutor
 y pulse «Nueva conversación»: la recomendación usará la nota actualizada.
-La aceptación completa de S-006 continúa pendiente de la verificación
-independiente de los nueve criterios por Douglas.
+S-006 cuenta con verificación independiente de douglas-yasser para los nueve
+criterios. La repetición de CA-1, CA-5 y CA-9 con Gemini real y las 191
+pruebas pasaron sobre `30ad0c3`; el PR #53 integró la implementación y la
+evidencia en `main`. El detalle, incluido el fallo inicial y su corrección,
+está en `specs/S-006-tutor/verificacion.md`. El consumo real registrado
+para S-006 fue de 14 solicitudes en el nivel gratuito, con costo USD 0.00;
+los tokens no están confirmados (véase `docs/gasto.md`).
