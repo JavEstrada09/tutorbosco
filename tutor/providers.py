@@ -83,6 +83,8 @@ def _create_gemini_client(api_key, *, total_timeout_ms, max_attempts):
 
 
 class GeminiTutorProvider:
+    instructions = TUTOR_INSTRUCTIONS
+
     def __init__(
         self,
         *,
@@ -121,7 +123,7 @@ class GeminiTutorProvider:
                 return await async_client.models.generate_content(
                     model=self.model,
                     contents=prompt,
-                    config={"system_instruction": TUTOR_INSTRUCTIONS},
+                    config={"system_instruction": self.instructions},
                 )
 
     def answer(self, *, question: str, context: TutorContext) -> str:

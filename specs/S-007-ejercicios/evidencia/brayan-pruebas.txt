@@ -1,0 +1,83 @@
+VERIFICACION INDEPENDIENTE S-007 - PRUEBAS AUTOMATIZADAS
+Verificador: Brayan Hernandez / Brayan11Hernandez
+Commit: a6bd399ea1f33394b526c131e6cfba94e9e71e62
+
+Primera ejecucion especifica:
+- Comando: manage.py test tutor.test_exercises --verbosity 2
+- Base de aplicacion: SQLite aislada; base de pruebas en memoria creada por Django
+- Pruebas encontradas: 19
+- Resultado: FAILED (failures=2, errors=14)
+- No fue un timeout; termino en 0.265 segundos.
+
+Fallos observados:
+- test_grade_change_during_generation_rejects_stale_exercises: no se elevo
+  TutorUnavailableError.
+- test_mixed_valid_invalid_batch_is_atomic: no se elevo
+  InvalidTutorResponseError.
+- test_valid_real_response_and_private_context_ca4_ca7: el mock de
+  GeminiExerciseProvider no fue invocado; provider.call_args fue None.
+- test_invalid_provider_output_is_never_persisted_ca9: trece subcasos
+  recibieron un MagicMock del proveedor demo y fallaron en json.loads.
+
+Diagnostico reproducible sin cambiar codigo:
+- PracticeTests tiene override_settings(AI_MODE="demo") a nivel de clase.
+- Los metodos anteriores intentan aplicar override_settings(AI_MODE="real").
+- En esta ejecucion el modo efectivo dentro de esos metodos siguio siendo
+  demo, por lo que se uso DemoExerciseProvider en vez del mock real.
+- Un contexto aislado de override_settings fuera del TestCase si cambia
+  correctamente demo -> real -> demo.
+- Una repeticion dirigida de
+  test_valid_real_response_and_private_context_ca4_ca7 con AI_MODE=real en
+  el proceso produjo el mismo error y confirmo que el mock real no se llamo.
+
+Impacto provisional:
+- La afirmacion previa de 19 pruebas OK no es reproducible sobre el commit
+  entregado.
+- CA-4, CA-7, CA-9 y la atomicidad del lote requieren correccion y repeticion.
+- No se modifico codigo de la aplicacion ni de las pruebas.
+
+Comprobaciones generales:
+- manage.py check: OK, sin problemas identificados.
+- manage.py makemigrations --check --dry-run: OK, sin cambios detectados.
+- python -m pip check: OK, sin requisitos incompatibles.
+
+Suite completa:
+- Comando: manage.py test accounts academics tutor --noinput
+- Pruebas encontradas: 215
+- Duracion: 110.798 segundos
+- Resultado: FAILED (failures=2, errors=14)
+- Los fallos y errores son los mismos de tutor.test_exercises; no aparecieron
+  fallos adicionales en accounts, academics ni el resto de tutor.
+- La ejecucion termino normalmente y no alcanzo el timeout configurado.
+
+Casos independientes:
+- Auxiliar: specs/S-007-ejercicios/evidencia/brayan-casos.py
+- Base: SQLite aislada autorizada.
+- Proveedores reales: simulados; no hubo llamadas externas ni consumo Gemini.
+- Resultado final: 10 criterios ejecutados, 10 PASS, 0 FAIL.
+- CA-1: notas 45/59 incluidas; 60/85 excluidas con umbral 60.
+- CA-2: notas 60/69 incluidas; 70 excluida con umbral efectivo 70.
+- CA-3: dos temas sin nota excluidos.
+- CA-4: un ejercicio real simulado nuevo, con curso y tema permitido.
+- CA-5: avisos distintos; cero llamadas a proveedor demo y real.
+- CA-6: tema corregido excluido de la practica nueva, tema debilitado
+  incluido y UUID historico conservado.
+- CA-7: HTTP anonimo 302; docente, curso ajeno, propietario manipulado,
+  CSRF y UUID ajeno 403; proveedor no llamado en rechazos; contexto aislado.
+- CA-8: dos perfiles recibieron temas distintos; cliente Gemini no llamado;
+  HTML sin recursos HTTP externos.
+- CA-9: conexion y cuota simuladas con fallback; vacio, tema ajeno y falta de
+  enunciado rechazados atomicamente; catalogo ausente no sustituyo temas.
+- CA-10: texto formal, UUID y relaciones estables, escape HTML y notas
+  oficiales sin cambios.
+
+Incidencias del auxiliar, no de la aplicacion:
+- El primer arranque no encontro config hasta agregar la raiz a sys.path.
+- Los clientes HTTP usaron inicialmente testserver, no permitido por la
+  configuracion local; se cambiaron a localhost y se repitieron los casos.
+- Los casos simulados reales usan una clave sintetica para superar la
+  validacion del constructor sin iniciar ningun cliente externo.
+
+Este archivo registrara resultados sanitizados. Las pruebas del autor se
+distinguiran de los casos independientes y no se interpretaran por si solas
+como aprobacion de Brayan.

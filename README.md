@@ -252,7 +252,40 @@ pero no borra las que se registren a estudiantes sin notas, como
 `estudiante_02`. Esas notas deben eliminarse aparte si se quiere volver al
 estado inicial.
 
-## Comprobación real de CA-4
+## S-007 · Práctica de temas débiles
+
+Después de actualizar, aplique `manage.py migrate`. Desde el inicio del
+estudiante, use **Practicar sus temas débiles** o abra
+`http://127.0.0.1:8000/practica/PROG-COM/`. Puede cambiar entre sus cursos
+inscritos y pulsar **Generar nueva práctica**. Una nueva solicitud consulta
+las notas vigentes, excluye notas ausentes y usa el umbral configurable.
+Sin notas o sin temas débiles muestra avisos distintos sin consultar a IA.
+
+Con `AI_MODE=demo` se usan ejercicios locales de los 24 temas sintéticos de
+los cuatro cursos. Por ejemplo, `estudiante_03` tiene práctica disponible en
+Programación Comercial con los datos locales usados en la comprobación.
+La contraseña es la configurada en `DEMO_STUDENT_PASSWORD`.
+No es necesario reconstruir los datos ni modificar notas para generar práctica.
+
+En modo real se reutiliza Gemini con 60 segundos y un intento. Los errores
+de conexión o cuota activan automáticamente ejercicios demo aplicables con
+un aviso. Una respuesta inválida se rechaza; si no hay grabaciones aplicables
+se informa sin sustituirlas por temas ajenos.
+
+Cada ejercicio guarda UUID, propietario, curso, tema, enunciado y procedencia.
+El enlace **Consultar este ejercicio** conserva su identificador, aunque
+cambien las notas. La pantalla muestra hasta seis ejercicios recientes.
+La generación usa POST con CSRF; recargar los resultados no genera ejercicios.
+Responder y recibir retroalimentación corresponde a S-009.
+
+Pruebas específicas: `manage.py test tutor.test_exercises`.
+S-007 cuenta con verificación independiente de Brayan11Hernandez sobre
+`acf58d0`: las 21 pruebas específicas y las 217 totales pasaron con
+`GEMINI_API_KEY` vacía. Brayan11Hernandez aprobó el PR #56. El detalle de CA-1 a CA-10,
+incluida la repetición de CA-4, CA-9 y CA-10, está en
+`specs/S-007-ejercicios/verificacion.md`.
+
+## Comprobación real de CA-4 (S-001)
 
 En la Entrega 4, JavEstrada09 probó `gemini-3.5-flash-lite` en modo real
 desde TutorBosco. El tutor explicó en español, con trato de usted, cómo

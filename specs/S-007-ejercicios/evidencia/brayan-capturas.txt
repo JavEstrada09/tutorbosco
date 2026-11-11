@@ -1,0 +1,78 @@
+Capturas S-007 · verificacion independiente de Brayan11Hernandez
+Fecha: 2026-11-10 23:07 hora local de Guatemala (UTC-06:00)
+Commit: 8a7a72c7a4ea95097d45ab270ae64b7a6fff8375
+Rama: s-007-ejercicios
+Servidor: http://127.0.0.1:8012 (runserver, base SQLite aislada en el directorio temporal)
+Configuracion del proceso del servidor: AI_MODE=demo, GEMINI_API_KEY vacia.
+Navegador: Microsoft Edge headless 157.0.4341.42, ventana 1280x900, controlado por el protocolo DevTools (sin Selenium ni Playwright).
+Inicio de sesion: formulario real /acceso/ en el navegador, con las cuentas sinteticas y las contrasenas locales del .env; no se imprimieron valores.
+
+Hosts contactados durante todo el recorrido:
+- 127.0.0.1:8012
+
+Codigos HTTP de los documentos principales (ultima respuesta por URL):
+- 200 http://127.0.0.1:8012/
+- 200 http://127.0.0.1:8012/acceso/
+- 200 http://127.0.0.1:8012/docente/cursos/PROG-COM/notas/
+- 200 http://127.0.0.1:8012/docente/panel/
+- 403 http://127.0.0.1:8012/practica/BD-APL/
+- 403 http://127.0.0.1:8012/practica/PROG-COM/
+- 200 http://127.0.0.1:8012/practica/PROG-COM/?exercise=496a4c27-aa0e-47d9-aa2a-b1e6bc1bdeb0
+
+Archivos generados:
+- ca-4-practica-demo.png | 89865 bytes | sha256 d01cb51949eb67ec840a9fa9eefe22df8cfc05db823cf08b8ec7dfebbd95cfdb
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Su práctica | TutoBosco
+  Escenario: estudiante_demo genera practica demo de PROG-COM
+- ca-5-sin-temas-debiles.png | 203061 bytes | sha256 023319409b21aa6cfaa03eb4a7bd993a8f6f7a38170c0f23ffd7ea26ce851eec
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Su práctica | TutoBosco
+  Escenario: estudiante_01 con todas sus notas en 60 o mas
+- ca-5-sin-notas.png | 202801 bytes | sha256 b72e62ad950b083de0d7b2e4d4193b9dec071d5cc9c2946222e6b9cba8ebc996
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Su práctica | TutoBosco
+  Escenario: estudiante_02 sin calificaciones registradas
+- ca-8-perfil-a.png | 87250 bytes | sha256 570c337afe981157da63c66acd0ddc14f5781faceef817a3bf1020d9d5c5e9c8
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Su práctica | TutoBosco
+  Escenario: estudiante_03: tema debil Ingenieria de prompts
+- ca-8-perfil-b.png | 94439 bytes | sha256 ed8d9879d32c27ebeacd0bd0ce9c0d798ea5dc7498085860f70c4ff42fd54756
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Su práctica | TutoBosco
+  Escenario: estudiante_07: Git y GitHub y El LLM por dentro
+- ca-6-antes.png | 107606 bytes | sha256 803c468bce567cf53417516a869bdab072732c00155eb8ae9d29aa7837091aaa
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Su práctica | TutoBosco
+  Escenario: estudiante_demo antes de corregir: Git y GitHub 55, Codigo limpio 58
+- ca-6-docente-corrige.png | 274667 bytes | sha256 5df198ac7f1349efc1520f73319413b34a5576bb072f58fb0bd548fbb560b839
+  URL: http://127.0.0.1:8012/docente/cursos/PROG-COM/notas/
+  Titulo: Notas de PROG-COM | TutoBosco
+  Escenario: docente_01 registra 65: Se actualizó la nota 65 de Estudiante Demo en Git y GitHub avanzado.
+- ca-6-antes-de-regenerar.png | 106252 bytes | sha256 dcab2b5f68251ea08cfe147611ebb65f75ec8c7f56c26950329f60c7cabc61b0
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Su práctica | TutoBosco
+  Escenario: estudiante_demo con la nota corregida
+- ca-6-despues.png | 89686 bytes | sha256 2bfb346794c379b7e001f02b6c5f7abadd5cbaea9bca52bcb408b8cd05ffd498
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Su práctica | TutoBosco
+  Escenario: estudiante_demo regenera: excluye Git y GitHub, conserva Codigo limpio
+- ca-7-docente-rechazado.png | 165197 bytes | sha256 ea6659c9b149e3bccc90a81ef87f43cba8caa964fb591d6954e04db0e3acc572
+  URL: http://127.0.0.1:8012/practica/PROG-COM/
+  Titulo: Acceso denegado | TutoBosco
+  Escenario: docente_01 en la pantalla de practica del estudiante
+- ca-7-curso-ajeno.png | 165197 bytes | sha256 ea6659c9b149e3bccc90a81ef87f43cba8caa964fb591d6954e04db0e3acc572
+  URL: http://127.0.0.1:8012/practica/BD-APL/
+  Titulo: Acceso denegado | TutoBosco
+  Escenario: estudiante_demo solicita un curso no asignado
+- ca-7-uuid-ajeno.png | 165197 bytes | sha256 ea6659c9b149e3bccc90a81ef87f43cba8caa964fb591d6954e04db0e3acc572
+  URL: http://127.0.0.1:8012/practica/PROG-COM/?exercise=496a4c27-aa0e-47d9-aa2a-b1e6bc1bdeb0
+  Titulo: Acceso denegado | TutoBosco
+  Escenario: estudiante_03 pide el UUID de estudiante_demo
+- ca-10-uuid-y-usted.png | 184291 bytes | sha256 50fa47c73e801fe8f5d6e455eb52f488b9cb58c3b04bc6c97de52477b12c1b3d
+  URL: http://127.0.0.1:8012/practica/PROG-COM/?exercise=496a4c27-aa0e-47d9-aa2a-b1e6bc1bdeb0
+  Titulo: Su práctica | TutoBosco
+  Escenario: detalle del ejercicio propio con UUID estable
+
+Nota CA-6: docente_01 actualizo la nota de Git y GitHub avanzado de 55 a 65 mediante la pantalla de notas (S-005).
+Al terminar se restauro a 55; mensaje de restauracion: Se actualizó la nota 55 de Estudiante Demo en Git y GitHub avanzado.
+No se realizaron llamadas a Gemini ni se consumio cuota.
