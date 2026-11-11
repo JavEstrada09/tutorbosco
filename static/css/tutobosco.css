@@ -26,6 +26,10 @@ body {
 }
 
 .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
     padding: 1.25rem clamp(1.25rem, 5vw, 4rem);
 }
 
@@ -49,6 +53,39 @@ body {
     font-family: Arial, sans-serif;
     font-size: 0.78rem;
     letter-spacing: 0.08em;
+}
+
+.site-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    font-family: Arial, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.site-navigation a,
+.navigation-logout {
+    color: var(--forest-dark);
+}
+
+.site-navigation a:hover,
+.navigation-logout:hover {
+    color: var(--forest);
+}
+
+.site-navigation form {
+    margin: 0;
+}
+
+.navigation-logout {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .page-shell {
@@ -409,6 +446,20 @@ h2 {
 }
 
 @media (max-width: 760px) {
+    .site-header,
+    .site-navigation {
+        align-items: flex-start;
+    }
+
+    .site-header {
+        flex-direction: column;
+    }
+
+    .site-navigation {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
     .page-shell {
         margin-top: 2vh;
     }

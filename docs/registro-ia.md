@@ -868,6 +868,33 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida: sin llamadas a Gemini ni a la API de IA del
 producto. El consumo de la herramienta de desarrollo no está disponible.
 
+## S-010 · 10-11-2026 · Plan e implementación
+
+Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: auditoría de cobertura, propuesta del plan,
+implementación de navegación y pruebas de regresión.
+
+Instrucción clave:
+Completar únicamente los criterios pendientes de S-010 sin duplicar el
+redirect por rol implementado por S-008.
+
+Qué se aceptó sin cambios:
+- Reutilizar `LOGIN_REDIRECT_URL` y `role_home` de S-008.
+- Centralizar la navegación por perfiles y el cierre de sesión POST con CSRF.
+- Mantener la autorización académica existente y agregar pruebas de regresión.
+
+Qué corrigió o decidió el autor:
+- Brayan11Hernandez aprobó el plan propuesto antes de modificar código.
+- Decidió conservar la prioridad estudiantil de S-008 para cuentas con ambos
+  perfiles, manteniendo sus permisos docentes válidos.
+- Solicitó limitar S-010 a los criterios faltantes para evitar funcionalidad
+  duplicada antes de la entrega.
+
+Costo o cuota consumida: sin llamadas a Gemini ni uso pagado del producto.
+El consumo de la herramienta de desarrollo no está disponible.
+
 ## S-006 · 10-11-2026 · Plan y primer bloque
 
 ChatGPT (Codex) ayudó a proponer y ajustar el plan técnico aprobado por

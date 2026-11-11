@@ -8,7 +8,7 @@
 
 **Verificador:** AlexDLG1
 
-**Estado:** Borrador de especificación
+**Estado:** En implementación
 
 ## Problema
 
@@ -112,6 +112,22 @@ El sistema deberá permitir:
 - La interfaz deberá utilizar los componentes y tecnologías aprobados para el proyecto.
 - Los textos dirigidos a estudiantes deberán respetar el trato de usted establecido por el equipo.
 
+## Decisiones verificables
+
+- Después del login se reutiliza `role_home`, implementado por S-008. Una
+  cuenta con ambos perfiles llega primero al inicio estudiantil y conserva
+  las operaciones autorizadas de ambos perfiles.
+- Una persona sin sesión que solicita una página privada es redirigida al
+  login con el destino en `next`. Una persona autenticada sin el perfil o la
+  asignación exigidos recibe HTTP 403.
+- El cierre de sesión se realiza únicamente mediante POST protegido por CSRF
+  y está disponible en la navegación común de las páginas privadas.
+- La navegación estudiantil muestra inicio y perfil. La navegación docente
+  muestra panel y administración de cursos. Una cuenta con ambos perfiles
+  puede ver ambos grupos de opciones.
+- Bootstrap 5.3 se almacena y sirve localmente; la interfaz no depende de un
+  CDN durante la ejecución.
+
 ## Fuera de alcance
 
 Esta especificación no incluye:
@@ -178,4 +194,8 @@ Los resultados, comandos y evidencias se documentarán posteriormente en `verifi
 
 ## Registro de cambios
 
-05-11-2026 — Creación del borrador inicial de S-010. Se definieron los comportamientos de acceso, seguridad por roles, protección de sesiones, interfaz y criterios de aceptación. Pendiente de revisión y aprobación del equipo.
+05-11-2026 — Creación del borrador inicial de S-010. Se definieron los comportamientos de acceso, seguridad por roles, protección de sesiones, interfaz y criterios de aceptación.
+
+05-11-2026 — Especificación revisada por AlexDLG1 y fusionada mediante el PR #28.
+
+10-11-2026 — Brayan11Hernandez aprobó el plan de implementación. Se precisaron las respuestas 302 y 403, el cierre de sesión POST con CSRF, la navegación esperada y la prioridad estudiantil para cuentas con ambos perfiles.

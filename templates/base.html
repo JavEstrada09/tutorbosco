@@ -5,14 +5,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}TutoBosco{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/tutobosco.css' %}">
 </head>
 <body>
     <header class="site-header">
-        <a class="brand" href="{% url 'student_home' %}">
+        <a class="brand" href="{% if user.is_authenticated %}{% url 'role_home' %}{% else %}{% url 'login' %}{% endif %}">
             <span class="brand-mark" aria-hidden="true">TB</span>
             <span>TutoBosco</span>
         </a>
+        {% if user.is_authenticated %}
+            <nav class="site-navigation" aria-label="Navegación principal">
+                {% if user.student_profile %}
+                    <a href="{% url 'student_home' %}">Inicio</a>
+                    <a href="{% url 'student_profile' %}">Perfil académico</a>
+                {% endif %}
+                {% if user.teacher_profile %}
+                    <a href="{% url 'teacher_panel' %}">Panel docente</a>
+                    <a href="{% url 'teacher_courses' %}">Administrar cursos</a>
+                {% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="navigation-logout" type="submit">Cerrar sesión</button>
+                </form>
+            </nav>
+        {% endif %}
     </header>
     <main class="page-shell">
         {% block content %}{% endblock %}

@@ -7,9 +7,5 @@
     <p class="status-code">403</p>
     <h1 id="denied-title">Acceso denegado</h1>
     <p>Su cuenta no tiene autorización académica para ver esta pantalla.</p>
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button class="button button-secondary" type="submit">Cerrar sesión</button>
-    </form>
 </section>
 {% endblock %}

@@ -70,9 +70,5 @@
         </table>
     </section>
 
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button class="button button-secondary" type="submit">Cerrar sesión</button>
-    </form>
 </section>
 {% endblock %}
