@@ -1,31 +1,204 @@
 # Verificación S-007
 
-Estado: implementación local probada en demo y con Gemini real;
-pendiente de revisión final y verificación independiente.
-Verificador previsto: Brayan11Hernandez.
-Computadora: pendiente · Commit probado: pendiente.
+Estado: suites repetidas sin fallos en la corrección del autor y capturas
+obtenidas sobre el nuevo commit; decisión de aprobación pendiente.
+Verificador: Brayan Hernández / Brayan11Hernandez.
+Computadora: Windows · Python 3.12.10 · Microsoft Edge 157.0.4341.42.
+Commits probados: `a6bd399ea1f33394b526c131e6cfba94e9e71e62` (reporte
+original con fallos) y `8a7a72c7a4ea95097d45ab270ae64b7a6fff8375`
+(repetición correcta de las suites y capturas).
 
 | Criterio | Cómo lo probé | Resultado | Evidencia |
 | --- | --- | --- | --- |
-| CA-1 | Pendiente | No ejecutado | Pendiente |
-| CA-2 | Pendiente | No ejecutado | Pendiente |
-| CA-3 | Pendiente | No ejecutado | Pendiente |
-| CA-4 | Pendiente | No ejecutado | Pendiente |
-| CA-5 | Pendiente | No ejecutado | Pendiente |
-| CA-6 | Pendiente | No ejecutado | Pendiente |
-| CA-7 | Pendiente | No ejecutado | Pendiente |
-| CA-8 | Pendiente | No ejecutado | Pendiente |
-| CA-9 | Pendiente | No ejecutado | Pendiente |
-| CA-10 | Pendiente | No ejecutado | Pendiente |
+| CA-1 | Caso aislado con 45, 59, 60 y 85; umbral 60. | Cumple en la comprobación independiente. | `evidencia/brayan-resultados.md` y `evidencia/brayan-pruebas.txt` |
+| CA-2 | Caso aislado con 60, 69 y 70; umbral efectivo 70. | Cumple en la comprobación independiente. | `evidencia/brayan-resultados.md` y `evidencia/brayan-pruebas.txt` |
+| CA-3 | Dos temas sin nota y temas bajo el umbral. | Cumple; las notas ausentes no se trataron como cero. | `evidencia/brayan-resultados.md` y `evidencia/brayan-pruebas.txt` |
+| CA-4 | Proveedor simulado instrumentado y recorrido demo real en Edge. | Cumple automática y visualmente en modo demo; Gemini real independiente fue omitido. | `evidencia/brayan-resultados.md`, `evidencia/brayan-http.txt` y `evidencia/capturas/ca-4-practica-demo.png` |
+| CA-5 | Sin temas débiles y sin notas, con proveedores instrumentados. | Cumple; avisos distintos, sin botón y cero llamadas. | `evidencia/brayan-resultados.md`, `evidencia/brayan-http.txt` y `evidencia/capturas/ca-5-*.png` |
+| CA-6 | Práctica antes y después de corregir 45/80 a 60/40. | Cumple; cambió la selección nueva y se conservó el UUID histórico. | `evidencia/brayan-resultados.md`, `evidencia/brayan-http.txt` y `evidencia/capturas/ca-6-*.png` |
+| CA-7 | Anónimo, docente, curso y UUID ajenos, campo manipulado, CSRF y contexto. | Cumple automática y visualmente; los rechazos no revelaron datos. | `evidencia/brayan-resultados.md`, `evidencia/brayan-pruebas.txt` y `evidencia/capturas/ca-7-*.png` |
+| CA-8 | Dos perfiles, demo sin clave y cliente Gemini instrumentado. | Cumple; ejercicios distintos, cero cliente Gemini y recursos locales. | `evidencia/brayan-resultados.md`, `evidencia/brayan-http.txt` y `evidencia/capturas/ca-8-*.png` |
+| CA-9 | Conexión y 429 simulados; salidas inválidas y catálogo ausente. | Cumple en casos independientes; no se provocaron fallos reales. | `evidencia/brayan-resultados.md` y `evidencia/brayan-pruebas.txt` |
+| CA-10 | UUID, relaciones, español formal, escape y notas antes/después. | Cumple automática y visualmente. | `evidencia/brayan-resultados.md`, `evidencia/brayan-http.txt` y `evidencia/capturas/ca-10-uuid-y-usted.png` |
+
+## Verificación independiente de Brayan · 2026-11-10
+
+Brayan Hernández, usuario GitHub `Brayan11Hernandez`, ejecutó la verificación
+en su computadora Windows sobre el commit exacto entregado. Se utilizó Python
+3.12.10, el entorno virtual existente y una base SQLite aislada en el
+directorio temporal local. La base se creó desde cero, recibió todas las
+migraciones y se reconstruyó únicamente con datos sintéticos.
+
+La configuración del recorrido usó `AI_MODE=demo`, modelo efectivo
+`gemini-3.5-flash-lite` y clave Gemini vacía. Las contraseñas demo se generaron
+y guardaron localmente sin mostrarlas. No se instalaron paquetes, navegadores
+ni herramientas adicionales.
+
+### Pruebas automatizadas solicitadas
+
+- `manage.py check`: OK, sin problemas.
+- `manage.py test tutor.test_exercises --verbosity 2`: **falló**; 19 pruebas,
+  2 fallos y 14 errores en 0.265 segundos.
+- `manage.py test accounts academics tutor --noinput`: **falló**; 215
+  pruebas, los mismos 2 fallos y 14 errores, sin fallos adicionales, en
+  110.798 segundos.
+- `manage.py makemigrations --check --dry-run`: OK, sin cambios.
+- `python -m pip check`: OK, sin dependencias incompatibles.
+
+No hubo timeout. La repetición dirigida de
+`test_valid_real_response_and_private_context_ca4_ca7`, incluso iniciando el
+proceso con `AI_MODE=real`, produjo el mismo error porque el proveedor Gemini
+simulado no fue invocado.
+
+### Causa reproducida y corrección solicitada
+
+`PracticeTests` aplica `override_settings(AI_MODE="demo")` a toda la clase.
+Los métodos que intentan probar modo real no consiguen sustituir ese modo en
+la ejecución entregada. Además, varios de esos métodos parchean
+`GeminiExerciseProvider.generate` sin configurar una clave sintética; el
+constructor valida la clave antes de llegar al método parcheado y activa la
+alternativa demo.
+
+Esto afecta las pruebas que respaldan CA-4, CA-7, CA-9, el rechazo de lotes
+mixtos y el cambio de notas durante una generación. La afirmación del autor
+de que las 19 y 215 pruebas finalizaron correctamente no es reproducible en
+`a6bd399`.
+
+Jeffersson debe aislar correctamente `AI_MODE="real"` en esos casos y
+proporcionar una `GEMINI_API_KEY` sintética cuando el constructor real forma
+parte del camino probado. Después debe entregar un nuevo commit. Brayan
+repetirá la suite específica y la completa; si cambia código de aplicación,
+también repetirá los criterios afectados.
+
+### Casos independientes y recorrido visual
+
+El auxiliar reproducible `evidencia/brayan-casos.py` ejecutó los diez
+criterios sobre la base aislada: 10 PASS y 0 FAIL. Separó ejercicios nuevos
+de históricos, usó un proceso con umbral 70, instrumentó llamadas y ausencia
+de llamadas, simuló conexión y cuota, comprobó atomicidad, permisos, CSRF,
+contexto privado, recursos locales, UUID, relaciones, escape y notas intactas.
+No realizó llamadas externas.
+
+Brayan recorrió la interfaz real en Microsoft Edge y confirmó expresamente:
+
+- práctica demo con curso, tema, enunciado y etiqueta demo;
+- avisos distintos para ausencia de temas débiles y ausencia de notas;
+- cambio de temas débiles tras corregir notas, con UUID histórico conservado;
+- acceso docente rechazado sin revelar datos;
+- ejercicios distintos para perfiles distintos;
+- español, trato formal de usted y UUID visible.
+
+No se conservaron capturas en esa ejecución sobre `a6bd399`. El primer
+intento de guardar CA-4 no creó un archivo en la ruta acordada y Brayan
+decidió continuar sin evidencia gráfica. Las capturas se obtuvieron después,
+sobre el commit corregido, y se documentan en la sección siguiente.
+La prueba real independiente de Gemini fue omitida por decisión de Brayan; no
+hubo solicitud, tokens ni costo que atribuir a esta verificación.
+
+Brayan confirmó que estos resultados deben documentarse y que se solicite la
+corrección al autor. **El PR no está aprobado.** La confirmación de resultados
+no sustituye la repetición exitosa de las suites en el nuevo commit.
+
+Ejecuté cada criterio antes de aprobar: la repetición de las suites y las
+capturas quedaron completadas en el commit corregido; la aprobación sigue
+pendiente de la decisión de Brayan11Hernandez.
+
+Evidencia independiente:
+
+- `evidencia/brayan-entorno.txt`
+- `evidencia/brayan-pruebas.txt`
+- `evidencia/brayan-http.txt`
+- `evidencia/brayan-resultados.md`
+- `evidencia/brayan-casos.py`
+- `evidencia/brayan-capturas.txt`
+- `evidencia/capturas/`
+
+## Repetición sobre la corrección del autor · 2026-11-10
+
+Commit: `8a7a72c7a4ea95097d45ab270ae64b7a6fff8375`, rama `s-007-ejercicios`,
+mensaje «S-007: aísla modo y clave de Gemini en las pruebas». Se comprobó con
+`git rev-parse HEAD` que no existían commits posteriores.
+
+Computadora: la misma de la verificación independiente, Windows, Python
+3.12.10, entorno virtual existente y base SQLite aislada en el directorio
+temporal. No se instalaron dependencias ni se modificó código de la
+aplicación. Los cambios locales de esta verificación se conservaron: el
+`pull --ff-only` fue fast-forward y no tocó `verificacion.md` ni `evidencia/`.
+
+### Revisión del cambio
+
+`git diff a6bd399..8a7a72c` modifica únicamente `tutor/test_exercises.py`,
+`specs/S-007-ejercicios/plan.md` y `docs/registro-ia.md`: 87 líneas agregadas
+y 4 eliminadas. No hay cambios en vistas, servicios, proveedores, modelos ni
+plantillas. El override común de `PracticeTests` deja de imponer `AI_MODE` y
+cada prueba declara demo o real; la configuración común usa una clave
+sintética para construir el proveedor simulado. La lógica de producción es la
+misma que se recorrió en `a6bd399`.
+
+### Suites repetidas sin clave real
+
+La clave vacía se fija dentro de Python antes de cargar Django para que dotenv
+no recupere el valor local:
+
+| Ejecución | Configuración externa | Resultado |
+| --- | --- | --- |
+| `test tutor.test_exercises --verbosity 2` | `GEMINI_API_KEY` vacía; `AI_MODE=real` | 19 pruebas, OK, 0.359 s |
+| `test accounts academics tutor --noinput` | `GEMINI_API_KEY` vacía; `AI_MODE=demo` | 215 pruebas, OK, 113.664 s |
+
+Los 2 fallos y 14 errores de `a6bd399` desaparecieron. No hubo timeout, no se
+consultó Gemini y no se consumió cuota.
+
+### Capturas del recorrido visual
+
+Se repitió el recorrido en el navegador sobre `8a7a72c`, con servidor real en
+`127.0.0.1:8012`, `AI_MODE=demo`, clave vacía y la base aislada. Navegador
+Microsoft Edge 157.0.4341.42 en modo headless, controlado por el protocolo
+DevTools; el inicio de sesión se hizo en el formulario real `/acceso/` con las
+cuentas sintéticas. El único host contactado fue `127.0.0.1:8012`: no hubo
+peticiones externas ni recursos de Internet.
+
+| Archivo | Criterio | Escenario |
+| --- | --- | --- |
+| `capturas/ca-4-practica-demo.png` | CA-4 | `estudiante_demo` genera práctica demo; cada ejercicio muestra curso, tema, enunciado, etiqueta de modo y UUID |
+| `capturas/ca-5-sin-temas-debiles.png` | CA-5 | `estudiante_01`, todas sus notas iguales o superiores a 60: aviso y sin botón |
+| `capturas/ca-5-sin-notas.png` | CA-5 | `estudiante_02`, sin calificaciones: aviso distinto y sin botón |
+| `capturas/ca-6-antes.png` | CA-6 | `estudiante_demo` con Git y GitHub 55 y Código limpio 58 |
+| `capturas/ca-6-docente-corrige.png` | CA-6 | `docente_01` actualiza Git y GitHub a 65 desde la pantalla de notas |
+| `capturas/ca-6-antes-de-regenerar.png` | CA-6 | la lista de temas débiles ya solo muestra Código limpio |
+| `capturas/ca-6-despues.png` | CA-6 | la práctica nueva excluye Git y GitHub y conserva el ejercicio histórico |
+| `capturas/ca-7-docente-rechazado.png` | CA-7 | `docente_01` en `/practica/PROG-COM/`: 403 |
+| `capturas/ca-7-curso-ajeno.png` | CA-7 | `estudiante_demo` en `/practica/BD-APL/`: 403 |
+| `capturas/ca-7-uuid-ajeno.png` | CA-7 | `estudiante_03` pide el UUID de `estudiante_demo`: 403 |
+| `capturas/ca-8-perfil-a.png` | CA-8 | `estudiante_03`: Ingeniería de prompts |
+| `capturas/ca-8-perfil-b.png` | CA-8 | `estudiante_07`: Git y GitHub y El LLM por dentro |
+| `capturas/ca-10-uuid-y-usted.png` | CA-10 | detalle del ejercicio propio con UUID estable y trato de usted |
+
+`evidencia/brayan-capturas.txt` registra fecha, commit, configuración, hosts,
+códigos HTTP, tamaño y SHA-256 de cada PNG.
+
+Para CA-6, `docente_01` cambió la nota de Git y GitHub avanzado de 55 a 65
+mediante la pantalla de notas (S-005) y, al terminar, la restauró a 55. La
+restauración se comprobó en la base aislada, que volvió a mostrar dos temas
+débiles. No se alteró ninguna base ajena.
+
+### Limitaciones de esta repetición
+
+- Las capturas de CA-4 y CA-8 corresponden al modo demo; la consulta real a
+  Gemini sigue omitida por decisión del verificador.
+- Las tres capturas de CA-7 muestran la misma pantalla de acceso denegado,
+  porque la aplicación responde igual en los tres casos; el registro
+  distingue cada solicitud por su URL y su código 403.
+- Las capturas se tomaron sobre `8a7a72c`. El recorrido visual anterior,
+  documentado arriba sin capturas, se ejecutó sobre `a6bd399`.
 
 ## Correcciones y repetición de pruebas
 
-Pendientes de la verificación independiente. Las comprobaciones locales
-del asistente se registran en las secciones siguientes.
-
-El verificador debe ser distinto del autor y ejecutar cada criterio
-en su computadora con el commit indicado. Registrará los fallos,
-el commit de corrección y el resultado de la nueva prueba.
+- Commit con fallo: `a6bd399ea1f33394b526c131e6cfba94e9e71e62`.
+- Corrección del autor: `8a7a72c7a4ea95097d45ab270ae64b7a6fff8375`
+  «S-007: aísla modo y clave de Gemini en las pruebas».
+- Repetición de las suites: 19 y 215 pruebas, OK, sin fallos ni errores.
+- Capturas: 13 archivos en `evidencia/capturas/`, tomados sobre `8a7a72c`.
+- Decisión de aprobación: pendiente de Brayan11Hernandez.
 
 ## Comprobaciones locales de implementación · 2026-11-10
 
