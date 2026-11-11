@@ -2,7 +2,8 @@
 
 Autor: Jeffersson Ramos (ramosdeleon555).
 Estado: plan actualizado aprobado por Jeffersson en la conversación actual;
-implementación local con pruebas, pendiente de revisión y verificación independiente.
+implementación entregada en el PR #60 sobre 360da36; corrección pedagógica
+en curso, pendiente de revisión humana y cierre de verificación independiente.
 Propuesto por: OpenCode · openai/gpt-6.1-sol · análisis de solo lectura.
 Revisión de la propuesta anterior: usuario de esa sesión, 2026-11-09, mediante
 «entonces hazlo, adelante», después de presentar contrato, flujo,
@@ -134,6 +135,9 @@ retroalimentación solamente después de validarla. No modificar `Grade`.
    ignorar metadatos extra que no se usen. Exigir español y trato formal
    en las instrucciones, sin imponer «usted» ni listas de palabras obligatorias.
    Complementar con revisión humana de CA-3 y CA-10 y casos «Defina»/«Revise».
+   Evaluar solo requisitos explícitos del enunciado; reconocer los cumplidos
+   y separar ampliaciones opcionales de errores. La nota orienta el apoyo,
+   no demuestra por sí sola que una respuesta sea incorrecta.
 7. Identificar el curso en la presentación a partir del ejercicio.
 8. Revalidar permisos e inscripción antes de persistir o mostrar la devolución
    si cambiaron durante la llamada. Conservar el intento ya registrado.
@@ -272,6 +276,20 @@ Dividir los bloques en PRs de tamaño revisable cercano a 400 líneas
 al issue es #13; el PR final usará Closes #13 tras completar la verificación.
 No se crearán commits ni PRs sin solicitud del autor.
 
+### Desviación de tamaño y propuesta de excepción
+
+La entrega real agrupó los cinco bloques en el PR #60, en vez de separarlos
+como estaba previsto. Esto es una desviación del plan, aunque haya varios
+commits. El 11-11-2026 Jeffersson autorizó documentar la corrección y una
+justificación de excepción; no se atribuye aceptación de esa excepción a Brayan.
+
+Se propone conservar el PR para mantener trazabilidad con la verificación de
+360da36 y evitar reescribir la rama compartida. La revisión puede seguir los
+bloques anteriores y sus commits: modelos/permisos, servicio/proveedor,
+catálogo de datos demo, interfaz, pruebas y documentación. No equivale a
+cumplir el tamaño previsto: Brayan debe aceptar expresamente esta excepción
+o solicitar entregas separadas antes de aprobar.
+
 ## Ejecución y evidencia
 
 Se conservaron el borrador y su registro; se actualizó la rama desde main
@@ -285,5 +303,22 @@ clave externa vacía, además de check, revisión de migraciones y pip check.
 El recorrido HTTP demo en el puerto 8002 comprobó acierto/error e intentos
 separados en una base sintética temporal. No se consultó Gemini real.
 Los resultados locales se registran en verificacion.md, sin completar la
-matriz independiente en nombre de Brayan. La lectura y ejecución del autor,
-la verificación ajena y los commits/PRs siguen pendientes.
+matriz independiente en nombre de Brayan. La lectura y ejecución del autor y
+la verificación ajena siguen pendientes de cierre. Posteriormente se crearon
+los commits de entrega hasta 360da36 y se abrió el PR #60.
+
+### Corrección autorizada tras el informe de Brayan · 11-11-2026
+
+Jeffersson Daniel Ramos trasladó el informe de Brayan Hernández y aprobó
+la estructura y el ajuste pedagógico mediante «si, apruebo. adelante con todo».
+Se refuerzan las instrucciones del proveedor sin cambiar el contrato, modelos,
+spec ni transporte. Se amplía la prueba existente de transporte para comprobar
+que esas reglas llegan al cliente Gemini. Una simulación no acredita la calidad
+de una futura devolución real: CA-3 y CA-10 requieren revisión humana posterior.
+Las capturas, evidencia original, costo y lectura final del autor siguen
+pendientes de confirmación; no se registra aprobación de Brayan.
+
+La corrección pasó 27 pruebas específicas y 244 de regresión con Python
+3.12.10 y Gemini simulado; check, migraciones pendientes y pip check también
+correctos. Comandos, duraciones y alcance en verificacion.md. Estos resultados
+corresponden a cambios locales sobre 360da36, sin commit de corrección todavía.

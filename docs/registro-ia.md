@@ -1197,6 +1197,37 @@ sobre `acf58d0` (21 y 217 pruebas) y el consumo de Gemini. Este cambio es
 solo documental; no se ejecutaron nuevas consultas a Gemini ni pruebas de
 la aplicación para el cierre. El PR documental queda pendiente de revisión.
 
+## S-009 · 11-11-2026 · Corrección tras informe de Brayan
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Autor: Jeffersson Daniel Ramos (`ramosdeleon555`). Verificador: Brayan Hernández
+(`Brayan11Hernandez`). Base: 360da36, rama s-009-retroalimentacion.
+
+El autor compartió el informe técnico de Brayan y aprobó la estructura y el
+ajuste pedagógico con «si, apruebo. adelante con todo», tras la propuesta.
+Se refuerzan las instrucciones para evaluar solo requisitos explícitos,
+reconocer los cumplidos y distinguir ampliaciones opcionales. La nota orienta
+el apoyo, sin justificar por sí sola una evaluación negativa. Se amplía la
+prueba existente que inspecciona las instrucciones enviadas al transporte
+simulado; no demuestra calidad semántica de una futura respuesta real.
+
+Se documenta el informe como información trasladada por el autor, sin inventar
+equipo, capturas, evidencia original ni aprobación del verificador. Se registra
+la desviación del tamaño del PR y se propone una excepción justificada por
+trazabilidad, pendiente de aceptación de Brayan. Se actualiza el estado de
+entrega y se aclara la ejecución directa de pruebas y el rechazo CSRF 403.
+No cambia spec.md porque se corrige el cumplimiento de CA-3, no sus requisitos.
+
+La lectura final de Jeffersson, la revisión visual de Brayan, la evidencia
+original y la confirmación de tokens/costo continúan pendientes. Resultados
+locales de esta corrección en Windows con Python 3.12.10: 27 pruebas específicas
+OK (1.439 s), 244 de regresión OK (238.826 s), check sin errores, migraciones
+sin cambios y pip check sin incompatibilidades. Los comandos y su alcance
+están en verificacion.md. Se usó SQLite en memoria y clave Gemini vacía antes
+de cargar dotenv. No se instalaron dependencias ni se llamó al servicio real;
+consumo del producto: ninguno. Consumo de desarrollo no cuantificado.
+No se autoriza ni registra una aprobación humana mediante este texto.
+
 ## S-009 · 09-11-2026 · Plan técnico y contrato con S-007
 
 Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.

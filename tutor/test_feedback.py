@@ -359,6 +359,11 @@ class FeedbackTests(TestCase):
             self.submit()
         call = generate.call_args.kwargs
         self.assertIn("en español con trato de usted", call["config"]["system_instruction"])
+        instructions = call["config"]["system_instruction"]
+        self.assertIn("Evalúe solo los requisitos explícitos del enunciado", instructions)
+        self.assertIn("No exija técnicas avanzadas ni precisión profesional", instructions)
+        self.assertIn("sugerencias opcionales, no como requisitos incumplidos", instructions)
+        self.assertIn("La nota vigente orienta el apoyo, no demuestra errores", instructions)
         payload = json.loads(call["contents"])
         question = json.loads(payload["pregunta"])
         self.assertEqual(question["enunciado"], self.exercise.statement)

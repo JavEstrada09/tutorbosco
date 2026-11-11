@@ -1,8 +1,8 @@
 # Verificación S-009
 
 Autor: Jeffersson Ramos (ramosdeleon555).
-Estado: implementación local comprobada mediante pruebas y HTTP demo;
-pendiente de revisión del autor y verificación independiente.
+Estado: entrega 360da36 en PR #60; informe técnico de Brayan recibido por
+medio del autor, pendiente de incorporar evidencia y cerrar revisión humana.
 Verificador previsto: Brayan11Hernandez.
 Computadora: pendiente · Commit probado: pendiente.
 
@@ -21,12 +21,92 @@ Computadora: pendiente · Commit probado: pendiente.
 
 ## Correcciones y repetición de pruebas
 
-Pendientes de la verificación independiente. Las comprobaciones locales
-del asistente se documentan a continuación sin sustituir esa revisión.
+El informe recibido y la corrección posterior se registran a continuación.
+La matriz permanece pendiente hasta incorporar la evidencia del verificador;
+las comprobaciones locales del asistente no sustituyen esa revisión.
 
 El verificador debe ser distinto del autor y ejecutar cada criterio
 en su computadora con el commit indicado. Registrará los fallos,
 el commit de corrección y el resultado de la nueva prueba.
+
+### Informe de Brayan trasladado por Jeffersson · 11-11-2026
+
+Fuente: texto compartido por el autor en la conversación, no los archivos
+originales. Commit informado: 360da36fc6010e1974f6d75c1bd7bca738d8db08.
+
+- Informa 27/27 pruebas específicas y 244/244 totales correctas; check,
+  migraciones pendientes y pip check correctos, sin fallos funcionales.
+- Informa CA-1 a CA-9 PASS; CA-3 con reserva pedagógica y CA-10 PASS técnico,
+  pendiente de revisión visual. No equivale a aceptación humana completa.
+- Informa una devolución real en 11.215 s, source=real, sin fallback ni
+  modificación de notas. Es distinta de la llamada local de 4,69 s de abajo.
+- Detectó run_name='_main_' en comandos entregados y repitió las suites
+  con run_name='__main__'. Falta el archivo original para ubicar el error.
+- El POST anónimo sin CSRF recibió 403: es un rechazo compatible con CA-6;
+  no se exige 302 para una petición que falla primero la validación CSRF.
+- Pendientes: nueve capturas, revisión de idioma/trato/presentación/escape,
+  conclusión pedagógica personal, equipo y versión de Python acreditados.
+- No informó aprobación humana ni «Ejecuté cada criterio antes de aprobar: sí».
+
+Ubicación informada en el equipo del revisor:
+`%LOCALAPPDATA%\Temp\opencode\tutorbosco-s009-brayan\specs\S-009-retroalimentacion\`:
+verificacion.md, evidencia/brayan-entorno.txt, evidencia/brayan-pruebas.txt
+y evidencia/brayan-resultados.md. Esa ruta no está disponible en este equipo.
+Brayan debe compartir esos archivos para completar la matriz con su evidencia.
+
+### Corrección pedagógica autorizada
+
+Las instrucciones ahora limitan la evaluación a los requisitos explícitos,
+reconocen lo cumplido y presentan las ampliaciones como opcionales. La nota
+vigente determina el apoyo, no prueba errores en la respuesta. Se conserva
+la devolución anterior como evidencia histórica, sin alterarla ni regenerarla.
+
+Después de esta corrección, Brayan debe revisar CA-3, CA-4 y CA-10 sobre la
+nueva entrega, registrar el commit probado y repetir las suites. La evidencia
+anterior de los demás criterios puede conservarse indicando el commit al que
+corresponde. No se atribuye esta corrección al commit 360da36.
+
+Para evitar un código de salida 0 sin ejecutar pruebas, usar directamente:
+
+```powershell
+& ".\.venv\Scripts\python.exe" manage.py test tutor.test_feedback --verbosity 2 --noinput
+& ".\.venv\Scripts\python.exe" manage.py test accounts academics tutor --noinput
+```
+
+Comprobar siempre que aparezca `Ran 27 tests` o `Ran 244 tests` y `OK`,
+respectivamente, para esta entrega. Si se usa runpy, el valor correcto es
+`run_name='__main__'`. Los comandos directos requieren configuración local
+según README; las pruebas del proveedor real utilizan simulaciones.
+
+### Comprobación local de la corrección · 11-11-2026
+
+Ejecutor: OpenCode en el entorno Windows de Jeffersson, no Brayan.
+Python 3.12.10, entorno virtual existente de tutorbosco, worktree
+tutorbosco-s-009. Base 360da36 más los cambios locales de esta corrección,
+todavía sin commit. SQLite de pruebas en memoria; no se alteró la base local.
+
+| Comprobación | Resultado |
+| --- | --- |
+| tutor.test_feedback --verbosity 2 --noinput | 27 pruebas, OK, 1.439 s |
+| accounts academics tutor --noinput | 244 pruebas, OK, 238.826 s |
+| manage.py check | Sin errores |
+| manage.py makemigrations --check --dry-run | Sin cambios pendientes |
+| python -m pip check | Sin requisitos incompatibles |
+| git diff --check | Sin errores de espacios; avisos de normalización LF/CRLF |
+
+Comandos de las suites ejecutados desde el worktree S-009:
+
+```powershell
+& "C:\Users\Canche\Desktop\tutorbosco\.venv\Scripts\python.exe" -c "import os, runpy, sys; os.environ['DJANGO_SECRET_KEY']='synthetic-local-check-only'; os.environ['GEMINI_API_KEY']=''; os.environ['AI_MODE']='real'; os.environ['DJANGO_DATABASE_PATH']=':memory:'; sys.argv=['manage.py','test','tutor.test_feedback','--verbosity','2','--noinput']; runpy.run_path('manage.py',run_name='__main__')"
+& "C:\Users\Canche\Desktop\tutorbosco\.venv\Scripts\python.exe" -c "import os, runpy, sys; os.environ['DJANGO_SECRET_KEY']='synthetic-local-check-only'; os.environ['GEMINI_API_KEY']=''; os.environ['AI_MODE']='demo'; os.environ['DJANGO_DATABASE_PATH']=':memory:'; sys.argv=['manage.py','test','accounts','academics','tutor','--noinput']; runpy.run_path('manage.py',run_name='__main__')"
+```
+
+La clave Django anterior es un valor sintético solo para pruebas. La clave
+Gemini se fijó vacía antes de cargar dotenv para impedir que el valor local
+se recuperara. No se instalaron dependencias ni se modificó .env. No se llamó
+a Gemini real ni se consumió cuota del producto durante esta corrección.
+Los resultados comprueban integración y regresión, no la revisión visual o
+pedagógica humana. La matriz independiente permanece pendiente de evidencia.
 
 ## Comprobaciones locales del asistente en la sesión del autor
 
