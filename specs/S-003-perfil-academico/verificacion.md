@@ -10,9 +10,9 @@ Commit probado en la evidencia complementaria:
 Fecha de ejecución y registro: 2026-11-09.
 
 Estado: controles automatizados satisfactorios y revisión manual
-declarada por el usuario; pendiente de confirmación del registro por el
-verificador y revisión del PR documental. El agente no aprueba la spec
-en nombre del verificador.
+declarada por el usuario; registro confirmado por el verificador en la
+sección final (10-11-2026). El agente no aprueba la spec en nombre del
+verificador.
 
 ## Cronología y corrección del proceso
 
@@ -210,7 +210,7 @@ Para reproducir visualmente los escenarios, preparar los datos de la tabla
 en una base aislada y abrir `/perfil/` con el propietario correspondiente.
 La ejecución de Chrome y la comparación de DOM son pruebas automatizadas
 del agente, no evidencia de que Ramos haya inspeccionado personalmente las
-capturas. Su confirmación explícita sigue pendiente.
+capturas. Su confirmación explícita está en la sección final.
 
 ## Correcciones y repetición de pruebas
 
@@ -227,10 +227,10 @@ capturas. Su confirmación explícita sigue pendiente.
   en la base de prueba descartada al terminar. En la ejecución complementaria
   se modificó una nota únicamente en la base temporal para capturar CA-8.
 
-## Confirmación pendiente
+## Confirmación del verificador
 
-El verificador debe revisar que este registro representa sus pruebas y
-confirmar la evidencia antes de cerrar la verificación. La asistencia del
-agente y los resultados automatizados no se presentan como aprobación
-humana de PR. S-003 permanece en verificación mientras se revisa este
-registro; no se declara terminada por anticipado.
+ramosdeleon555 · 10-11-2026: revisé este registro y la evidencia de los
+PR #41 y #42. Representan las pruebas de CA-1 a CA-8 realizadas en mi
+computadora, incluidas las comprobaciones automatizadas que OpenCode
+ejecutó a mi solicitud y que se describen como tales en este documento.
+Confirmo la verificación de S-003.
