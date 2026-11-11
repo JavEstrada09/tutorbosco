@@ -1,5 +1,22 @@
 # Registro de uso de inteligencia artificial
 
+## S-009 · 2026-11-11 · Verificación asistida de d6e6092
+
+- Herramienta y modelo: OpenCode, OpenAI `gpt-6-astra`.
+- Fases: pruebas, automatización de navegador y documentación de evidencia.
+- Instrucción: ejecutar la estructura y nueve capturas aprobadas, con
+  aislamiento y procedencia diferenciada de la evidencia de `360da36`.
+- Resultado: 27 pruebas específicas y 244 generales correctas; nueve PNG
+  reales mediante Edge/CDP; comparación de 342 notas sin cambios.
+- Correcciones: puertos y perfil del arnés, esperas de carga y expectativas
+  textuales ajustadas al catálogo y las plantillas existentes. No se cambió
+  la implementación para pasar las pruebas.
+- Se preservaron los registros históricos y se documentaron intentos
+  fallidos, límites y pendientes en la evidencia del verificador.
+- No hubo llamadas nuevas a Gemini ni instalaciones. El costo del asistente
+  no fue informado. La calidad de Gemini real en este commit, aprobación
+  humana final y decisión de tamaño permanecen pendientes.
+
 Registrar una entrada por spec.
 No incluir claves, contraseñas ni datos reales de estudiantes.
 
@@ -1249,3 +1266,216 @@ incluidos los resultados originales, la repetición de CA-4, CA-9 y CA-10
 sobre `acf58d0` (21 y 217 pruebas) y el consumo de Gemini. Este cambio es
 solo documental; no se ejecutaron nuevas consultas a Gemini ni pruebas de
 la aplicación para el cierre. El PR documental queda pendiente de revisión.
+
+## S-009 · 11-11-2026 · Corrección tras informe de Brayan
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Autor: Jeffersson Daniel Ramos (`ramosdeleon555`). Verificador: Brayan Hernández
+(`Brayan11Hernandez`). Base: 360da36, rama s-009-retroalimentacion.
+
+El autor compartió el informe técnico de Brayan y aprobó la estructura y el
+ajuste pedagógico con «si, apruebo. adelante con todo», tras la propuesta.
+Se refuerzan las instrucciones para evaluar solo requisitos explícitos,
+reconocer los cumplidos y distinguir ampliaciones opcionales. La nota orienta
+el apoyo, sin justificar por sí sola una evaluación negativa. Se amplía la
+prueba existente que inspecciona las instrucciones enviadas al transporte
+simulado; no demuestra calidad semántica de una futura respuesta real.
+
+Se documenta el informe como información trasladada por el autor, sin inventar
+equipo, capturas, evidencia original ni aprobación del verificador. Se registra
+la desviación del tamaño del PR y se propone una excepción justificada por
+trazabilidad, pendiente de aceptación de Brayan. Se actualiza el estado de
+entrega y se aclara la ejecución directa de pruebas y el rechazo CSRF 403.
+No cambia spec.md porque se corrige el cumplimiento de CA-3, no sus requisitos.
+
+La lectura final de Jeffersson, la revisión visual de Brayan, la evidencia
+original y la confirmación de tokens/costo continúan pendientes. Resultados
+locales de esta corrección en Windows con Python 3.12.10: 27 pruebas específicas
+OK (1.439 s), 244 de regresión OK (238.826 s), check sin errores, migraciones
+sin cambios y pip check sin incompatibilidades. Los comandos y su alcance
+están en verificacion.md. Se usó SQLite en memoria y clave Gemini vacía antes
+de cargar dotenv. No se instalaron dependencias ni se llamó al servicio real;
+consumo del producto: ninguno. Consumo de desarrollo no cuantificado.
+No se autoriza ni registra una aprobación humana mediante este texto.
+
+## S-009 · 09-11-2026 · Plan técnico y contrato con S-007
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Fases en que se usó: plan.
+
+Instrucción clave:
+Preparar S-009 a partir de la spec y de los ejercicios propuestos para
+S-007. El usuario indicó que ambas specs le corresponden y autorizó
+continuar con «entonces hazlo, adelante» tras la propuesta de solo lectura.
+
+Qué se aceptó sin cambios:
+- Contrato de ejercicio con UUID, propietario, tema/curso, enunciado,
+  procedencia y clave demo opcional.
+- Respuestas por intento y devolución vinculada a cada respuesta, con
+  conservación del intento ante fallos del proveedor.
+- Estructura propuesta, validaciones, permisos y recorrido demo explícito.
+
+Qué se corrigió o descartó, y por qué:
+- Se utilizó el worktree existente de S-009, sin cambiar la rama de S-007.
+- Se documentó que esta base aún es documental y debe integrar la base
+  ejecutable y S-007 antes de implementar; no se adelantaron dependencias.
+- Se mantuvo la verificación independiente pendiente. La autorización
+  conversacional no se presenta como revisión de PR ni prueba funcional.
+
+Resultado: plan técnico documentado; no se escribió código de aplicación,
+no se crearon migraciones ni se ejecutaron pruebas Django.
+
+Costo o cuota consumida: ninguna llamada a la IA del producto. El consumo
+de la herramienta de desarrollo no se cuantificó.
+
+## S-009 · Actualización de base y adaptación del plan a S-007 integrada
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: Jeffersson Ramos (`ramosdeleon555`). Fases: preparación y plan.
+
+El autor solicitó iniciar S-009 en su rama. Se detectaron dos borradores
+locales sin commit en el worktree tutorbosco-s-009: este registro y el plan.
+Tras explicar la situación, autorizó resguardarlos temporalmente, actualizar
+la rama e integrar sus contenidos sin perderlos.
+
+- Se creó el stash «S-009: resguardo autorizado de propuesta documental»
+  limitado a los dos archivos. Se conserva como respaldo.
+- La rama s-009-retroalimentacion avanzó desde 58881f0 hasta main 914b8da
+  mediante fast-forward, incorporando la base ejecutable y S-007 del PR #56.
+- Al aplicar el stash hubo un conflicto en este registro. Se conservaron
+  todas las entradas de main y la entrada local anterior de S-009.
+- Se adaptó el plan al modelo real PracticeExercise y sus campos existentes,
+  evitando crear un segundo modelo de ejercicio o alterar el contrato.
+- Se concretaron límites de respuesta/salida, intentos independientes,
+  guardado antes de consultar a IA y validación/revalidación de permisos.
+- Se propuso un catálogo para las 24 claves demo con acierto/error y apoyo
+  distinto según nota vigente, con ejemplos reproducibles en pantalla.
+- Se propusieron proveedor especializado sobre el transporte compartido,
+  rutas de tutor incluidas desde config/urls.py y test_feedback.py separado.
+- Se incorporaron las lecciones verificadas de S-007: modo por prueba y
+  clave sintética, JSON analizado dentro de validación y ausencia de listas
+  obligatorias de palabras para aceptar trato formal.
+
+La autorización fue de preparación documental. La propuesta actualizada
+requiere revisión y aprobación del autor antes de implementar. El plan
+conserva la revisión anterior como antecedente, sin inventar aprobación de
+estos ajustes ni evidencia de Brayan11Hernandez. No se cambió la spec.
+
+No se escribió código funcional de S-009, no se crearon migraciones ni se
+ejecutaron pruebas de la funcionalidad. No hubo commits, push, instalación
+de dependencias ni llamadas al servicio de IA. Consumo del producto: ninguno.
+El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-009 · Implementación local tras aprobar el plan actualizado
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: Jeffersson Ramos (`ramosdeleon555`), autor de S-009.
+
+Tras presentar el plan adaptado a PracticeExercise, el autor confirmó
+«si, autorizo», aprobando la estructura, modelos, límites, catálogo y pruebas.
+Se trabajó en s-009-retroalimentacion, worktree tutorbosco-s-009, sobre
+main 914b8da, sin modificar el worktree principal.
+
+Trabajo asistido:
+
+- Modelos ExerciseAnswer y ExerciseFeedback, migración 0003 y formulario
+  con respuesta obligatoria de hasta 4000 caracteres.
+- Autorización por propietario, rol e inscripción; rechazo de campos de
+  relación manipulados y revalidación tras consultar al proveedor.
+- Guardado de cada intento antes de la consulta externa, sin sobrescribir
+  intentos anteriores ni perder respuestas por fallos de IA.
+- Servicio que valida JSON con assessment y guidance, ignora metadatos
+  no utilizados, rechaza estructuras y contenidos inválidos y guarda solo
+  devoluciones válidas. No exige «usted» ni otras palabras literales.
+- Proveedor especializado de retroalimentación sobre GeminiTutorProvider,
+  reutilizando cliente, modelo configurable, 60 segundos y un intento.
+- Casos demo para las 24 claves de S-007: acierto/error y variantes de apoyo
+  según la nota vigente; sin coincidencias parciales ni evaluación inventada.
+- Pantallas de respuesta y resultado por UUID con CSRF, redirección tras
+  envío, historial de intentos, ejemplos demo y contenido escapado.
+- Pruebas de los diez criterios, fallos simulados, aislamiento, notas
+  vigentes, persistencia, ausencia de red en demo y límites de contenido.
+
+Resultados ejecutados por el asistente en el entorno Windows del autor:
+
+| Comprobación | Resultado |
+| --- | --- |
+| tutor.test_feedback, clave externa vacía y modo externo real | 27 pruebas, OK, 1.187 s |
+| accounts academics tutor, clave externa vacía y modo externo demo | 244 pruebas, OK, 245.075 s |
+| check | Sin errores |
+| makemigrations --check --dry-run | Sin cambios pendientes |
+| pip check | Sin requisitos incompatibles |
+
+Las suites fijaron la clave vacía dentro de Python antes de cargar Django;
+los casos reales usan una clave sintética y mocks. Se reutilizó el entorno
+virtual ya disponible, sin instalar paquetes ni mostrar secretos.
+
+Se creó una base sintética temporal separada, se aplicaron las migraciones
+y se inició S-009 en 127.0.0.1:8002, con modo demo y clave vacía solo en el
+proceso. Se cargó la configuración local existente sin modificar .env.
+El recorrido HTTP con cookies y CSRF como estudiante_03 generó un ejercicio
+prompts-v1 y envió los ejemplos de acierto/error. Se comprobaron HTTP 200,
+devoluciones distintas, dos intentos separados, consulta repetida sin envío
+adicional y notas oficiales intactas.
+
+Ejercicio local: dcdc6e4c-4419-4fb3-8148-936de858dff3.
+Intentos: f8a30246-5f29-46b6-be76-9d9889172fcb y
+800501f1-08d1-4f8a-ab2f-292b63e9a1e9.
+El detalle y los textos comprobados están en verificacion.md.
+
+No hubo revisión visual ni capturas de este recorrido; se verificó mediante
+HTTP. En ese bloque inicial no se llamó a Gemini real para S-009 ni se
+consumió cuota del producto; la llamada posterior se registra a continuación.
+La revisión del autor y la verificación independiente de Brayan11Hernandez
+siguen pendientes. No se registran aprobaciones en su nombre.
+
+Se actualizaron README, docs/plan.md y la documentación de S-009 para reflejar
+la implementación local. No se cambió el comportamiento especificado ni
+se modificó spec.md. El stash de los borradores originales se conserva.
+No se realizaron commits ni push de esta implementación.
+
+## S-009 · 11-11-2026 · Prueba real de retroalimentación con Gemini
+
+Herramienta y modelo de desarrollo: OpenCode · openai/gpt-6.1-sol.
+Usado por: Jeffersson Ramos (ramosdeleon555).
+Modelo del producto: gemini-3.5-flash-lite.
+
+El autor solicitó un intento real usando la clave local ya configurada.
+El asistente inició temporalmente S-009 en 127.0.0.1:8003 con AI_MODE=real,
+sin modificar .env ni mostrar secretos. Usó la base sintética independiente
+existente y el ejercicio demo prompts-v1 de estudiante_03. No realizó una
+generación adicional de ejercicios: la única llamada fue de retroalimentación.
+
+Tras acceso HTTP con cookies y CSRF, envió:
+
+> Objetivo: explique una nota de venta. Contexto: estudiante principiante. Restricción: no invente datos. Formato: definición y ejemplo breve.
+
+Resultados:
+
+- Curso: Programación Comercial; tema: Ingeniería de prompts; nota vigente 58.
+- Ejercicio: dcdc6e4c-4419-4fb3-8148-936de858dff3.
+- Intento: 54017c97-a5d1-4db7-8a61-551a057087db, creado a las 01:11:39
+  del 11-11-2026 en Guatemala (2026-11-11T07:11:39.846621+00:00).
+- HTTP 200 en 4,69 segundos; exactamente un intento nuevo.
+- Devolución persistida con source=real y etiqueta de IA en el HTML,
+  sin aviso de fallback ni de salida inválida. Notas oficiales intactas.
+- La devolución identifica los elementos del prompt, menciona la nota 58
+  y orienta a ampliar rol, contexto, restricciones y formato.
+- El enunciado, la respuesta y la devolución completos se conservan como
+  evidencia en specs/S-009-retroalimentacion/verificacion.md.
+
+Se informó al autor que el texto exige un nivel «avanzado» que el ejercicio
+no solicita expresamente; su pertinencia pedagógica requiere revisión humana.
+No se presenta la llamada como aprobación independiente ni prueba de los diez
+criterios. No hubo capturas ni revisión visual: el recorrido fue HTTP.
+El texto registrado se recuperó de la devolución guardada, no de un archivo
+de respuesta cruda ni de metadata de tokens del proveedor.
+
+El servidor temporal real se detuvo. El servidor demo del puerto 8002
+continuó disponible y conserva el resultado real para la cuenta propietaria.
+El autor autorizó actualizar verificacion.md, registro-ia.md y gasto.md.
+
+Consumo del producto: una solicitud real; tokens y costo monetario pendientes
+de confirmar con el proveedor. No se afirma costo cero ni se cambió la
+configuración de facturación. El consumo de desarrollo no se cuantificó.
+La revisión del autor y la verificación de Brayan11Hernandez siguen pendientes.

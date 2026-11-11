@@ -285,6 +285,46 @@ S-007 cuenta con verificación independiente de Brayan11Hernandez sobre
 incluida la repetición de CA-4, CA-9 y CA-10, está en
 `specs/S-007-ejercicios/verificacion.md`.
 
+## S-009 · Respuestas y retroalimentación (implementación local)
+
+Aplique `manage.py migrate` después de actualizar. Inicie sesión como
+estudiante, genere práctica y pulse **Responder y consultar sus intentos**.
+Escriba su respuesta (máximo 4000 caracteres) y pulse **Enviar respuesta**.
+Cada envío válido conserva un intento independiente y redirige a su resultado;
+recargar ese resultado no vuelve a consultar al proveedor.
+
+La pantalla identifica curso y tema, muestra la respuesta y su devolución
+con procedencia demo o IA. Los enlaces del historial consultan cada intento
+por su UUID. No se ejecuta el código escrito ni se modifican las notas.
+Si falla la consulta o la salida es inválida, la respuesta queda registrada.
+
+### Recorrido demo reproducible
+
+Con `AI_MODE=demo`, sin clave ni red, use por ejemplo `estudiante_03` en
+Programación Comercial. Su ejercicio de Ingeniería de prompts permite
+abrir **Ejemplos para probar las devoluciones grabadas** y copiar uno de
+los dos textos: acierto o error. Envíelos como intentos separados y compare
+las explicaciones. Se cubren las 24 claves del catálogo de S-007.
+
+Las grabaciones reconocen respuestas conocidas, ignorando mayúsculas y
+espacios repetidos; no califican cualquier texto libre. Para respuestas
+sin caso aplicable se informa la ausencia de devolución, sin perder el intento.
+Una nota del tema menor de 40, o ausente, selecciona apoyo paso a paso;
+desde 40 se usa orientación breve. Esto no cambia el umbral de temas débiles.
+
+En modo real se reutiliza Gemini con el modelo configurable, 60 segundos y
+un intento. Ante conexión, tiempo o cuota se intenta la alternativa demo
+solo si el ejercicio y la respuesta corresponden exactamente a un caso
+grabado. No se inventa una evaluación para ejercicios reales sin grabación.
+
+Pruebas específicas: `manage.py test tutor.test_feedback`.
+La implementación local tiene 27 pruebas específicas y pasó las 244 de
+regresión con clave externa vacía. Una prueba real con gemini-3.5-flash-lite
+guardó una devolución en 4,69 segundos sin modificar notas; el texto completo
+y sus límites están en specs/S-009-retroalimentacion/verificacion.md.
+La verificación independiente de Brayan11Hernandez y la revisión del autor
+siguen pendientes; S-009 no está terminada.
+
 ## Comprobación real de CA-4 (S-001)
 
 En la Entrega 4, JavEstrada09 probó `gemini-3.5-flash-lite` en modo real

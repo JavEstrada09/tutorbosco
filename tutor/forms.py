@@ -29,3 +29,14 @@ class TutorActionForm(forms.Form):
         choices=(("ask", "ask"), ("new", "new"), ("continue_demo", "continue_demo")),
         widget=forms.HiddenInput,
     )
+
+
+class ExerciseAnswerForm(forms.Form):
+    content = forms.CharField(
+        label="Su respuesta", max_length=4000, strip=True,
+        error_messages={
+            "required": "Escriba su respuesta antes de enviarla.",
+            "max_length": "Su respuesta no puede superar 4000 caracteres.",
+        },
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 6}),
+    )

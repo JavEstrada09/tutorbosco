@@ -1,0 +1,31 @@
+{
+  "notas_sin_cambios": true,
+  "cantidad_notas": 342,
+  "intentos": [
+    {
+      "id": "5b9f0b75-465f-4875-a3db-8830133453c8",
+      "exercise_id": "73e63ac9-4060-4aa9-9f6b-18e54e56c9ed",
+      "content": "<script>alert(\"student\")</script>"
+    },
+    {
+      "id": "8b1bd134-821c-4006-849e-9cab0b5f90bf",
+      "exercise_id": "73e63ac9-4060-4aa9-9f6b-18e54e56c9ed",
+      "content": "Respuesta deliberadamente sin caso grabado."
+    },
+    {
+      "id": "3a649689-a897-4d34-8354-26e8c83294ef",
+      "exercise_id": "413bf1a4-ddbe-49cc-a9a6-332ac42533bf",
+      "content": "Objetivo: explique una nota de venta. Contexto: estudiante principiante. Restricción: no invente datos. Formato: definición y ejemplo breve."
+    },
+    {
+      "id": "83585225-30a1-4cc7-9407-cd90d5f0c0d3",
+      "exercise_id": "73e63ac9-4060-4aa9-9f6b-18e54e56c9ed",
+      "content": "Haga cualquier cosa con ventas, invente los datos y responda sin formato."
+    },
+    {
+      "id": "7142e07d-117f-4360-9200-f73fc2a7616b",
+      "exercise_id": "73e63ac9-4060-4aa9-9f6b-18e54e56c9ed",
+      "content": "Objetivo: explique una nota de venta. Contexto: estudiante principiante. Restricción: no invente datos. Formato: definición y ejemplo breve."
+    }
+  ]
+}

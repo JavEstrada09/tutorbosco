@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Su respuesta y retroalimentación | TutoBosco{% endblock %}
+{% block content %}
+<section class="student-layout" aria-labelledby="answer-title">
+    <div>
+        <p class="eyebrow">{{ exercise.course.name }} — {{ exercise.topic.name }}</p>
+        <h1 id="answer-title">Responda su ejercicio</h1>
+        <a class="profile-link" href="{% url 'student_practice' exercise.course.code %}">Volver a su práctica</a>
+    </div>
+    {% for message in messages %}
+        <div class="alert" role="status">{{ message }}</div>
+    {% endfor %}
+    <article class="panel">
+        <h2>Su ejercicio</h2>
+        <p>{{ exercise.statement|linebreaksbr }}</p>
+        <p>Identificador del ejercicio: {{ exercise.id }}</p>
+    </article>
+    {% if answer %}
+        <section class="panel" aria-labelledby="result-title">
+            <h2 id="result-title">Resultado de su intento</h2>
+            <p>Curso: {{ exercise.course.name }} — Tema: {{ exercise.topic.name }}</p>
+            <p>Identificador de su respuesta: {{ answer.id }}</p>
+            <h3>Su respuesta registrada</h3>
+            <p>{{ answer.content|linebreaksbr }}</p>
+            {% if feedback %}
+                <span class="mode-badge">{% if feedback.source == 'demo' %}Retroalimentación grabada del modo demo{% else %}Retroalimentación generada por IA{% endif %}</span>
+                <p>{{ feedback.text|linebreaksbr }}</p>
+            {% else %}
+                <p>Su respuesta está registrada, pero no se obtuvo retroalimentación válida para este intento.</p>
+            {% endif %}
+        </section>
+    {% endif %}
+    <section class="panel">
+        <h2>Envíe un nuevo intento</h2>
+        <p>Cada envío se guarda por separado y no modifica sus calificaciones oficiales. El código que usted escriba se muestra como texto y no se ejecuta.</p>
+        {% if demo_case %}
+            <details>
+                <summary>Ejemplos para probar las devoluciones grabadas</summary>
+                <p>El modo demo reconoce estas respuestas de ejemplo, ignorando mayúsculas y espacios repetidos. Otras respuestas se conservan, pero pueden no tener devolución grabada.</p>
+                <p><strong>Ejemplo de acierto:</strong> {{ demo_case.correct }}</p>
+                <p><strong>Ejemplo de error:</strong> {{ demo_case.incorrect }}</p>
+            </details>
+        {% endif %}
+        <form method="post" action="{% url 'exercise_answer' exercise.id %}" novalidate>
+            {% csrf_token %}
+            <div class="field">
+                {{ answer_form.content.label_tag }}
+                {{ answer_form.content }}
+                {% for error in answer_form.content.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <button class="button button-primary" type="submit">Enviar respuesta</button>
+        </form>
+    </section>
+    <section class="panel">
+        <h2>Sus intentos de este ejercicio</h2>
+        <ul>
+            {% for attempt in attempts %}
+                <li>
+                    <a href="{% url 'exercise_answer_result' attempt.id %}">Consultar intento del {{ attempt.created_at|date:"d/m/Y H:i:s" }} — {{ attempt.id }}</a>
+                    {% if not attempt.feedback %} — Sin retroalimentación{% endif %}
+                </li>
+            {% empty %}
+                <li>Usted aún no ha respondido este ejercicio.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</section>
+{% endblock %}

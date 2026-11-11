@@ -1,0 +1,481 @@
+
+$ python manage.py check
+System check identified no issues (0 silenced).
+
+Exit: 0
+
+$ python manage.py makemigrations --check --dry-run
+No changes detected
+
+Exit: 0
+
+$ python -m pip check
+No broken requirements found.
+
+Exit: 0
+
+$ python manage.py test tutor.test_feedback --verbosity 2
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+Found 27 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: messages, staticfiles
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions, tutor
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying tutor.0001_initial... OK
+  Applying tutor.0002_practiceexercise... OK
+  Applying tutor.0003_exerciseanswer_exercisefeedback...test_all_24_demo_cases_have_distinct_correct_and_incorrect_feedback (tutor.test_feedback.FeedbackTests.test_all_24_demo_cases_have_distinct_correct_and_incorrect_feedback) ... ok
+test_answer_is_persisted_with_derived_ownership_ca1 (tutor.test_feedback.FeedbackTests.test_answer_is_persisted_with_derived_ownership_ca1) ... ok
+test_attempts_remain_distinct_across_exercises_and_courses_ca5 (tutor.test_feedback.FeedbackTests.test_attempts_remain_distinct_across_exercises_and_courses_ca5) ... ok
+test_connection_failure_uses_demo_and_informs_ca8 (tutor.test_feedback.FeedbackTests.test_connection_failure_uses_demo_and_informs_ca8) ... ok
+test_connection_failure_without_demo_case_preserves_answer_ca8 (tutor.test_feedback.FeedbackTests.test_connection_failure_without_demo_case_preserves_answer_ca8) ... ok
+test_content_is_escaped_and_official_grades_do_not_change_ca10 (tutor.test_feedback.FeedbackTests.test_content_is_escaped_and_official_grades_do_not_change_ca10) ... ok
+test_context_is_private_and_uses_current_grades_ca4 (tutor.test_feedback.FeedbackTests.test_context_is_private_and_uses_current_grades_ca4) ... ok
+test_demo_correct_and_incorrect_answers_are_offline_ca7 (tutor.test_feedback.FeedbackTests.test_demo_correct_and_incorrect_answers_are_offline_ca7) ... ok
+test_demo_requires_exact_exercise_and_never_evaluates_real_exercises (tutor.test_feedback.FeedbackTests.test_demo_requires_exact_exercise_and_never_evaluates_real_exercises) ... ok
+test_demo_support_varies_by_current_topic_grade_ca4 (tutor.test_feedback.FeedbackTests.test_demo_support_varies_by_current_topic_grade_ca4) ... ok
+test_empty_and_excessive_answers_never_call_provider_ca2 (tutor.test_feedback.FeedbackTests.test_empty_and_excessive_answers_never_call_provider_ca2) ... ok
+test_foreign_and_missing_answer_results_are_denied_ca6 (tutor.test_feedback.FeedbackTests.test_foreign_and_missing_answer_results_are_denied_ca6) ... ok
+test_formal_feedback_without_literal_usted_and_extra_metadata_is_valid (tutor.test_feedback.FeedbackTests.test_formal_feedback_without_literal_usted_and_extra_metadata_is_valid) ... ok
+test_inconsistent_exercise_course_is_rejected (tutor.test_feedback.FeedbackTests.test_inconsistent_exercise_course_is_rejected) ... ok
+test_invalid_outputs_do_not_lose_answers_ca9 (tutor.test_feedback.FeedbackTests.test_invalid_outputs_do_not_lose_answers_ca9) ... ok
+test_manipulated_relations_and_csrf_are_rejected_ca6 (tutor.test_feedback.FeedbackTests.test_manipulated_relations_and_csrf_are_rejected_ca6) ... ok
+test_maximum_length_answer_is_accepted (tutor.test_feedback.FeedbackTests.test_maximum_length_answer_is_accepted) ... ok
+test_missing_key_falls_back_without_constructing_client (tutor.test_feedback.FeedbackTests.test_missing_key_falls_back_without_constructing_client) ... ok
+test_no_feedback_is_visible_and_answer_is_preserved_in_ui (tutor.test_feedback.FeedbackTests.test_no_feedback_is_visible_and_answer_is_preserved_in_ui) ... ok
+test_real_feedback_is_related_to_saved_answer_ca3 (tutor.test_feedback.FeedbackTests.test_real_feedback_is_related_to_saved_answer_ca3) ... ok
+test_real_transport_uses_feedback_instructions_and_no_foreign_context (tutor.test_feedback.FeedbackTests.test_real_transport_uses_feedback_instructions_and_no_foreign_context) ... ok
+test_redirect_and_get_do_not_resubmit_or_call_provider (tutor.test_feedback.FeedbackTests.test_redirect_and_get_do_not_resubmit_or_call_provider) ... ok
+test_revoked_enrollment_during_provider_call_blocks_feedback (tutor.test_feedback.FeedbackTests.test_revoked_enrollment_during_provider_call_blocks_feedback) ... ok
+test_shared_transport_errors_fall_back_ca8 (tutor.test_feedback.FeedbackTests.test_shared_transport_errors_fall_back_ca8) ... ok
+test_unassigned_course_and_revoked_enrollment_are_denied_ca6 (tutor.test_feedback.FeedbackTests.test_unassigned_course_and_revoked_enrollment_are_denied_ca6) ... ok
+test_unauthorized_submissions_never_write_or_call_provider_ca6 (tutor.test_feedback.FeedbackTests.test_unauthorized_submissions_never_write_or_call_provider_ca6) ... ok
+test_unknown_demo_response_is_preserved_without_invented_feedback (tutor.test_feedback.FeedbackTests.test_unknown_demo_response_is_preserved_without_invented_feedback) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 1.785s
+
+OK
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+ OK
+System check identified no issues (0 silenced).
+
+Exit: 0
+
+$ python manage.py test accounts academics tutor
+Creating test database for alias 'default'...
+
+....................................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 244 tests in 147.893s
+
+OK
+Destroying test database for alias 'default'...
+
+Found 244 test(s).
+System check identified no issues (0 silenced).
+
+Exit: 0
+
+$ python manage.py migrate --noinput
+Operations to perform:
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions, tutor
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying tutor.0001_initial... OK
+  Applying tutor.0002_practiceexercise... OK
+  Applying tutor.0003_exerciseanswer_exercisefeedback... OK
+
+Exit: 0
+
+$ python manage.py rebuild_synthetic_data
+Datos sintéticos completos reconstruidos.
+
+Exit: 0
+
+$ node s009-browser-capture.mjs
+node:fs:1220
+  return binding.rmSync(getValidatedPath(path), opts.maxRetries, opts.recursive, opts.retryDelay);
+                 ^
+
+Error: EPERM, Permission denied: \\?\C:\Users\herna\AppData\Local\Temp\opencode\s009-edge-profile '\\?\C:\Users\herna\AppData\Local\Temp\opencode\s009-edge-profile'
+    at rmSync (node:fs:1220:18)
+    at file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:221:3 {
+  errno: 1,
+  code: 'EPERM',
+  path: '\\\\?\\C:\\Users\\herna\\AppData\\Local\\Temp\\opencode\\s009-edge-profile',
+  syscall: 'rm'
+}
+
+Node.js v24.13.1
+
+Exit: 1
+
+$ python manage.py migrate --noinput
+Operations to perform:
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions, tutor
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying tutor.0001_initial... OK
+  Applying tutor.0002_practiceexercise... OK
+  Applying tutor.0003_exerciseanswer_exercisefeedback... OK
+
+Exit: 0
+
+$ python manage.py rebuild_synthetic_data
+Datos sintéticos completos reconstruidos.
+
+Exit: 0
+
+$ node s009-browser-capture.mjs
+file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:61
+  throw new Error(`Tiempo agotado: ${message}`);
+        ^
+
+Error: Tiempo agotado: inicio de sesión de estudiante_03
+    at waitFor (file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:61:9)
+    at async login (file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:121:3)
+    at async file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:162:3
+
+Node.js v24.13.1
+
+Exit: 1
+
+$ python manage.py migrate --noinput
+Operations to perform:
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions, tutor
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying tutor.0001_initial... OK
+  Applying tutor.0002_practiceexercise... OK
+  Applying tutor.0003_exerciseanswer_exercisefeedback... OK
+
+Exit: 0
+
+$ python manage.py rebuild_synthetic_data
+Datos sintéticos completos reconstruidos.
+
+Exit: 0
+
+$ node s009-browser-capture.mjs
+file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:173
+    throw new Error("La devolución de acierto no coincide con el escenario esperado.");
+          ^
+
+Error: La devolución de acierto no coincide con el escenario esperado.
+    at file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:173:11
+
+Node.js v24.13.1
+
+Exit: 1
+
+$ python manage.py migrate --noinput
+Operations to perform:
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions, tutor
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying tutor.0001_initial... OK
+  Applying tutor.0002_practiceexercise... OK
+  Applying tutor.0003_exerciseanswer_exercisefeedback... OK
+
+Exit: 0
+
+$ python manage.py rebuild_synthetic_data
+Datos sintéticos completos reconstruidos.
+
+Exit: 0
+
+$ node s009-browser-capture.mjs
+file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:174
+    throw new Error("La devolución de acierto no coincide con el escenario esperado: " + correctText);
+          ^
+
+Error: La devolución de acierto no coincide con el escenario esperado: TB
+TutoBosco
+
+PROGRAMACIÓN COMERCIAL — INGENIERÍA DE PROMPTS
+
+Responda su ejercicio
+Volver a su práctica
+Su respuesta y retroalimentación se guardaron correctamente.
+Su ejercicio
+
+Redacte usted un prompt para explicar una nota de venta a un principiante. Incluya objetivo, contexto, restricciones y formato esperado.
+
+Identificador del ejercicio: bc03830f-826a-48e5-a98c-3a55583f69b0
+
+Resultado de su intento
+
+Curso: Programación Comercial — Tema: Ingeniería de prompts
+
+Identificador de su respuesta: 422e73bc-5eed-49e0-bb26-c13ab9ceeeb8
+
+Su respuesta registrada
+
+Objetivo: explique una nota de venta. Contexto: estudiante principiante. Restricción: no invente datos. Formato: definición y ejemplo breve.
+
+RETROALIMENTACIÓN GRABADA DEL MODO DEMO
+
+Aciertos y aspectos por mejorar:
+Usted incluye objetivo, contexto, restricción y formato para orientar la explicación.
+
+Para continuar:
+Pruebe el prompt y revise si la salida contiene la definición y el ejemplo solicitados.
+
+Envíe un nuevo intento
+
+Cada envío se guarda por separado y no modifica sus calificaciones oficiales. El código que usted escriba se muestra como texto y no se ejecuta.
+
+Ejemplos para probar las devoluciones grabadas
+Su respuesta:
+Enviar respuesta
+Sus intentos de este ejercicio
+Consultar intento del 11/11/2026 12:21:18 — 422e73bc-5eed-49e0-bb26-c13ab9ceeeb8
+    at file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:174:11
+
+Node.js v24.13.1
+
+Exit: 1
+
+$ python manage.py migrate --noinput
+Operations to perform:
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions, tutor
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying tutor.0001_initial... OK
+  Applying tutor.0002_practiceexercise... OK
+  Applying tutor.0003_exerciseanswer_exercisefeedback... OK
+
+Exit: 0
+
+$ python manage.py rebuild_synthetic_data
+Datos sintéticos completos reconstruidos.
+
+Exit: 0
+
+$ node s009-browser-capture.mjs
+file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:191
+  if (!lowText.includes("paso a paso")) throw new Error("No apareció el apoyo detallado del perfil bajo.");
+                                              ^
+
+Error: No apareció el apoyo detallado del perfil bajo.
+    at file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:191:47
+
+Node.js v24.13.1
+
+Exit: 1
+
+$ python manage.py migrate --noinput
+Operations to perform:
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions, tutor
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying tutor.0001_initial... OK
+  Applying tutor.0002_practiceexercise... OK
+  Applying tutor.0003_exerciseanswer_exercisefeedback... OK
+
+Exit: 0
+
+$ python manage.py rebuild_synthetic_data
+Datos sintéticos completos reconstruidos.
+
+Exit: 0
+
+$ node s009-browser-capture.mjs
+file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:197
+  if (!deniedText.includes("Acceso no permitido")) throw new Error("El acceso docente no fue rechazado como se esperaba.");
+                                                         ^
+
+Error: El acceso docente no fue rechazado como se esperaba.
+    at file:///C:/Users/herna/AppData/Local/Temp/opencode/s009-browser-capture.mjs:197:58
+
+Node.js v24.13.1
+
+Exit: 1
+
+$ python manage.py migrate --noinput
+Operations to perform:
+  Apply all migrations: academics, accounts, admin, auth, contenttypes, sessions, tutor
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying academics.0001_initial... OK
+  Applying academics.0002_teacherprofile_teachingassignment_topic_grade... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying tutor.0001_initial... OK
+  Applying tutor.0002_practiceexercise... OK
+  Applying tutor.0003_exerciseanswer_exercisefeedback... OK
+
+Exit: 0
+
+$ python manage.py rebuild_synthetic_data
+Datos sintéticos completos reconstruidos.
+
+Exit: 0
+
+$ node s009-browser-capture.mjs
+Capturas creadas: 9
+Acierto, error, perfiles 25/55, rechazo, persistencia y escape: comprobados
+
+Exit: 0

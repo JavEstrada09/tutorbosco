@@ -1,0 +1,63 @@
+S-009 - comandos y resultados sanitizados
+Commit: 360da36fc6010e1974f6d75c1bd7bca738d8db08
+Fecha: 2026-11-11
+
+PREPARACION
+- git fetch: rama remota sin cambios, en el commit entregado.
+- Python 3.12.10, .venv nuevo e instalacion de requirements.txt: OK.
+- migrate y rebuild_synthetic_data sobre base nueva y aislada: OK.
+
+CONTROLES
+- manage.py check: 0 problemas, 0.659 s.
+- makemigrations --check --dry-run: sin cambios, 0.633 s.
+- python -m pip check: sin incompatibilidades, 0.753 s.
+
+DEFECTO EN LOS COMANDOS ENTREGADOS
+runpy.run_path('manage.py', run_name='_main_') no activa el bloque __main__.
+- Orden especifica original: salida vacia, 0 pruebas, codigo 0, 0.103 s.
+- Orden completa original: salida vacia, 0 pruebas, codigo 0, 0.127 s.
+Se corrigio solo a run_name='__main__', manteniendo la clave vacia antes de
+cargar Django.
+
+SUITES CORREGIDAS
+- tutor.test_feedback: 27 pruebas, OK, 1.122 s internos, 3.532 s externos.
+- accounts academics tutor: 244 pruebas, OK, 123.923 s internos,
+  126.071 s externos.
+- Cero fallos y cero errores.
+
+RECORRIDO HTTP DEMO
+- Servidor localhost:8019, detenido al terminar.
+- Ejercicio: 464f6998-0a2b-484e-8d15-62a4876f86e8.
+- Acierto: c77ecec0-79fe-4f31-98c5-4b32e02d2b62.
+- Error: eaadfe88-7da6-4cb7-8ea4-e520cbcaf5a4.
+- UUID y devoluciones distintos, curso/tema/etiqueta/historial correctos.
+- Recargar creo 0 intentos; notas sin cambios.
+- Vacio, espacios y 4001: error y 0 registros. Limite 4000: aceptado.
+- Notas 25/55: apoyo detallado/breve. Cambio posterior a 55: apoyo vigente.
+- REDES: b48f598d-c0e6-4329-8061-b3dbb1c81fc4, sin intercambio con PROG-COM.
+
+PERMISOS HTTP
+- Anonimo GET/POST: 302/403; docente: 403/403; ajeno: 403/403.
+- UUID inexistente, respuesta ajena, propietario manipulado, POST sin CSRF
+  e inscripcion revocada: 403.
+- Escrituras no autorizadas: 0; contenido ajeno revelado: no.
+El arnes esperaba 302 para el POST anonimo y produjo una asercion al recibir
+403. El 403 es el rechazo seguro de CSRF, no un fallo del producto.
+
+DEMO, FALLOS Y SALIDAS
+- La suite bloqueo cliente Gemini y socket.socket.connect.
+- Cubrio 24 claves demo y respuestas sin caso.
+- Conexion, timeout, 429 y 504 fueron simulados sin consumir cuota.
+- Salidas vacias, JSON/campos/tipos/tamanos invalidos y HTML se rechazaron.
+- No se encontraron URL externas en plantillas ni CSS.
+
+GEMINI REAL AUTORIZADO
+- Servidor localhost:8020, detenido al terminar.
+- Una solicitud, sin reintento manual, gemini-3.5-flash-lite, 11.215 s.
+- Respuesta bf28fdbf-0c61-43fd-8060-ca411b6b3198, source=real.
+- Etiqueta IA presente, fallback ausente y notas intactas.
+- Tokens y costo no informados; no se habilito facturacion.
+
+CAPTURAS
+No se crearon. Se eligio HTTP sin instalar navegador; quedan pendientes las
+nueve capturas manuales propuestas.
