@@ -1505,3 +1505,48 @@ Trabajo preparado en `s-009-cierre-documental`, desde main `64e8043`.
 Solo documentación: no se repitieron suites, instalaron dependencias ni
 realizaron llamadas a Gemini. Sin consumo de cuota del producto; el consumo
 de la herramienta de desarrollo no se cuantificó.
+
+## S-004 · 10-11-2026 · Verificación independiente asistida
+
+Herramienta y modelo: Claude (Anthropic) · Claude Opus 5.5, en la app de
+Claude, con control del navegador integrado en la computadora del
+verificador.
+Usado por: AlexDLG1.
+Fases en que se usó: pruebas y documentación de evidencia.
+Instrucción clave: guiar la verificación de S-004 sobre `d86b6fe`, tomar en
+mi navegador, contra mi servidor local, las capturas de CA-1 a CA-8 con la
+cuenta `docente_01`, y redactar `verificacion.md`.
+Qué se aceptó sin cambios: el recorrido por criterio, las capturas con su
+encabezado y la redacción del registro, después de revisar cada captura.
+Qué se corrigió o descartó, y por qué: antes de verificar, una revisión en
+la nube mostró que la rama de S-004 aún no integraba `get_taught_course` de
+S-005; la verificación se hizo sobre `d86b6fe`, que ya la incluye. Se
+descartó presentar las capturas como manuales: `verificacion.md` declara
+que las tomó Claude. Después del merge de `main` en `650bc21` se comparó el
+código de S-004 y no cambió.
+Costo o cuota consumida: sin llamadas a Gemini; el costo de la herramienta
+no se registra desde este entorno.
+
+## S-010 · 10-11-2026 y 11-11-2026 · Verificación independiente asistida
+
+Herramienta y modelo: Claude (Anthropic) · Claude Opus 5.5, en la app de
+Claude, con control del navegador integrado en la computadora del
+verificador.
+Usado por: AlexDLG1.
+Fases en que se usó: pruebas, revisión de interfaz y documentación de
+evidencia.
+Instrucción clave: tomar en mi navegador, contra mi servidor local, las
+capturas de CA-1 a CA-8 sobre `3c3907a`; revisar CA-9 en escritorio y en
+tamaño de teléfono, medir el ancho de cada pantalla y redactar las dos
+partes de `verificacion.md`.
+Qué se aceptó sin cambios: el recorrido por criterio, las capturas con su
+encabezado y las mediciones, después de revisar cada captura.
+Qué se corrigió o descartó, y por qué: en la revisión de CA-9, Claude
+detectó que la pantalla de notas (en una revisión previa en la nube sobre
+`196df60`) y el panel del curso (en mi computadora sobre `dca29aa`) no
+cabían en un teléfono, y que la práctica de S-007 tenía el título sin
+centrar. Propuso los cambios de CSS y plantilla; el autor los aplicó en
+`dca29aa` y `e871bbb`, y Claude repitió la medición en mi navegador antes de
+registrar CA-9 como cumplido. Las pruebas automatizadas las ejecuté yo.
+Costo o cuota consumida: sin llamadas a Gemini; el costo de la herramienta
+no se registra desde este entorno.
