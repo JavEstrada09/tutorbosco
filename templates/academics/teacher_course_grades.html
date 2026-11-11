@@ -4,11 +4,11 @@
 
 {% block content %}
 <section class="teacher-layout" aria-labelledby="grades-title">
-    <div>
+    <header class="page-intro">
         <p class="eyebrow">{{ course.code }} – {{ course.name }}</p>
         <h1 id="grades-title">Notas del curso</h1>
         <p class="lead">Registre o corrija la nota de los estudiantes asignados en los temas de este curso.</p>
-    </div>
+    </header>
 
     {% for message in messages %}
         <div class="notice" role="status">{{ message }}</div>
@@ -76,9 +76,5 @@
         {% endif %}
     </section>
 
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button class="button button-secondary" type="submit">Cerrar sesión</button>
-    </form>
 </section>
 {% endblock %}

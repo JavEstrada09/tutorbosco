@@ -8,7 +8,7 @@
 
 **Verificador:** AlexDLG1
 
-**Estado:** Borrador de especificación
+**Estado:** En implementación
 
 ## Problema
 
@@ -99,6 +99,18 @@ El sistema deberá permitir:
 
 **entonces** encuentra textos comprensibles en español, navegación consistente y mensajes apropiados para la operación realizada.
 
+### CA-9. Identidad visual consistente en toda la interfaz
+
+**Dado** que un usuario recorre las pantallas públicas y privadas de
+TutoBosco en escritorio o en un teléfono,
+
+**cuando** inicia sesión, consulta su inicio y perfil, o administra cursos,
+temas, estudiantes y notas,
+
+**entonces** todas las pantallas comparten la misma identidad visual sobria,
+con títulos centrados, tarjetas de contenido, botones identificables y
+mensajes de estado legibles, sin perder información, enlaces ni funciones.
+
 ## Restricciones y consideraciones de seguridad
 
 - La autenticación y las sesiones deberán utilizar las herramientas de seguridad proporcionadas por Django.
@@ -111,6 +123,29 @@ El sistema deberá permitir:
 - Los formularios deberán validar la información recibida.
 - La interfaz deberá utilizar los componentes y tecnologías aprobados para el proyecto.
 - Los textos dirigidos a estudiantes deberán respetar el trato de usted establecido por el equipo.
+
+## Decisiones verificables
+
+- Después del login se reutiliza `role_home`, implementado por S-008. Una
+  cuenta con ambos perfiles llega primero al inicio estudiantil y conserva
+  las operaciones autorizadas de ambos perfiles.
+- Una persona sin sesión que solicita una página privada es redirigida al
+  login con el destino en `next`. Una persona autenticada sin el perfil o la
+  asignación exigidos recibe HTTP 403.
+- El cierre de sesión se realiza únicamente mediante POST protegido por CSRF
+  y está disponible en la navegación común de las páginas privadas.
+- La navegación estudiantil muestra inicio y perfil. La navegación docente
+  muestra panel y administración de cursos. Una cuenta con ambos perfiles
+  puede ver ambos grupos de opciones.
+- Bootstrap 5.3 se almacena y sirve localmente; la interfaz no depende de un
+  CDN durante la ejecución.
+- La identidad visual se define una sola vez en `static/css/tutobosco.css`
+  mediante variables de color, radios y sombras. Las plantillas reutilizan
+  los mismos encabezados centrados, tarjetas y botones en lugar de estilos
+  particulares por pantalla.
+- El rediseño no altera textos, destinos de enlaces, campos de formulario ni
+  comprobaciones de permisos; la presentación es independiente de la
+  autorización del servidor.
 
 ## Fuera de alcance
 
@@ -173,9 +208,21 @@ Durante la implementación deberán probarse, como mínimo, los siguientes escen
 6. Rechazo de operaciones no autorizadas.
 7. Cierre de sesión y bloqueo de operaciones posteriores.
 8. Validación de textos y mensajes de la interfaz.
+9. Recorrido visual de todas las pantallas en escritorio y en pantalla
+   angosta, comprobando la identidad común y que no se pierde información.
 
 Los resultados, comandos y evidencias se documentarán posteriormente en `verificacion.md`.
 
 ## Registro de cambios
 
-05-11-2026 — Creación del borrador inicial de S-010. Se definieron los comportamientos de acceso, seguridad por roles, protección de sesiones, interfaz y criterios de aceptación. Pendiente de revisión y aprobación del equipo.
+05-11-2026 — Creación del borrador inicial de S-010. Se definieron los comportamientos de acceso, seguridad por roles, protección de sesiones, interfaz y criterios de aceptación.
+
+05-11-2026 — Especificación aprobada por AlexDLG1 y fusionada por
+ramosdeleon555 mediante el PR #28.
+
+10-11-2026 — Brayan11Hernandez aprobó el plan de implementación. Se precisaron las respuestas 302 y 403, el cierre de sesión POST con CSRF, la navegación esperada y la prioridad estudiantil para cuentas con ambos perfiles.
+
+11-11-2026 — Se amplía el alcance de interfaz: el rediseño visual se aplica
+a todas las pantallas y no solo a la navegación. Se añade CA-9 y se registran
+las decisiones de identidad visual. La aprobación del plan ampliado y la nueva
+verificación de AlexDLG1 quedan pendientes.

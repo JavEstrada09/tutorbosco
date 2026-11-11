@@ -46,7 +46,7 @@ specs/S-NNN-nombre/plan.md.
 | S-007 | Identificación de temas débiles y generación de ejercicios | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | #11 | Terminada |
 | S-008 | Panel del docente | RF-06 | douglas-yasser | JavEstrada09 | #12 | Terminada |
 | S-009 | Respuestas a ejercicios y retroalimentación personalizada | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | #13 | Por especificar |
-| S-010 | Control de acceso, seguridad e interfaz en español | RF-01; RNF-07 | Brayan11Hernandez | AlexDLG1 | #14 | Por especificar |
+| S-010 | Control de acceso, seguridad e interfaz en español | RF-01; RNF-07 | Brayan11Hernandez | AlexDLG1 | #14 | En implementación (ampliación de interfaz) |
 
 ## Distribución por integrante
 
