@@ -808,3 +808,4 @@ input[type="number"]:focus {
 }
 
 .teacher-layout > * { min-width: 0; }
+.student-layout > * { min-width: 0; }

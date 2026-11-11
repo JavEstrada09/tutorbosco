@@ -22,54 +22,58 @@
             ·
             <a href="{% url 'teacher_course_panel' course.code %}?orden=promedio-asc">de menor a mayor</a>
         </p>
-        <table class="grade-table">
-            <thead>
-                <tr>
-                    <th scope="col">Estudiante</th>
-                    <th scope="col">Promedio</th>
-                    <th scope="col">Temas débiles</th>
-                    <th scope="col">Detalle</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in rows %}
+        <div class="table-scroll">
+            <table class="grade-table">
+                <thead>
                     <tr>
-                        <th scope="row">{{ row.student.user.get_full_name|default:row.student.user.username }}</th>
-                        <td>{% if row.average is None %}Sin notas{% else %}{{ row.average|unlocalize }}{% endif %}</td>
-                        <td>{% for topic in row.weak_topics %}{{ topic.name }}{% if not forloop.last %}, {% endif %}{% empty %}Ninguno{% endfor %}</td>
-                        <td><a href="{% url 'teacher_student_detail' course.code row.student.pk %}">Ver detalle</a></td>
+                        <th scope="col">Estudiante</th>
+                        <th scope="col">Promedio</th>
+                        <th scope="col">Temas débiles</th>
+                        <th scope="col">Detalle</th>
                     </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="4">Este curso aún no tiene estudiantes inscritos.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            <th scope="row">{{ row.student.user.get_full_name|default:row.student.user.username }}</th>
+                            <td>{% if row.average is None %}Sin notas{% else %}{{ row.average|unlocalize }}{% endif %}</td>
+                            <td>{% for topic in row.weak_topics %}{{ topic.name }}{% if not forloop.last %}, {% endif %}{% empty %}Ninguno{% endfor %}</td>
+                            <td><a href="{% url 'teacher_student_detail' course.code row.student.pk %}">Ver detalle</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">Este curso aún no tiene estudiantes inscritos.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </section>
 
     <section class="panel course-card" aria-labelledby="topics-title">
         <h2 id="topics-title">Temas débiles por tema</h2>
-        <table class="grade-table">
-            <thead>
-                <tr>
-                    <th scope="col">Tema</th>
-                    <th scope="col">Estudiantes con el tema débil</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in topic_weak_counts %}
+        <div class="table-scroll">
+            <table class="grade-table">
+                <thead>
                     <tr>
-                        <th scope="row">{{ item.topic.name }}</th>
-                        <td>{{ item.weak_count }}</td>
+                        <th scope="col">Tema</th>
+                        <th scope="col">Estudiantes con el tema débil</th>
                     </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="2">Este curso aún no tiene temas registrados.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for item in topic_weak_counts %}
+                        <tr>
+                            <th scope="row">{{ item.topic.name }}</th>
+                            <td>{{ item.weak_count }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="2">Este curso aún no tiene temas registrados.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </section>
 
 </section>
