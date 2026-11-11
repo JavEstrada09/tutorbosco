@@ -1589,3 +1589,29 @@ centrar. Propuso los cambios de CSS y plantilla; el autor los aplicó en
 registrar CA-9 como cumplido. Las pruebas automatizadas las ejecuté yo.
 Costo o cuota consumida: sin llamadas a Gemini; el costo de la herramienta
 no se registra desde este entorno.
+
+## S-007 y S-009 · 11-11-2026 · Confirmación de gratuidad y cierre de gasto
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: Jeffersson Daniel Ramos (`ramosdeleon555`).
+Fase: documentación de consumo del producto.
+
+El autor solicitó completar su pendiente de gasto y confirmó: «sí, usaron
+todo gratuitamente con el modelo 3.5 flash lite de gemini, mediante su api
+correspondiente». La propuesta presentada identificó docs/gasto.md y este
+registro como los dos archivos del cambio.
+
+Se actualizan las dos llamadas reales documentadas de S-007 y S-009 a nivel
+gratuito y USD 0.00, indicando la declaración del autor como fuente. No se
+consultó el panel de Google, no se deducen costos de la latencia y los tokens
+siguen como no recuperados. Se conservan fechas, UUID y evidencia de las
+llamadas. Los registros anteriores que dejaban el costo pendiente describen
+el estado previo a esta confirmación; el registro vigente está en gasto.md.
+
+Se comprobó en GitHub que los issues #4 y #6 al #14 estaban cerrados.
+Trabajo preparado en `s-009-cierre-gasto`, desde main `8920ddb`.
+Solo documentación, sin nuevas pruebas de la aplicación ni llamadas a Gemini.
+No se instalaron dependencias ni se cambió configuración de facturación.
+Esta intervención no consume cuota del producto; consumo de desarrollo no
+cuantificado. La revisión de este cambio documental por otro integrante
+permanece pendiente.
