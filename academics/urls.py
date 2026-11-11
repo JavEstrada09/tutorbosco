@@ -1,4 +1,5 @@
 from django.urls import path
+from tutor.exercise_views import student_practice
 
 from academics.views import (
     role_home,
@@ -14,6 +15,7 @@ from academics.views import (
 )
 
 urlpatterns = [
+    path("practica/<str:course_code>/", student_practice, name="student_practice"),
     # S-001: Inicio del estudiante
     path("", student_home, name="student_home"),
 

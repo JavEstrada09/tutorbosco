@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Su práctica | TutoBosco{% endblock %}
+{% block content %}
+<section class="student-layout" aria-labelledby="practice-title">
+    <div>
+        <p class="eyebrow">{{ state.summary.course.name }}</p>
+        <h1 id="practice-title">Practique sus temas débiles</h1>
+        <p>Solicite ejercicios según sus calificaciones vigentes.</p>
+        <a class="profile-link" href="{% url 'student_home' %}?course={{ state.summary.course.code|urlencode }}">Volver a su tutor</a>
+    </div>
+    <nav class="panel" aria-label="Sus cursos para practicar">
+        <h2>Seleccione su curso</h2>
+        {% for course in state.courses %}
+            <a class="button button-secondary" href="{% url 'student_practice' course.code %}"{% if course == state.summary.course %} aria-current="page"{% endif %}>{{ course.name }}</a>
+        {% endfor %}
+    </nav>
+    {% for message in messages %}
+        <div class="alert" role="status">{{ message }}</div>
+    {% endfor %}
+    <section class="panel">
+        <h2>Temas que usted puede reforzar</h2>
+        {% if state.message %}
+            <p>{{ state.message }}</p>
+        {% else %}
+            <ul>{% for topic in state.weak_topics %}<li>{{ topic.name }}</li>{% endfor %}</ul>
+            <form method="post">
+                {% csrf_token %}
+                <button class="button button-primary" type="submit">Generar nueva práctica</button>
+            </form>
+        {% endif %}
+    </section>
+    <section class="panel" aria-labelledby="exercises-title">
+        <h2 id="exercises-title">Sus ejercicios recientes</h2>
+        <p>Los ejercicios anteriores conservan su enunciado. Cada nueva práctica utiliza sus notas vigentes.</p>
+        {% for exercise in exercises %}
+            <article class="tutor-answer">
+                <p class="card-label">{{ exercise.course.name }} — {{ exercise.topic.name }}</p>
+                <span class="mode-badge">{% if exercise.mode == 'demo' %}Ejercicio grabado del modo demo{% else %}Ejercicio generado por IA{% endif %}</span>
+                <p>{{ exercise.statement|linebreaksbr }}</p>
+                <a class="profile-link" href="{% url 'student_practice' exercise.course.code %}?exercise={{ exercise.id }}">Consultar este ejercicio</a>
+                <p>Identificador: {{ exercise.id }}</p>
+            </article>
+        {% empty %}
+            <p>Usted aún no tiene ejercicios para este curso.</p>
+        {% endfor %}
+    </section>
+</section>
+{% endblock %}
