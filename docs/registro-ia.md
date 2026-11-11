@@ -917,3 +917,19 @@ La lectura y ejecución del cambio por Jav en Windows y la aceptación
 independiente de Douglas quedan pendientes. La matriz de los nueve
 criterios está en `specs/S-006-tutor/plan.md`; su evidencia y el commit
 probado deben registrarse en `verificacion.md` antes de fusionar.
+
+
+## S-006 · 10-11-2026 · Corrección tras verificación independiente
+
+Douglas reportó sobre `ece9dee` que Gemini recomendaba el tema correcto o
+rechazaba solicitudes de terceros, pero la validación descartaba respuestas
+formales que usaban «le» y «su» sin el pronombre literal «usted».
+ChatGPT (Codex) ayudó a retirar esa condición y a añadir pruebas simuladas
+de recomendación, privacidad y guardado en el historial sin activar demo.
+Se conservan las instrucciones de trato formal, la mención del curso,
+la comprobación de español, los límites de longitud y los errores esperados.
+
+No se llamó a Gemini real durante esta corrección. No se modifican los
+resultados ni el consumo registrados por Douglas en su worktree. Queda
+pendiente la ejecución del autor en Windows y la repetición independiente
+de CA-1, CA-5 y CA-9 en modo real sobre el nuevo commit antes de aprobar.

@@ -84,9 +84,10 @@ def _validate_response(response, context):
         "una",
         "usted",
     }
+    # El trato formal se exige en las instrucciones del proveedor y se revisa
+    # en CA-9; no requiere escribir el pronombre literal «usted».
     if (
         context.course_name.casefold() not in normalized_text
-        or "usted" not in normalized_text
         or len(words & spanish_markers) < 4
     ):
         raise InvalidTutorResponseError(

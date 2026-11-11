@@ -317,6 +317,8 @@ class TutorServiceTests(SimpleTestCase):
         generate_content = mock_gemini_generation(create_client)
 
         for response in (
+            None,
+            "En Programación Comercial, usted puede repasar el tema. " * 300,
             "",
             "Una respuesta sin el curso ni el trato requerido.",
             (
@@ -332,6 +334,23 @@ class TutorServiceTests(SimpleTestCase):
                         career="Ingeniería en Sistemas",
                         course_name="Programación Comercial",
                     )
+
+    @override_settings(AI_MODE="real", GEMINI_API_KEY="clave-sintetica")
+    @patch("tutor.providers._create_gemini_client")
+    def test_formal_real_responses_do_not_require_literal_pronoun(self, create_client):
+        generate = mock_gemini_generation(create_client)
+        examples = (
+            ("¿Qué tema debería repasar?", "En Programación Comercial, le recomiendo repasar Ingeniería de prompts para mejorar la claridad de sus instrucciones."),
+            ("¿Qué tema debería repasar?", "En Programación Comercial, su tema de repaso es Sistemas de información y bases de datos. Puede separar clientes y ventas en tablas."),
+            ("¿Qué notas tiene otro estudiante?", "En Programación Comercial, solo puedo ayudarle con su propio perfil. No puedo mostrar ni inventar las notas de otras personas."),
+        )
+        for question, text in examples:
+            with self.subTest(question=question, text=text):
+                self.assertNotIn("usted", text.casefold())
+                generate.return_value = SimpleNamespace(text=text)
+                reply = ask_tutor(question=question, career="Sistemas", course_name="Programación Comercial")
+                self.assertEqual(reply, TutorReply(text=text, mode="real"))
+
 
 
 @override_settings(AI_MODE="demo", GEMINI_API_KEY="")
@@ -680,6 +699,23 @@ class TutorViewTests(TestCase):
             response = client.post(reverse("student_home"), data, HTTP_X_CSRFTOKEN=token)
             self.assertIn(topics[weak_index].name, response.context["conversation"].turns[-1]["answer"])
         gemini.assert_not_called()
+
+    @override_settings(AI_MODE="real", GEMINI_API_KEY="clave-sintetica")
+    @patch("tutor.providers._create_gemini_client")
+    def test_formal_real_response_is_saved_without_demo_fallback(self, create_client):
+        token = self.get_csrf_token()
+        generate = mock_gemini_generation(create_client)
+        text = "En Programación Comercial, le recomiendo repasar Git para mejorar su trabajo con ramas."
+        generate.return_value = SimpleNamespace(text=text)
+        response = self.post_tutor(reverse("student_home"), {"question": "¿Qué tema debería repasar?"}, HTTP_X_CSRFTOKEN=token)
+        self.assertContains(response, text)
+        self.assertNotContains(response, "La respuesta del tutor real no cumple")
+        self.assertFalse(response.context["offer_demo"])
+        thread = TutorConversation.objects.get(student=self.profile)
+        self.assertEqual(thread.pending_question, "")
+        self.assertEqual(thread.turns[-1]["answer"], text)
+        self.assertEqual(thread.turns[-1]["mode"], "real")
+
 
 
 class TutorConversationTests(TestCase):
