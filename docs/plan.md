@@ -43,7 +43,7 @@ specs/S-NNN-nombre/plan.md.
 | S-004 | Gestión académica del docente: temas y asignación | RF-03 parcial | Brayan11Hernandez | AlexDLG1 | #8 | En implementación |
 | S-005 | Registro y corrección de notas | RF-03 parcial | AlexDLG1 | ramosdeleon555 | #9 | Terminada |
 | S-006 | Tutor personalizado: contexto académico e historial | RF-04; RNF-05 | JavEstrada09 | douglas-yasser | #10 | Terminada |
-| S-007 | Identificación de temas débiles y generación de ejercicios | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | #11 | Implementación local; pendiente de revisión y verificación independiente |
+| S-007 | Identificación de temas débiles y generación de ejercicios | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | #11 | Terminada |
 | S-008 | Panel del docente | RF-06 | douglas-yasser | JavEstrada09 | #12 | Terminada |
 | S-009 | Respuestas a ejercicios y retroalimentación personalizada | RF-05 parcial; RNF-04 | ramosdeleon555 | Brayan11Hernandez | #13 | Por especificar |
 | S-010 | Control de acceso, seguridad e interfaz en español | RF-01; RNF-07 | Brayan11Hernandez | AlexDLG1 | #14 | Por especificar |

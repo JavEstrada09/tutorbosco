@@ -1,7 +1,7 @@
 # S-007 Identificación de temas débiles y generación de ejercicios
 
 Requisito: RF-05 parcial; RNF-04 · Autor: ramosdeleon555 · Verificador: Brayan11Hernandez · Issue: #11
-Estado: aprobada
+Estado: Terminada
 
 ## Problema
 
@@ -154,3 +154,10 @@ CA-10 Dados ejercicios válidos generados por IA o por el modo demo,
 2026-11-05 · Borrador inicial basado en docs/plan.md, la guía de
 trabajo y las decisiones D-002 y D-003; separa la generación de
 ejercicios de las respuestas y retroalimentación de S-009.
+
+2026-11-11 · Cierre documental por ramosdeleon555 tras la verificación
+independiente de Brayan11Hernandez. Los diez criterios quedaron
+confirmados; CA-4, CA-9 y CA-10 se repitieron sobre `acf58d0`, donde
+pasaron las 21 pruebas específicas y las 217 totales con
+`GEMINI_API_KEY` vacía. Brayan11Hernandez aprobó el PR #56 sobre ese
+commit. El detalle está en `verificacion.md`.

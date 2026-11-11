@@ -252,7 +252,7 @@ pero no borra las que se registren a estudiantes sin notas, como
 `estudiante_02`. Esas notas deben eliminarse aparte si se quiere volver al
 estado inicial.
 
-## S-007 · Práctica de temas débiles (implementación local)
+## S-007 · Práctica de temas débiles
 
 Después de actualizar, aplique `manage.py migrate`. Desde el inicio del
 estudiante, use **Practicar sus temas débiles** o abra
@@ -279,8 +279,11 @@ La generación usa POST con CSRF; recargar los resultados no genera ejercicios.
 Responder y recibir retroalimentación corresponde a S-009.
 
 Pruebas específicas: `manage.py test tutor.test_exercises`.
-Esta implementación requiere revisión del autor y verificación independiente
-de Brayan11Hernandez antes de declarar terminada S-007.
+S-007 cuenta con verificación independiente de Brayan11Hernandez sobre
+`acf58d0`: las 21 pruebas específicas y las 217 totales pasaron con
+`GEMINI_API_KEY` vacía. Brayan11Hernandez aprobó el PR #56. El detalle de CA-1 a CA-10,
+incluida la repetición de CA-4, CA-9 y CA-10, está en
+`specs/S-007-ejercicios/verificacion.md`.
 
 ## Comprobación real de CA-4 (S-001)
 
