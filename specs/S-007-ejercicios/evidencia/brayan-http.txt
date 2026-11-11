@@ -1,0 +1,61 @@
+VERIFICACION INDEPENDIENTE S-007 - RECORRIDO HTTP E INTERFAZ
+Verificador: Brayan Hernandez / Brayan11Hernandez
+Commit: a6bd399ea1f33394b526c131e6cfba94e9e71e62
+
+Servidor temporal:
+- URL: http://127.0.0.1:8000/
+- Base: SQLite aislada de esta verificacion
+- AI_MODE: demo
+- GEMINI_API_KEY: vacia
+- Navegador: Microsoft Edge, recorrido manual guiado
+
+CA-4, practica demo:
+- Cuenta sintetica: verify_s007_other
+- Ruta: /practica/PROG-COM/
+- Accion: Brayan inicio sesion y pulso Generar nueva practica.
+- Confirmacion expresa de Brayan: observo curso, tema, enunciado y etiqueta
+  Ejercicio grabado del modo demo; indico que cumple.
+- Captura: no se conservo. Brayan eligio continuar sin archivo despues de
+  comprobar que la primera confirmacion no habia creado el PNG en la ruta.
+
+CA-5, estados vacios:
+- verify_s007_no_weak: Brayan confirmo el aviso de que no tiene temas
+  debiles y la ausencia del boton de generacion.
+- verify_s007_no_grades: el primer intento se interrumpio al cerrarse la
+  sesion; se repitio desde el login. Brayan confirmo el aviso de que aun no
+  tiene calificaciones, sin afirmar dominio y sin boton de generacion.
+- La instrumentacion automatizada comprobo ademas cero llamadas a ambos
+  proveedores en estos dos casos.
+
+CA-6, notas vigentes:
+- Cuenta: verify_s007_student.
+- Estado inicial: Git y GitHub avanzado=45; Codigo limpio y refactoring=80.
+- Brayan genero una practica y confirmo tema, etiqueta demo, enunciado y UUID.
+- Correccion en la base aislada: Git=60; Codigo limpio=40.
+- Brayan recargo, confirmo que Codigo limpio era el unico tema debil, genero
+  una practica nueva y comprobo que el ejercicio historico de Git y su UUID
+  permanecieron visibles.
+
+CA-7, rechazo visual:
+- Cuenta: verify_s007_teacher.
+- Solicitud directa: /practica/PROG-COM/.
+- Brayan confirmo Acceso denegado/403 sin notas, temas ni ejercicios ajenos.
+- Los demas rechazos y el aislamiento del contexto se comprobaron con HTTP
+  instrumentado en brayan-casos.py.
+
+CA-8 y CA-10, revision humana:
+- Brayan confirmo que verify_s007_other y verify_s007_student recibieron
+  ejercicios de temas debiles distintos segun sus perfiles.
+- Brayan confirmo que los ejercicios observados estaban en espanol, usaban
+  trato formal de usted y mostraban UUID.
+- Escape HTML, relaciones persistidas, ausencia de cliente Gemini, recursos
+  locales y notas oficiales intactas se comprobaron automaticamente.
+
+Cierre del servidor demo:
+- El servidor temporal fue detenido.
+- El puerto 8000 dejo de escuchar.
+- El portapapeles usado para contrasenas sinteticas se reemplazo por un blanco.
+- Capturas publicables obtenidas: ninguna.
+
+Las simulaciones de proveedor y las pruebas automatizadas se conservan por
+separado en brayan-pruebas.txt.
