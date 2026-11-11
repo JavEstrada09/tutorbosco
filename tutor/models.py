@@ -39,3 +39,33 @@ class PracticeExercise(models.Model):
                 name="practice_exercise_valid_mode",
             ),
         ]
+
+
+class ExerciseAnswer(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    exercise = models.ForeignKey(
+        PracticeExercise, on_delete=models.CASCADE, related_name="answers",
+    )
+    content = models.TextField(max_length=4000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "id"]
+        indexes = [models.Index(fields=["exercise", "created_at"], name="answer_exercise_created_idx")]
+
+
+class ExerciseFeedback(models.Model):
+    answer = models.OneToOneField(
+        ExerciseAnswer, on_delete=models.CASCADE, related_name="feedback",
+    )
+    text = models.TextField(max_length=10000)
+    source = models.CharField(max_length=4, choices=[("real", "IA"), ("demo", "Demo")])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(source__in=["real", "demo"]),
+                name="exercise_feedback_valid_source",
+            ),
+        ]
