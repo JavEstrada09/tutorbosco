@@ -1,12 +1,14 @@
 # Verificación S-007
 
-Estado: suites repetidas sin fallos en la corrección del autor y capturas
-obtenidas sobre el nuevo commit; decisión de aprobación pendiente.
+Estado: verificación independiente completa; PR aprobado por
+Brayan11Hernandez el 2026-11-11 sobre `acf58d0`.
 Verificador: Brayan Hernández / Brayan11Hernandez.
 Computadora: Windows · Python 3.12.10 · Microsoft Edge 157.0.4341.42.
 Commits probados: `a6bd399ea1f33394b526c131e6cfba94e9e71e62` (reporte
-original con fallos) y `8a7a72c7a4ea95097d45ab270ae64b7a6fff8375`
-(repetición correcta de las suites y capturas).
+original con fallos), `8a7a72c7a4ea95097d45ab270ae64b7a6fff8375`
+(repetición de las suites y capturas) y
+`acf58d0d6e6db3edce642c6d85305f8bda250525` (repetición final sobre la
+corrección de trato formal).
 
 | Criterio | Cómo lo probé | Resultado | Evidencia |
 | --- | --- | --- | --- |
@@ -198,7 +200,32 @@ débiles. No se alteró ninguna base ajena.
   «S-007: aísla modo y clave de Gemini en las pruebas».
 - Repetición de las suites: 19 y 215 pruebas, OK, sin fallos ni errores.
 - Capturas: 13 archivos en `evidencia/capturas/`, tomados sobre `8a7a72c`.
-- Decisión de aprobación: pendiente de Brayan11Hernandez.
+- Decisión de aprobación: aprobado por Brayan11Hernandez el 2026-11-11
+  sobre `acf58d0`, tras repetir ambas suites.
+
+## Repetición final sobre la corrección de trato formal · 2026-11-11
+
+Después de las capturas, el autor añadió `3f21e6f` («acepta enunciados
+formales sin palabras obligatorias») y lo integró con la evidencia en
+`acf58d0`. Ese cambio retira una heurística de validación y añade dos
+pruebas; no modifica vistas, plantillas, modelos ni proveedores, por lo
+que las capturas de `8a7a72c` siguen siendo representativas de la interfaz.
+
+Brayan Hernández repitió ambas suites en su computadora sobre
+`acf58d0d6e6db3edce642c6d85305f8bda250525`, con `GEMINI_API_KEY` vacía,
+Python 3.12.10 y una base SQLite aislada:
+
+| Ejecución | Configuración | Resultado |
+| --- | --- | --- |
+| `manage.py test tutor.test_exercises --verbosity 2` | `AI_MODE=real`; clave vacía | 21 pruebas, OK, 0.348 s |
+| `manage.py test accounts academics tutor --noinput` | `AI_MODE=demo`; clave vacía | 217 pruebas, OK, 161.424 s |
+| `manage.py check` | — | Sin problemas |
+| `manage.py makemigrations --check --dry-run` | — | Sin cambios pendientes |
+| `python -m pip check` | — | Sin dependencias incompatibles |
+
+No se consultó Gemini ni se consumió cuota. La revisión del cambio confirma
+que solo afecta la validación de enunciados formales y sus pruebas. Con esta
+repetición, Brayan11Hernandez aprueba el PR #56 sobre `acf58d0`.
 
 ## Comprobaciones locales de implementación · 2026-11-10
 
