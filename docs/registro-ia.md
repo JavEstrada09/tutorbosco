@@ -19,6 +19,21 @@ Qué se corrigió o descartó, y por qué:
 Costo o cuota consumida (si aplica):
 ```
 
+## S-010 · 11-11-2026 · Cierre documental
+
+Herramienta y modelo: OpenCode · OpenAI GPT-6 Astra (`openai/gpt-6-astra`).
+Usado por: Brayan11Hernandez.
+Fases en que se usó: documentación y preparación del PR de cierre.
+Instrucción clave: actualizar main después del merge del PR #57 y abrir
+el PR que marca S-010 como Terminada para revisión humana.
+Qué se aceptó sin cambios: pendiente de revisión del PR de cierre.
+Qué se corrigió o descartó, y por qué: se actualizó el estado en la spec
+y en docs/plan.md usando la evidencia existente de AlexDLG1 para CA-1
+a CA-9. Las 223 pruebas OK corresponden a su ejecución sobre `e871bbb`;
+en este cierre documental se revisó el diff, sin repetir pruebas de aplicación.
+Costo o cuota consumida: sin llamadas a la API de IA del producto;
+el costo de la herramienta no se registra desde este entorno.
+
 ## S-000 · 27-10-2026 · Preparación documental
 
 Herramienta y modelo: ChatGPT · GPT-6.1 Sol.
