@@ -550,3 +550,464 @@ Resultado registrado por el autor:
 Costo o cuota consumida:
 No se realizaron llamadas a Gemini ni a la API de IA del producto.
 El consumo de esta conversación de OpenCode no se cuantificó.
+
+## S-003 · 09-11-2026 · Plan e implementación
+
+Herramienta y modelo: Claude Code · Claude Opus 5.5 (`claude-opus-5-5`).
+Usado por: AlexDLG1.
+
+Fases en que se usó: plan, implementación y pruebas.
+
+Instrucción clave:
+Proponer el plan de S-003 en modo de solo lectura, con una función única de
+promedio reutilizable por S-007 y una vista `/perfil/` separada de
+`student_home`. Después, implementar las tareas una por una, mostrando el diff
+y deteniéndose antes de cada commit, sin hacer push.
+
+Qué se aceptó sin cambios:
+- El enfoque del plan: `academics/services.py` con `calculate_average` y
+  `get_course_summaries`, y la vista `student_profile` solo para estudiantes.
+- El uso de `|unlocalize` para mostrar `71.67` como dice la spec, aunque
+  `LANGUAGE_CODE` sea `es`.
+- La cobertura de CA-4 y CA-6 mediante pruebas automatizadas, porque los
+  datos sintéticos no tienen notas parciales ni estudiantes sin cursos.
+- El aviso para un curso sin temas, que el plan no incluía. El agente lo
+  señaló antes del commit y AlexDLG1 autorizó el commit sin pedir cambios.
+
+Qué se corrigió o descartó, y por qué:
+- AlexDLG1 agregó la tarea 0, para documentar el plan aprobado en un commit
+  propio junto con el cambio de estado de la spec y de `docs/plan.md`.
+- AlexDLG1 pidió aclarar que D-004 no fija el modo de redondeo y que
+  `ROUND_HALF_UP` es una decisión del plan.
+- AlexDLG1 corrigió la línea del registro de cambios de la spec para indicar
+  que la spec se fusionó en el PR #21.
+- AlexDLG1 fijó la forma de trabajo: revisar cada diff, ejecutar las pruebas
+  y revisar en el navegador antes de autorizar cada commit.
+- El agente estimó el PR en 300 a 350 líneas; el resultado supera la
+  referencia de 400 líneas, principalmente por las pruebas.
+
+Resultado registrado por el autor:
+- Suite de `accounts`, `academics` y `tutor`: 80 pruebas superadas.
+- `manage.py check`: sin problemas.
+- `makemigrations --check --dry-run`: no detectó cambios.
+- `pip check`: no detectó dependencias incompatibles.
+- Revisión en el navegador de `/perfil/`: `estudiante_demo` con promedio
+  78.00, `estudiante_01` con dos cursos y promedio 77.50, y `estudiante_02`
+  con `Sin nota` y `Sin notas`. El enlace desde `student_home` funciona.
+- La verificación independiente de ramosdeleon555 sigue pendiente.
+
+Costo o cuota consumida:
+No se realizaron llamadas a Gemini ni a la API de IA del producto.
+El consumo de esta conversación de Claude Code no se cuantificó.
+
+## S-003 · 09-11-2026 · Asistencia a la verificación independiente
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Fases en que se usó: pruebas, diagnóstico local y documentación.
+
+Instrucción clave:
+Ayudar a ramosdeleon555 a registrar su verificación real de CA-1 a CA-8
+del commit `9f8c6e2`, sin atribuir pruebas ni aprobaciones inexistentes.
+El usuario confirmó haber revisado ese commit y haber probado manualmente
+los casos especiales; aportó dos capturas del estado inicial.
+
+Trabajo realizado por el agente:
+- Inspeccionó migraciones y base local: un estudiante, un curso y ningún
+  tema ni nota. Reconstruyó el conjunto sintético con la configuración
+  local existente, sin mostrar secretos ni instalar dependencias.
+- Ejecutó sobre `9f8c6e2` la suite de `accounts`, `academics` y `tutor`:
+  80 pruebas OK, en 53.632 segundos. CA-1 a CA-8 están cubiertos por
+  métodos explícitos de `StudentProfileViewTests` que pasaron.
+- Ejecutó `check`, `makemigrations --check --dry-run` y `pip check`, sin
+  problemas; `migrate` indicó que no había migraciones pendientes.
+- Comprobó autenticación y HTML del perfil mediante el cliente de Django
+  con tres cuentas de la base reconstruida. Esto no fue una revisión
+  visual humana del navegador. Un primer comando auxiliar falló por
+  comillas antes de ejecutar Django; el comando corregido pasó.
+- Creó `s-003-verificacion` desde el main remoto actualizado `45ee80e`.
+  Comparó los directorios de aplicación con `9f8c6e2`, sin diferencias.
+- Documentó resultados, procedencia de la evidencia y capturas originales.
+  No presentó la captura del curso sin temas como prueba de promedios ni
+  como escenario de temas existentes sin notas.
+
+Decisiones de documentación:
+- La declaración de pruebas manuales pertenece al usuario; las ejecuciones
+  automatizadas pertenecen al agente. No se inventaron valores ni capturas
+  de las modificaciones manuales.
+- Se conservó S-003 en verificación, pendiente de confirmación humana del
+  registro y revisión del PR documental, conforme a AGENTS §12.
+
+Costo o cuota consumida: no hubo llamadas reales a Gemini; las pruebas
+simularon el proveedor. El consumo de OpenCode no se cuantificó.
+
+## S-003 · 09-11-2026 · Evidencia complementaria posterior al PR #41
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Fases en que se usó: pruebas automatizadas de navegador y documentación.
+
+Instrucción clave:
+Corregir los pendientes de evidencia señalados tras fusionar el PR #41,
+ejecutar los casos y tomar las capturas faltantes, sin hacerse pasar por
+el verificador humano ni aprobar la spec en su nombre.
+
+Trabajo realizado:
+- Se creó `s-003-evidencia-complementaria` desde `7b2a79b`, main después
+  del PR #41. No se modificó el código de la aplicación.
+- Se ejecutaron las tres pruebas existentes de CA-4, CA-6 y CA-8:
+  3 OK en 2.043 segundos. Se guardó su salida real en
+  `specs/S-003-perfil-academico/evidencia/ca4-ca6-ca8.txt`.
+- Se preparó una base SQLite temporal con cinco perfiles sintéticos y
+  un servidor Django de loopback, sin alterar la base demo.
+- Se utilizó Chrome headless con CDP y el WebSocket integrado de Node.js.
+  Python estándar y dos scripts temporales fuera del repositorio
+  coordinaron los escenarios; no se instalaron dependencias.
+- Se generaron diez capturas reales de página completa para CA-1 a CA-8,
+  con aserciones sobre el DOM y CSS local cargado. CA-7 usa dos sesiones
+  diferentes y CA-8 captura la recarga antes/después de cambiar 65 a 95,
+  con promedios 71.67 y 81.67. Las sesiones se inyectaron desde
+  `Client.force_login`; no se presenta esto como prueba del login.
+- Se cerraron los procesos temporales y se descartaron base y perfil de
+  navegador al terminar. No se versionaron claves, cookies ni bases.
+- Se documentó que los merges previos precedieron a la confirmación
+  formal; esta evidencia posterior no corrige retroactivamente el proceso.
+
+Qué requiere revisión humana:
+Ramos debe revisar el registro y confirmar explícitamente su aceptación;
+otro integrante revisa el PR documental. No se registra esa confirmación
+ni una aprobación humana inexistente. S-003 continúa en verificación.
+
+Costo o cuota consumida: sin llamadas a Gemini ni uso pagado del producto.
+El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-005 · 09-11-2026 y 10-11-2026 · Plan e implementación
+
+Herramienta y modelo: Claude Code · Claude Opus 5.5 (`claude-opus-5-5`),
+para el plan y la implementación. Claude (chat) · Claude Opus 5.5, como
+apoyo de AlexDLG1 para revisar el plan.
+Usado por: AlexDLG1.
+
+Fases en que se usó: plan, implementación, pruebas y documentación.
+
+Instrucción clave:
+Proponer el plan de S-005 en modo de solo lectura, con las reglas de guardado
+en `academics/services.py`, validación en el servidor, `update_or_create` para
+corregir y una ruta mínima del docente coordinada con S-004 y S-010. Después,
+implementar las tareas una por una, mostrando el diff y deteniéndose antes de
+cada commit, sin hacer push.
+
+Revisión del plan:
+AlexDLG1 se apoyó en Claude (chat, Claude Opus 5.5) para revisar el plan que
+propuso Claude Code. Las decisiones y las correcciones las tomó AlexDLG1; las
+que dependían de S-004 y S-010 las confirmó antes con Brayan11Hernandez.
+
+Qué se aceptó sin cambios:
+- El enfoque del plan: `get_taught_course`, `record_grade` y
+  `get_course_grade_sheet` en `academics/services.py`, y una sola pantalla en
+  `/docente/cursos/<código>/notas/`.
+- El formulario solo valida el formato; la pertenencia del estudiante y del
+  tema al curso la decide el servicio (CA-8).
+- La misma respuesta 403 para un curso ajeno, un curso inexistente y una
+  cuenta sin perfil docente.
+
+Qué se corrigió o descartó, y por qué:
+- AlexDLG1 fijó con Brayan11Hernandez los nombres de las rutas de S-004 y
+  S-005, y que `get_taught_course` reciba `user` y devuelva `None` en los tres
+  casos de rechazo. Por coherencia, `record_grade` también recibe `user`.
+- AlexDLG1 movió `get_taught_course` al primer commit de servicios, porque la
+  rama de S-004 parte de la de S-005, y descartó el rebase y el force push.
+- AlexDLG1 decidió entregar un solo PR con `Closes #9`, sin dividirlo en
+  entregas, y justificar su tamaño en la descripción del PR.
+- AlexDLG1 confirmó que `estudiante_08` tiene 60 en "Git y GitHub avanzado"
+  para CA-2 y que el enlace a la planilla lo agrega S-004.
+- El agente propuso rechazar en `record_grade` a un usuario no autenticado sin
+  consultar la base; AlexDLG1 lo aprobó con su prueba.
+- La primera versión de esa prueba contó tres `SAVEPOINT` de la transacción.
+  La comprobación se movió fuera de `transaction.atomic`.
+- Dos pruebas de vista fallaron por errores de las pruebas, no de la vista:
+  `assertRedirects` consumía el mensaje de confirmación, y cambiar la
+  contraseña invalidaba la sesión de CA-5. Se corrigieron ambas.
+- Al documentar el README se comprobó que `rebuild_synthetic_data` no borra
+  las notas registradas a estudiantes sin notas en el manifiesto, como
+  `estudiante_02`. Se documentó; el comando no se modificó porque pertenece
+  a S-002.
+
+Resultado registrado por el autor:
+- Suite de `accounts`, `academics` y `tutor`: 120 pruebas superadas.
+- `manage.py check`: sin problemas.
+- `makemigrations --check --dry-run`: no detectó cambios.
+- `pip check`: no detectó dependencias incompatibles.
+- Revisión en el navegador con `docente_01`: CA-1 (85 a `estudiante_02`),
+  CA-2 (`estudiante_08` de 60 a 75), CA-3 (`-5`, `101` y vacío con errores en
+  español), CA-4 (`estudiante_02` ve 85 y 85.00 en `/perfil/`), CA-6 (DES-WEB
+  sin `estudiante_demo` ni `estudiante_01`) y CA-8 (`BD-APL` responde 403).
+  CA-5 y CA-7 quedaron cubiertos por las pruebas automatizadas.
+- La verificación independiente de ramosdeleon555 sigue pendiente.
+
+Costo o cuota consumida:
+No se realizaron llamadas a Gemini ni a la API de IA del producto.
+El consumo de las conversaciones de Claude Code y Claude no se cuantificó.
+
+## S-004 · 09-11-2026 · Especificación y planificación
+
+Herramienta y modelo: ChatGPT (OpenAI) · GPT-6.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: spec, plan, implementación, pruebas y depuración.
+
+Instrucción clave:
+Analizar los requisitos de S-004 y preparar la especificación
+y el plan técnico para gestionar cursos, temas académicos y
+asignaciones de estudiantes en TutoBosco.
+
+Respetar AGENTS.md, docs/plan.md y las decisiones del equipo.
+Conservar las funcionalidades de S-003 y S-005, reutilizar
+get_taught_course() y evitar reemplazar archivos compartidos.
+
+Qué se aceptó sin cambios:
+- La estructura general de la especificación S-004.
+- Los ocho criterios de aceptación Dado/Cuando/Entonces.
+- La propuesta de utilizar los modelos académicos existentes.
+- La organización de las pantallas de cursos, temas y estudiantes.
+- La estrategia de realizar modificaciones pequeñas y verificables.
+
+Qué se corrigió o descartó, y por qué:
+- Se aclaró la diferencia entre usuarios no autenticados
+  y usuarios autenticados sin permisos.
+- Se confirmó que los permisos deben verificarse en el servidor
+  mediante get_taught_course().
+- Se mantuvo la separación de responsabilidades entre S-004,
+  S-005 y S-010 para evitar conflictos entre implementaciones.
+- Se descartó reemplazar archivos completos que ya contienen
+  código de otros integrantes.
+- Se estableció que verificacion.md será completado por
+  AlexDLG1 y no por el autor de S-004.
+
+Revisión humana:
+El autor revisó y aprobó el plan técnico, documentando los
+ajustes de seguridad y las responsabilidades de integración.
+La implementación y las pruebas funcionales están pendientes.
+
+
+Actualizacion de implementacion y pruebas (10-11-2026):
+
+- Herramienta utilizada: ChatGPT (OpenAI), modelo GPT-6.
+- Se desarrollaron las pantallas de cursos, temas y estudiantes.
+- Se implementaron formularios, vistas y rutas de S-004.
+- Se agregaron pruebas de listado, validaciones y operaciones.
+- Se ejecutaron 96 pruebas generales correctamente.
+- Se corrigieron importaciones duplicadas y cambios innecesarios
+  de formato para conservar el codigo de otros integrantes.
+- Las pruebas de vistas utilizaron autorizacion simulada.
+- Queda pendiente verificar los permisos reales mediante
+  get_taught_course cuando S-005 se integre en main.
+Costo o cuota consumida:
+No se realizaron llamadas directas a la API de IA desde
+TutoBosco para esta actividad.
+El consumo de la conversación en ChatGPT no se cuantificó.
+
+## S-008 · 10-11-2026 · Plan e implementación
+
+Herramienta y modelo: OpenCode · deepseek-v4.1-flash.
+Usado por: douglas-yasser.
+
+Fases en que se usó: plan / implementación / pruebas.
+
+Instrucción clave (resumen, no la conversación completa):
+Proponer el plan de S-008 en modo solo lectura, incorporar las
+correcciones humanas acordadas en el issue #8 e implementar el panel
+del docente con pruebas de los criterios CA-1 a CA-5.
+
+Qué se aceptó sin cambios:
+- La propuesta de plan.md revisada y aprobada por douglas-yasser.
+
+Qué se corrigió o descartó, y por qué:
+- El redirect posterior al login se mantuvo en S-008 frente a la nota
+  del plan de S-004 que lo reservaba a S-010; decisión humana del
+  autor registrada en el issue #8.
+- Las rutas cambiaron de identificadores numéricos a course_code
+  bajo /docente/panel/ para no pisar las rutas acordadas de S-004.
+
+Costo o cuota consumida (si aplica): sin llamadas a Gemini ni uso
+pagado del producto. El consumo de la herramienta de desarrollo no se
+cuantificó.
+
+## S-005 · 10-11-2026 · Verificación independiente asistida
+
+Herramienta y modelo: OpenCode · GPT-6.1 Sol (`openai/gpt-6.1-sol`).
+Usado por: ramosdeleon555, según la confirmación del usuario de la sesión.
+
+Fases en que se usó: pruebas y documentación de la verificación.
+
+Instrucción clave:
+Verificar el commit `1c26d94` del PR #45 en la misma rama, registrar solo
+resultados comprobados, obtener capturas reales del navegador, restaurar
+los datos y avisar al autor ante cualquier fallo sin corregir su código.
+
+Qué se aceptó sin cambios:
+- El usuario confirmó la estructura y el plan de verificación de S-005 y
+  autorizó los dos auxiliares temporales fuera del repositorio.
+- Suite completa: 150 pruebas OK. Recorrido de CA-1 a CA-8 en Chrome
+  automatizado, con formularios reales de acceso, cierre de sesión y notas.
+- Registro de consultas de persistencia, nota única, promedio y aislamiento;
+  capturas reales en `specs/S-005-registro-notas/img/`.
+- Limpieza posterior comprobada: `estudiante_02` sin notas y `estudiante_08`
+  nuevamente con 60 en Git y GitHub avanzado de PROG-COM.
+
+Qué se corrigió o descartó, y por qué:
+- La suite se repitió después de una interrupción por el tiempo máximo del
+  comando. Solo se declara aprobada la ejecución completa de 150 pruebas.
+- Se reutilizó el servidor local identificado del repositorio porque el
+  puerto 8000 ya estaba ocupado. Se desactivó la caché de Chrome en lugar
+  de declarar una pulsación manual de Ctrl+F5.
+- Se repitió la captura del 403 sin el aviso de guardar contraseña de Chrome.
+- Los POST no autorizados de CA-8 se atribuyen a la suite; no se presentan
+  como formularios manipulados manualmente ni se atribuye al usuario un
+  recorrido manual realizado por el agente.
+- No se modificó el código de la aplicación ni se instalaron paquetes.
+
+Costo o cuota consumida: sin llamadas a Gemini ni a la API de IA del
+producto. El consumo de la herramienta de desarrollo no está disponible.
+
+## S-006 · 10-11-2026 · Plan y primer bloque
+
+ChatGPT (Codex) ayudó a proponer y ajustar el plan técnico aprobado por
+JavEstrada09 y a preparar el acceso al tutor por curso inscrito y la
+validación del umbral. Se incorporaron las observaciones de
+douglas-yasser sobre el 403, la privacidad en modo demo y las revisiones
+de conversación. Se reutilizó el cálculo de temas débiles de S-008.
+
+Se usaron respuestas locales y dobles de prueba para comprobar este
+bloque, sin llamadas a Gemini. La revisión del cambio por el autor y
+la verificación independiente de la funcionalidad quedan pendientes.
+
+## S-004 · 10-11-2026 · Continuación de implementación
+
+Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: revisión de la implementación, ajustes de interfaz,
+pruebas automatizadas y documentación.
+
+Instrucción clave:
+Continuar la parte de Brayan correspondiente a S-004 siguiendo el plan
+aprobado y los lineamientos del repositorio.
+
+Trabajo realizado:
+- Se comparó la implementación existente con los ocho criterios de
+  aceptación y el plan aprobado.
+- Se corrigió la edición inválida de temas para conservar el valor enviado
+  y mostrar el error junto al campo correspondiente.
+- Se agregó el mensaje específico para nombres de tema obligatorios.
+- Se ampliaron las pruebas para comprobar aislamiento entre cursos,
+  confirmaciones visibles, datos actualizados, prevención de duplicados y
+  conservación de datos ante una edición inválida.
+- Se documentaron en README las tres pantallas de gestión académica.
+- Se ejecutaron 17 pruebas específicas de S-004 y las 129 pruebas de
+  `accounts`, `academics` y `tutor`; todas finalizaron correctamente.
+
+Pendiente:
+- Las pruebas de vistas todavía simulan `get_taught_course()`. La
+  autorización real de CA-7 se probará después de que la implementación de
+  S-005 se fusione en `main`, conforme al plan aprobado de S-004.
+- AlexDLG1 debe realizar la verificación independiente; no se registra aquí
+  ninguna aprobación ni evidencia en su nombre.
+
+Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
+producto. El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-004 · 10-11-2026 · Integración final con S-005
+
+Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
+Usado por: Brayan11Hernandez.
+
+Fases en que se usó: integración, pruebas de autorización y documentación.
+
+Trabajo realizado:
+- Se fusionó `main` después de la incorporación de S-005, sin fusionar
+  directamente su rama.
+- Las vistas de temas y estudiantes quedaron conectadas con la función
+  compartida `get_taught_course()` y se habilitó el enlace a la planilla de
+  notas desde el listado de cursos.
+- Se eliminaron los mocks de autorización de S-004. Las pruebas ahora usan
+  perfiles docentes, asignaciones y cursos reales de la base de pruebas.
+- CA-7 cubre un docente ajeno, una cuenta estudiantil, un curso inexistente,
+  POST no autorizados sin cambios, acceso anónimo y protección CSRF.
+- Se ejecutaron 21 pruebas específicas de S-004 y las 173 pruebas de
+  `accounts`, `academics` y `tutor`; todas finalizaron correctamente.
+- `manage.py check`, `makemigrations --check --dry-run` y `pip check`
+  finalizaron correctamente.
+
+Pendiente:
+- AlexDLG1 debe ejecutar CA-1 a CA-8 en su computadora y crear
+  `specs/S-004-temas-asignacion/verificacion.md`. No se registra ninguna
+  verificación ni aprobación en su nombre.
+- S-004 no debe marcarse como terminada ni cerrar el issue #8 antes de que
+  esa evidencia independiente sea revisada e integrada.
+
+Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
+producto. El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-006 · 10-11-2026 · Segundo bloque
+
+ChatGPT (Codex) ayudó a implementar el modelo de conversación, su
+migración, el control de revisiones y la limpieza al cerrar sesión.
+Las pruebas usan SQLite y cuentas sintéticas. Este bloque se ejecutó
+sin llamadas a Gemini. La revisión del autor y la verificación
+independiente en la computadora de Douglas quedan pendientes.
+
+
+## S-006 · 10-11-2026 · Bloque 3a: proveedores
+
+ChatGPT (Codex) preparó el contexto mínimo del hilo, las instrucciones
+separadas para Gemini y las grabaciones por curso, tema e intención.
+Se reutiliza `is_weak` de S-008. Para mantener PRs revisables, el bloque 3
+se entrega como proveedores (3a) e integración con la pantalla (3b), sin
+cambiar las decisiones del plan aprobado ni declarar terminada S-006.
+
+Las pruebas ejecutadas en Linux usan datos sintéticos, proveedor simulado
+y red bloqueada para el demo. No se llamó a Gemini real ni se generó gasto
+del producto. La lectura y ejecución por Jav en Windows y la verificación
+independiente de Douglas quedan pendientes para este cambio.
+
+
+## S-006 · 10-11-2026 · Bloque 3b: integración de la conversación
+
+ChatGPT (Codex) ayudó a integrar la vista y la plantilla con el hilo del
+curso, las revisiones, el historial, el reinicio y la continuación en
+demo con la pregunta pendiente. Se sustituyó el formulario anterior de
+continuación, que siempre usaba la pregunta de ejemplo, según el contrato
+del plan aprobado. Las respuestas siguen mostrándose como texto escapado.
+
+Se ejecutaron pruebas automatizadas en Linux con cuentas sintéticas y
+Gemini simulado; no se hicieron llamadas reales ni hubo gasto del producto.
+La lectura y ejecución del cambio por Jav en Windows y la aceptación
+independiente de Douglas quedan pendientes. La matriz de los nueve
+criterios está en `specs/S-006-tutor/plan.md`; su evidencia y el commit
+probado deben registrarse en `verificacion.md` antes de fusionar.
+
+
+## S-006 · 10-11-2026 · Corrección tras verificación independiente
+
+Douglas reportó sobre `ece9dee` que Gemini recomendaba el tema correcto o
+rechazaba solicitudes de terceros, pero la validación descartaba respuestas
+formales que usaban «le» y «su» sin el pronombre literal «usted».
+ChatGPT (Codex) ayudó a retirar esa condición y a añadir pruebas simuladas
+de recomendación, privacidad y guardado en el historial sin activar demo.
+Se conservan las instrucciones de trato formal, la mención del curso,
+la comprobación de español, los límites de longitud y los errores esperados.
+
+No se llamó a Gemini real durante esta corrección. No se modifican los
+resultados ni el consumo registrados por Douglas en su worktree. Queda
+pendiente la ejecución del autor en Windows y la repetición independiente
+de CA-1, CA-5 y CA-9 en modo real sobre el nuevo commit antes de aprobar.
+
+
+## S-006 · 10-11-2026 · Cierre documental
+
+ChatGPT (Codex) ayudó a actualizar el estado de la spec, la tabla de
+`docs/plan.md` y la nota del README a partir de la evidencia independiente
+de douglas-yasser incorporada en el PR #53. Se mantuvieron sin cambios
+`verificacion.md` y `docs/gasto.md`, incluidos los resultados originales,
+la repetición sobre `30ad0c3` y el consumo de Gemini. Este cambio es solo
+documental; no se ejecutaron nuevas consultas a Gemini ni pruebas de la
+aplicación para el cierre. El PR documental queda pendiente de revisión.

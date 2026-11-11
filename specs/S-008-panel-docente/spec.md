@@ -2,7 +2,7 @@
 
 Requisito: RF-06
 Autor: douglas-yasser · Verificador: JavEstrada09 · Issue: #12
-Estado: borrador
+Estado: terminada
 
 ## Problema
 
@@ -54,4 +54,10 @@ asignación (S-004) y tutor (S-006).
 
 ## Registro de cambios
 
-[se completa en cada cambio]
+10-11-2026 · Plan aprobado por douglas-yasser e implementación del panel del docente · —
+
+10-11-2026 · Implementación fusionada mediante el PR #44, que cerró el
+issue #12. JavEstrada09 verificó CA-1 a CA-5 en Windows y registró
+capturas y resultados en `verificacion.md`. La revisión técnica de apoyo
+comprobó `9126626` en Linux con 110 pruebas de `accounts academics tutor`
+correctas y validó los números contra la base de datos.

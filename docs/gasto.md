@@ -29,6 +29,8 @@ pagos automáticos.
 | 09-11-2026 | douglas-yasser | Gemini / `gemini-3.8-flash` | Tres intentos reales de CA-4 y diagnóstico en la verificación independiente | Nivel gratuito; 3 solicitudes; tokens no confirmados | 0.00 | `504 DEADLINE_EXCEEDED`, agotamiento del plazo y error del proveedor |
 | 09-11-2026 | douglas-yasser | Gemini / `gemini-3.5-flash-lite` | Dos consultas reales de CA-4: servicio y interfaz | Nivel gratuito; 2 solicitudes; tokens no confirmados | 0.00 | Respuestas reales en 4.531 s y 4.12 s |
 | 09-11-2026 | douglas-yasser | Gemini simulado / `gemini-3.5-flash-lite` | 50 pruebas y recorrido demo con Python 3.12.10 y 3.13.14 | No aplica; Gemini y la red fueron simulados o bloqueados | No aplica | Suite completa y recorrido demo sin solicitudes al servicio |
+| 10-11-2026 | douglas-yasser | Gemini / `gemini-3.5-flash-lite` | Verificación independiente S-006: CA-1 y CA-5 en modo real, incluidos diagnósticos de respuestas crudas y repetición por HTTP | Nivel gratuito; 10 solicitudes reales; tokens no confirmados | 0.00 | Respuestas reales y análisis de validación; ver `specs/S-006-tutor/verificacion.md` |
+| 10-11-2026 | douglas-yasser | Gemini / `gemini-3.5-flash-lite` | Repetición independiente S-006 sobre `30ad0c3`: CA-1 (2 solicitudes) y CA-5 (2 solicitudes) en modo real | Nivel gratuito; 4 solicitudes reales; tokens no confirmados | 0.00 | Respuestas reales mostradas en la interfaz; ver `specs/S-006-tutor/verificacion.md` |
 
 Se utilizó el nivel gratuito sin habilitar facturación de pago. El total de
 solicitudes y los tokens consumidos no están confirmados.

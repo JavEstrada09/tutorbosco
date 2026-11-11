@@ -5,7 +5,7 @@
 {% block content %}
 <section class="student-layout" aria-labelledby="student-title">
     <div>
-        <p class="eyebrow">Programación Comercial</p>
+        <p class="eyebrow">{{ selected_course.name }}</p>
         <h1 id="student-title">Su espacio académico</h1>
         <p class="lead">Esta información corresponde a su cuenta autenticada.</p>
     </div>
@@ -13,13 +13,14 @@
     <article class="panel career-card">
         <p class="card-label">Su carrera</p>
         <p class="career-value">{{ career }}</p>
+        <a class="profile-link" href="{% url 'student_profile' %}">Ver su perfil académico</a>
     </article>
 
     <section class="panel tutor-card" aria-labelledby="tutor-title">
         <div class="tutor-heading">
             <div>
                 <p class="card-label">Tutor del curso</p>
-                <h2 id="tutor-title">Consulte sobre {{ course_name }}</h2>
+                <h2 id="tutor-title">Consulte sobre {{ selected_course.name }}</h2>
             </div>
             {% if tutor_reply.mode == "demo" or tutor_mode == "demo" %}
                 <span class="mode-badge">Modo demo</span>
@@ -28,9 +29,25 @@
             {% endif %}
         </div>
 
-        <p class="demo-example">
-            Pregunta disponible en el modo demo: <strong>{{ demo_question }}</strong>
-        </p>
+        <form method="get">
+            <label for="tutor-course">Su curso</label>
+            <select id="tutor-course" name="course">
+                {% for course in courses %}
+                    <option value="{{ course.code }}"{% if course == selected_course %} selected{% endif %}>{{ course.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="button button-secondary" type="submit">Cambiar curso</button>
+        </form>
+
+        {% if demo_question %}
+            <p class="demo-example">
+                Pregunta disponible en el modo demo: <strong>{{ demo_question }}</strong>
+            </p>
+            <p class="demo-example">También puede preguntar «¿Qué tema debería repasar?» y
+                «¿Me da otro ejemplo?», o «Explíqueme [nombre exacto del tema].».</p>
+        {% elif tutor_mode == "demo" and not tutor_error %}
+            <p class="demo-example">El modo demo aún no tiene respuestas grabadas para este curso.</p>
+        {% endif %}
 
         {% if tutor_error %}
             <div class="alert" role="alert">{{ tutor_error }}</div>
@@ -39,8 +56,11 @@
         {% if offer_demo %}
             <form method="post" class="demo-fallback">
                 {% csrf_token %}
-                <input type="hidden" name="continue_in_demo" value="1">
-                <p>Puede continuar con la pregunta de ejemplo y una respuesta grabada.</p>
+                <input type="hidden" name="course" value="{{ selected_course.code }}">
+                <input type="hidden" name="revision" value="{{ conversation.revision }}">
+                <input type="hidden" name="action" value="continue_demo">
+                <p>Su pregunta pendiente: <strong>{{ conversation.pending_question }}</strong></p>
+                <p>Puede continuar con esta misma pregunta y una respuesta grabada, si está disponible.</p>
                 <button class="button button-secondary" type="submit">
                     Continuar en modo demo
                 </button>
@@ -49,6 +69,9 @@
 
         <form method="post" novalidate>
             {% csrf_token %}
+            <input type="hidden" name="course" value="{{ selected_course.code }}">
+            <input type="hidden" name="revision" value="{{ conversation.revision }}">
+            <input type="hidden" name="action" value="ask">
             <div class="field">
                 {{ tutor_form.question.label_tag }}
                 {{ tutor_form.question }}
@@ -61,18 +84,30 @@
             </button>
         </form>
 
-        {% if tutor_reply %}
-            <article class="tutor-answer" aria-live="polite">
-                <p class="card-label">
-                    {% if tutor_reply.mode == "demo" %}
-                        Respuesta grabada del modo demo
-                    {% else %}
-                        Respuesta del tutor real
-                    {% endif %}
-                </p>
-                <p>{{ tutor_reply.text }}</p>
-            </article>
-        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="course" value="{{ selected_course.code }}">
+            <input type="hidden" name="revision" value="{{ conversation.revision }}">
+            <input type="hidden" name="action" value="new">
+            <p>Al iniciar una nueva conversación se borran los mensajes de este curso y se consultan sus notas vigentes.</p>
+            <button class="button button-secondary" type="submit">Nueva conversación</button>
+        </form>
+
+        <section aria-label="Historial de la conversación" aria-live="polite">
+            {% for turn in conversation.turns %}
+                <article class="tutor-answer">
+                    <p class="card-label">Su pregunta</p>
+                    <p>{{ turn.question }}</p>
+                    <p class="card-label">
+                        {% if turn.mode == "demo" %}Respuesta grabada del modo demo
+                        {% else %}Respuesta del tutor real{% endif %}
+                    </p>
+                    <p>{{ turn.answer|linebreaksbr }}</p>
+                </article>
+            {% empty %}
+                <p>Aún no hay mensajes en esta conversación.</p>
+            {% endfor %}
+        </section>
     </section>
 
     <form method="post" action="{% url 'logout' %}">

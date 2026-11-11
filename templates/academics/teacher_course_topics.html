@@ -1,0 +1,125 @@
+
+{% extends "base.html" %}
+
+{% block title %}Temas académicos | TutoBosco{% endblock %}
+
+{% block content %}
+<section class="student-layout" aria-labelledby="topics-title">
+
+    <div>
+        <p class="eyebrow">Panel docente</p>
+        <h1 id="topics-title">Temas académicos</h1>
+
+        <p class="lead">
+            Curso: {{ course.code }} - {{ course.name }}
+        </p>
+
+        <a class="profile-link" href="{% url 'teacher_courses' %}">
+            Volver a mis cursos
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p role="status">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <article class="panel course-card">
+        <h2>Registrar nuevo tema</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="hidden" name="action" value="create">
+
+            {% if topic_form.non_field_errors %}
+                <div class="alert">
+                    {{ topic_form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="field">
+                <label for="id_name">Nombre del tema</label>
+
+                {{ topic_form.name }}
+
+                {% for error in topic_form.name.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <button class="button button-primary" type="submit">
+                Registrar tema
+            </button>
+        </form>
+    </article>
+
+    <div>
+        <h2>Temas registrados</h2>
+
+        {% for topic in topics %}
+            <article class="panel course-card">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="topic_id" value="{{ topic.pk }}">
+
+                    <div class="field">
+                        <label for="topic-{{ topic.pk }}">
+                            Nombre del tema
+                        </label>
+
+                        {% if editing_topic_id == topic.pk %}
+                            <input
+                                class="form-control"
+                                type="text"
+                                id="topic-{{ topic.pk }}"
+                                name="name"
+                                value="{{ update_form.name.value|default_if_none:'' }}"
+                                maxlength="150"
+                                required
+                                aria-invalid="true"
+                                aria-describedby="topic-{{ topic.pk }}-error"
+                            >
+
+                            {% for error in update_form.name.errors %}
+                                <p class="field-error"
+                                   id="topic-{{ topic.pk }}-error"
+                                   role="alert">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        {% else %}
+                            <input
+                                class="form-control"
+                                type="text"
+                                id="topic-{{ topic.pk }}"
+                                name="name"
+                                value="{{ topic.name }}"
+                                maxlength="150"
+                                required
+                            >
+                        {% endif %}
+                    </div>
+
+                    <button class="button button-secondary" type="submit">
+                        Guardar cambios
+                    </button>
+                </form>
+            </article>
+
+        {% empty %}
+            <section class="panel empty-state" role="status">
+                <h2>No hay temas registrados</h2>
+                <p>
+                    Registre el primer tema académico
+                    de este curso.
+                </p>
+            </section>
+        {% endfor %}
+    </div>
+
+</section>
+{% endblock %}

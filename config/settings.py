@@ -29,6 +29,17 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_TOTAL_TIMEOUT_MS = 60_000
 GEMINI_MAX_ATTEMPTS = 1
 
+try:
+    WEAK_TOPIC_THRESHOLD = int(os.getenv("WEAK_TOPIC_THRESHOLD") or "60")
+except ValueError as error:
+    raise ImproperlyConfigured(
+        "WEAK_TOPIC_THRESHOLD debe ser un entero entre 0 y 100."
+    ) from error
+if not 0 <= WEAK_TOPIC_THRESHOLD <= 100:
+    raise ImproperlyConfigured(
+        "WEAK_TOPIC_THRESHOLD debe ser un entero entre 0 y 100."
+    )
+
 INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "academics.apps.AcademicsConfig",
@@ -109,5 +120,5 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "student_home"
+LOGIN_REDIRECT_URL = "role_home"
 LOGOUT_REDIRECT_URL = "login"
