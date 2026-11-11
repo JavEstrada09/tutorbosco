@@ -1038,3 +1038,15 @@ de douglas-yasser incorporada en el PR #53. Se mantuvieron sin cambios
 la repetición sobre `30ad0c3` y el consumo de Gemini. Este cambio es solo
 documental; no se ejecutaron nuevas consultas a Gemini ni pruebas de la
 aplicación para el cierre. El PR documental queda pendiente de revisión.
+
+## S-010 · 11-11-2026 · Ampliación de la identidad visual
+
+OpenCode (`opencode/deepseek-v4.1-flash-free`) escribió el sistema visual de
+`static/css/tutobosco.css` y adaptó las plantillas de acceso, estudiante y
+docente para reutilizarlo. Se conservaron textos, destinos de enlaces, campos
+y comprobaciones de permisos; solo cambió la presentación. Las capturas de
+revisión se tomaron con Edge en modo headless contra un servidor local y una
+base temporal con datos sintéticos, sin llamadas a Gemini. La suite
+`accounts academics tutor` se ejecutó después del cambio (202 pruebas, OK) y
+no se modificaron pruebas para hacerlas pasar. La verificación independiente
+de CA-9 por AlexDLG1 está pendiente.

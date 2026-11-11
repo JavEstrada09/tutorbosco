@@ -23,9 +23,15 @@ toda página privada y una matriz identificable de pruebas de regresión.
 - `templates/base.html`: carga local de Bootstrap, marca dirigida a
   `role_home`, navegación por perfiles y cierre de sesión POST con CSRF.
 - `templates/academics/*.html`: retirar formularios de cierre de sesión
-  duplicados, ahora disponibles en la cabecera común.
+  duplicados, ahora disponibles en la cabecera común. En la ampliación de
+  interfaz, los encabezados pasan a `page-intro`, los grupos de acciones a
+  `button-row` y las tarjetas de estado a `status-card`.
+- `templates/registration/login.html`: tarjeta de acceso centrada.
 - `static/css/tutobosco.css`: estilos de la navegación común en escritorio y
-  móvil, conservando el diseño existente sobre Bootstrap.
+  móvil, conservando el diseño existente sobre Bootstrap. La ampliación
+  define la identidad visual completa: variables de color, radios y sombras,
+  cabecera fija, navegación tipo píldora, encabezados centrados con divisor,
+  tarjetas, botones, tablas desplazables y estados vacíos o de error.
 - `accounts/tests.py`: pruebas integrales de acceso, navegación, prioridad de
   perfiles, páginas privadas y cierre de sesión.
 - `specs/S-010-acceso-seguridad/spec.md`: estado, decisiones verificables y
@@ -60,6 +66,12 @@ Ninguno. Se reutilizan `User`, `StudentProfile`, `TeacherProfile`,
 5. Agregar pruebas de regresión específicas de S-010.
 6. Ejecutar checks, pruebas y comprobaciones de migraciones y dependencias.
 7. Actualizar documentación y preparar el PR para verificación independiente.
+8. Aplicar la identidad visual común a las plantillas de acceso, estudiante y
+   docente, sin cambiar textos, enlaces, campos ni permisos.
+9. Repetir `check`, `test` y `makemigrations --check` y revisar las pantallas
+   en escritorio y en ancho reducido.
+10. Actualizar la spec, este plan y `verificacion.md`, y solicitar la nueva
+    verificación independiente de AlexDLG1.
 
 ## Cómo se verificará cada criterio
 
@@ -87,8 +99,17 @@ elimina la sesión y nueva solicitud privada redirigida al login.
 CA-8 → recorrer la navegación común en escritorio y móvil, verificar textos
 en español y confirmar que Bootstrap se carga desde un recurso local.
 
+CA-9 → recorrer acceso, inicio y perfil del estudiante, panel y
+administración docente, notas, temas, estudiantes y la pantalla 403, en
+escritorio y en ancho reducido; comprobar la misma identidad visual y que
+cada pantalla conserva su información, enlaces y acciones.
+
 ## Correcciones humanas al plan del agente
 
 1. Brayan11Hernandez aprobó el alcance mínimo propuesto el 10-11-2026.
 2. Brayan11Hernandez decidió conservar para cuentas con ambos perfiles la
    prioridad estudiantil de S-008, sin retirar sus permisos docentes válidos.
+3. El 11-11-2026 se solicitó ampliar S-010 en lugar de crear otra spec: el
+   rediseño debe cubrir toda la interfaz, con un estilo elegante y sobrio
+   (paleta verde y papel, tarjetas suaves, botones redondeados y títulos
+   centrados). La aprobación del plan ampliado queda pendiente de registro.

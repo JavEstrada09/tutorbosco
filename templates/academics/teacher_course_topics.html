@@ -6,7 +6,7 @@
 {% block content %}
 <section class="student-layout" aria-labelledby="topics-title">
 
-    <div>
+    <header class="page-intro">
         <p class="eyebrow">Panel docente</p>
         <h1 id="topics-title">Temas académicos</h1>
 
@@ -14,14 +14,16 @@
             Curso: {{ course.code }} - {{ course.name }}
         </p>
 
-        <a class="profile-link" href="{% url 'teacher_courses' %}">
-            Volver a mis cursos
-        </a>
-    </div>
+        <div class="button-row">
+            <a class="button button-secondary" href="{% url 'teacher_courses' %}">
+                Volver a mis cursos
+            </a>
+        </div>
+    </header>
 
     {% if messages %}
         {% for message in messages %}
-            <p role="status">{{ message }}</p>
+            <div class="notice" role="status">{{ message }}</div>
         {% endfor %}
     {% endif %}
 
@@ -56,7 +58,7 @@
     </article>
 
     <div>
-        <h2>Temas registrados</h2>
+        <h2 class="section-title">Temas registrados</h2>
 
         {% for topic in topics %}
             <article class="panel course-card">

@@ -4,11 +4,11 @@
 
 {% block content %}
 <section class="student-layout" aria-labelledby="panel-title">
-    <div>
+    <header class="page-intro">
         <p class="eyebrow">Panel del docente</p>
         <h1 id="panel-title">Sus cursos</h1>
         <p class="lead">Aquí puede consultar el avance de sus estudiantes por curso.</p>
-    </div>
+    </header>
 
     {% for course in courses %}
         <article class="panel course-card" aria-labelledby="course-{{ course.pk }}">

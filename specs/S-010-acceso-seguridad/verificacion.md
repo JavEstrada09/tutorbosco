@@ -56,3 +56,37 @@ test: Ran 202 tests ... OK
 ## Correcciones y repetición de pruebas
 
 No se encontraron fallos que requieran corrección.
+
+## Ampliación de interfaz · pendiente de verificación
+
+El 11-11-2026 se amplió S-010 con CA-9: el rediseño visual cubre todas las
+pantallas y ya no solo la navegación común. El informe anterior sigue siendo
+válido para CA-1 a CA-8 sobre `3c3907a`, pero las capturas de CA-8 ya no
+reflejan el aspecto actual y CA-9 no tiene evidencia todavía.
+
+Estado: **sin verificar**. No se registran resultados, capturas ni
+aprobaciones de esta ampliación hasta que AlexDLG1 la ejecute en su
+computadora.
+
+Pasos previstos para la nueva verificación:
+
+```powershell
+git switch verificacion-s010
+git pull --ff-only
+& ".\.venv\Scripts\python.exe" manage.py check
+& ".\.venv\Scripts\python.exe" manage.py test accounts academics tutor
+& ".\.venv\Scripts\python.exe" manage.py makemigrations --check --dry-run
+& ".\.venv\Scripts\python.exe" manage.py runserver
+```
+
+Recorrido de CA-9 en escritorio y en ancho reducido:
+
+1. `/acceso/` y credenciales incorrectas.
+2. Inicio y perfil de `estudiante_demo`.
+3. `/docente/panel/` y `/docente/cursos/` como estudiante (403).
+4. Panel, mis cursos, notas, temas y estudiantes con `docente_01`.
+5. Comprobar títulos centrados, botones identificables, tablas legibles y la
+   misma cabecera en todas las pantallas.
+
+Pendiente de completar por el verificador: commit probado, resultado de cada
+paso, capturas y observaciones.

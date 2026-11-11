@@ -5,12 +5,14 @@
 
 {% block content %}
 <section class="student-layout" aria-labelledby="course-title">
-    <div>
+    <header class="page-intro">
         <p class="eyebrow">Panel del docente</p>
         <h1 id="course-title">{{ course.code }} – {{ course.name }}</h1>
         <p class="lead">Promedio y temas débiles de los estudiantes inscritos.</p>
-        <p><a class="button button-secondary" href="{% url 'teacher_panel' %}">Volver a sus cursos</a></p>
-    </div>
+        <div class="button-row">
+            <a class="button button-secondary" href="{% url 'teacher_panel' %}">Volver a sus cursos</a>
+        </div>
+    </header>
 
     <section class="panel course-card" aria-labelledby="students-title">
         <h2 id="students-title">Estudiantes</h2>

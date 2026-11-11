@@ -6,14 +6,14 @@
 {% block content %}
 <section class="student-layout" aria-labelledby="courses-title">
 
-    <div>
+    <header class="page-intro">
         <p class="eyebrow">Panel docente</p>
         <h1 id="courses-title">Mis cursos</h1>
         <p class="lead">
             Consulte los cursos que tiene asignados y administre
             sus temas académicos y estudiantes.
         </p>
-    </div>
+    </header>
 
     {% for course in courses %}
         <article class="panel course-card"
@@ -28,7 +28,7 @@
                 para este curso.
             </p>
 
-            <nav aria-label="Opciones del curso {{ course.code }}">
+            <nav class="button-row" aria-label="Opciones del curso {{ course.code }}">
 
                 <a class="button"
                    href="{% url 'teacher_course_topics' course_code=course.code %}">

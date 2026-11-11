@@ -5,12 +5,14 @@
 
 {% block content %}
 <section class="student-layout" aria-labelledby="detail-title">
-    <div>
+    <header class="page-intro">
         <p class="eyebrow">Panel del docente</p>
         <h1 id="detail-title">{{ row.student.user.get_full_name|default:row.student.user.username }}</h1>
         <p class="lead">Detalle del estudiante en {{ course.code }} – {{ course.name }}.</p>
-        <p><a class="button button-secondary" href="{% url 'teacher_course_panel' course.code %}">Volver al panel del curso</a></p>
-    </div>
+        <div class="button-row">
+            <a class="button button-secondary" href="{% url 'teacher_course_panel' course.code %}">Volver al panel del curso</a>
+        </div>
+    </header>
 
     <article class="panel profile-card" aria-labelledby="summary-title">
         <h2 id="summary-title">Resumen</h2>

@@ -4,8 +4,17 @@
 
 {% block content %}
 <section class="status-layout" aria-labelledby="denied-title">
-    <p class="status-code">403</p>
-    <h1 id="denied-title">Acceso denegado</h1>
-    <p>Su cuenta no tiene autorización académica para ver esta pantalla.</p>
+    <div class="panel status-card">
+        <p class="status-code">403</p>
+        <h1 id="denied-title">Acceso denegado</h1>
+        <p>Su cuenta no tiene autorización académica para ver esta pantalla.</p>
+        <div class="button-row">
+            {% if user.is_authenticated %}
+                <a class="button button-primary" href="{% url 'role_home' %}">Volver al inicio</a>
+            {% else %}
+                <a class="button button-primary" href="{% url 'login' %}">Iniciar sesión</a>
+            {% endif %}
+        </div>
+    </div>
 </section>
 {% endblock %}
