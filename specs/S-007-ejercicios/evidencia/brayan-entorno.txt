@@ -1,0 +1,46 @@
+VERIFICACION INDEPENDIENTE S-007 - ENTORNO DE BRAYAN
+Fecha local: 2026-11-10 (America/Guatemala)
+Verificador: Brayan Hernandez / Brayan11Hernandez
+Sistema operativo: Windows
+Repositorio: tutorbosco
+Rama: s-007-ejercicios
+Commit recibido y comprobado: a6bd399ea1f33394b526c131e6cfba94e9e71e62
+Issue: #11
+
+Estado Git antes de preparar la verificacion:
+- Sin modificaciones en archivos versionados.
+- Dos archivos no rastreados anteriores y ajenos a S-007; no se modificaron.
+
+Entorno disponible:
+- Python del lanzador: 3.12.10
+- Python de .venv: 3.12.10
+- Django importado: 5.2.19
+- google-genai: importacion correcta
+- python-dotenv: importacion correcta
+- requirements.txt: disponible
+
+Configuracion comprobada sin mostrar valores:
+- DJANGO_SECRET_KEY: configurada localmente
+- AI_MODE: demo
+- AI_MODEL efectivo: gemini-3.5-flash-lite
+- GEMINI_API_KEY: vacia
+- DEMO_STUDENT_PASSWORD: generada y configurada localmente sin mostrarla
+- DEMO_TEACHER_PASSWORD: generada y configurada localmente sin mostrarla
+- WEAK_TOPIC_THRESHOLD: no definido; valor predeterminado esperado 60
+- DJANGO_DATABASE_PATH: no definido permanentemente
+
+Base aislada autorizada para esta verificacion:
+C:\Users\herna\AppData\Local\Temp\opencode\tutorbosco-s007-brayan.sqlite3
+Estado: creada desde cero para esta verificacion.
+Preparacion:
+- Migraciones academics, accounts, admin, auth, contenttypes, sessions y tutor: OK
+- Migracion tutor.0002_practiceexercise: OK
+- rebuild_synthetic_data: datos sinteticos completos reconstruidos
+
+Interfaz:
+- Microsoft Edge: disponible
+- Selenium: no instalado
+- Playwright: no instalado
+- EdgeDriver: no encontrado
+- Metodo acordado: recorrido manual guiado, sin instalar herramientas
+- Puertos 8000, 8001, 8012 y 8765: disponibles durante la inspeccion

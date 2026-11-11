@@ -942,6 +942,177 @@ Pendiente:
 Costo o cuota consumida: no hubo llamadas a Gemini ni uso pagado del
 producto. El consumo de la herramienta de desarrollo no se cuantificó.
 
+## S-007 · 10-11-2026 · Implementación local de práctica
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: ramosdeleon555, autor de S-007 y S-009.
+
+- Se propuso el plan en modo de solo lectura. El autor confirmó el contrato
+  PracticeExercise con S-009, la rama s-007-ejercicios y aprobó el plan completo.
+- Se integró main conservando el historial; la integración y el desarrollo
+  quedaron sin commit a la espera de revisión del autor.
+- El asistente implementó persistencia UUID, catálogo demo por curso/tema,
+  proveedores reutilizando el transporte Gemini, validación de lotes,
+  autorización, pantalla y pruebas. No instaló dependencias.
+- Las 19 pruebas específicas y las 215 de regresión pasaron. También
+  pasaron check, makemigrations --check --dry-run y pip check.
+- La migración se aplicó localmente y el recorrido HTTP con estudiante_03
+  creó un ejercicio demo y lo consultó por UUID desde localhost.
+- El autor debe leer y ejecutar los cambios antes de solicitar commits.
+  Brayan11Hernandez tiene pendiente la verificación independiente de CA-1 a CA-10.
+  No se presenta S-007 como terminada ni se atribuye aprobación al verificador.
+
+Costo del producto durante el bloque inicial de implementación y pruebas:
+USD 0.00; ninguna llamada real a Gemini en ese bloque. El proveedor real y
+el error 429 se simularon. El consumo de la herramienta de desarrollo no
+se cuantificó. La prueba real posterior se registra en la entrada siguiente.
+
+## S-007 · 10-11-2026 · Prueba real con Gemini y evidencia detallada
+
+Herramienta y modelo de desarrollo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: ramosdeleon555. Modelo del producto: `gemini-3.5-flash-lite`.
+
+El autor informó que probó el modo demo y solicitó una prueba real con la
+clave ya configurada. El asistente inició temporalmente el servidor en el
+puerto 8001 con `AI_MODE=real`, sin modificar `.env` ni mostrar secretos.
+Realizó acceso HTTP como estudiante_03 y un POST de práctica con CSRF.
+
+- Curso: PROG-COM, Programación Comercial; tema: Ingeniería de prompts.
+- Nota comprobada: 58; umbral: 60. El tema cumple la comparación estricta.
+- Resultado: HTTP 200 en 6,12 segundos, un ejercicio persistido con modo
+  `real`, sin clave demo ni aviso de alternativa grabada.
+- UUID: `04ee22d6-a90a-485a-ae8e-0d227530cb94`.
+- Persistido a las 19:44 del 10-11-2026, Guatemala
+  (`2026-11-11T01:44:04.025239+00:00`).
+
+Enunciado completo recuperado del ejercicio persistido:
+
+> Diseñe un prompt estructurado utilizando la técnica de pocos ejemplos (few-shot prompting) para que un modelo de lenguaje extraiga correctamente los datos fiscales de una factura en formato de texto libre y los devuelva en un formato JSON estandarizado para su posterior registro contable.
+
+El asistente comprobó el texto en español, trato formal y correspondencia
+con el tema débil, así como los datos persistidos y la etiqueta de IA en
+el HTML. No conservó la respuesta HTTP cruda del proveedor ni realizó una
+revisión visual en navegador. Después detuvo el servidor temporal;
+el puerto 8000 continuó en demo con el ejercicio real disponible.
+
+El autor solicitó incluir la respuesta completa y mayores detalles en la
+evidencia; revisó la propuesta y autorizó actualizar verificacion.md,
+registro-ia.md y gasto.md. El recorrido y sus límites se documentan en
+`specs/S-007-ejercicios/verificacion.md`. La verificación independiente
+de Brayan11Hernandez y el cierre de S-007 permanecen pendientes.
+
+Consumo: una solicitud real a Gemini. Tokens y costo monetario pendientes
+de confirmar con el proveedor; no se afirma costo cero para esta llamada.
+No se habilitó facturación ni se modificó su configuración durante la prueba.
+
+## S-007 · Corrección de aislamiento de pruebas tras el reporte de Brayan
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: Jeffersson Ramos (`ramosdeleon555`), autor de S-007.
+Base de la corrección: `a6bd399`, rama `s-007-ejercicios`.
+
+El autor trasladó el reporte de Brayan: 2 fallos y 14 errores en la suite
+entregada. Solicitó corregir la selección de modo y la configuración de
+Gemini de las pruebas, ejecutar ambas suites y entregar un nuevo commit.
+Confirmó la estructura de tres archivos antes de modificarlos.
+
+Diagnóstico y cambio:
+
+- Se reprodujeron exactamente 2 fallos y 14 errores con GEMINI_API_KEY
+  vacía en el proceso de Python. Las pruebas anteriores habían pasado en
+  el equipo del autor con una clave local disponible: eso ocultó la dependencia.
+- Parchear GeminiExerciseProvider.generate no evita que se ejecute antes
+  su constructor. Sin clave, este lanza un error de configuración y el
+  servicio utiliza demo; los mocks del proveedor real no reciben la llamada.
+- Se eliminó AI_MODE del override común de PracticeTests y se declaró
+  explícitamente demo o real en cada prueba, según corresponda.
+- Se centralizó una clave sintética en la configuración común de pruebas.
+  No es una credencial del proveedor y las llamadas reales siguen simuladas.
+- No se relajaron aserciones ni se cambió el servicio de producción.
+
+Comprobaciones ejecutadas por el asistente en el entorno Windows del autor:
+
+| Ejecución | Configuración externa | Resultado |
+| --- | --- | --- |
+| tutor.test_exercises, verbosity 2 | GEMINI_API_KEY vacía; AI_MODE=real | 19 pruebas, OK, 0.881 s |
+| accounts academics tutor --noinput | GEMINI_API_KEY vacía; AI_MODE=demo | 215 pruebas, OK, 350.511 s |
+
+Comandos utilizados para excluir la clave local antes de cargar Django:
+
+```powershell
+& ".\.venv\Scripts\python.exe" -c "import os, runpy, sys; os.environ['GEMINI_API_KEY'] = ''; os.environ['AI_MODE'] = 'real'; sys.argv = ['manage.py', 'test', 'tutor.test_exercises', '--verbosity', '2', '--noinput']; runpy.run_path('manage.py', run_name='__main__')"
+& ".\.venv\Scripts\python.exe" -c "import os, runpy, sys; os.environ['GEMINI_API_KEY'] = ''; os.environ['AI_MODE'] = 'demo'; sys.argv = ['manage.py', 'test', 'accounts', 'academics', 'tutor', '--noinput']; runpy.run_path('manage.py', run_name='__main__')"
+```
+
+Se usa Python para fijar el valor vacío porque PowerShell 5.1 puede eliminar
+una variable al asignarle una cadena vacía, permitiendo que dotenv vuelva a
+cargar el valor local. No se modificó .env ni se mostraron secretos.
+
+Estos resultados son del autor asistido; no son la repetición independiente
+de Brayan. No se modificaron verificacion.md ni los archivos de evidencia
+del verificador. Brayan debe repetir ambas suites sobre el nuevo commit.
+
+Consumo del producto en esta corrección: ninguna llamada real a Gemini;
+sin consumo de cuota ni costo del servicio. No se instalaron dependencias.
+El consumo de la herramienta de desarrollo no se cuantificó.
+
+## S-007 · Corrección de enunciados formales tras la revisión del PR #56
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: Jeffersson Ramos (`ramosdeleon555`), autor de S-007.
+Base de la corrección: `8a7a72c`, rama `s-007-ejercicios`.
+
+El autor trasladó una revisión de código que encontró una heurística de
+trato formal demasiado restrictiva. Un enunciado válido podía rechazarse
+por no incluir palabras de una lista literal. El autor aprobó la propuesta
+de cambios en exercise_services.py, test_exercises.py, plan.md y este registro.
+
+Reproducción antes de corregir:
+
+- Se añadieron dos pruebas de regresión: una con dos enunciados formales
+  y otra con un lote completo de seis ejercicios.
+- «Defina las etapas del ciclo de integración de una rama.» fue rechazado.
+- El enunciado real documentado, sustituyendo «para su posterior registro
+  contable» por «para posterior registro contable», también fue rechazado.
+- Un lote de seis enunciados formales fue rechazado sin persistir ejercicios.
+- Ejecución de esas dos pruebas sobre el servicio anterior: tres errores
+  InvalidTutorResponseError (dos subcasos y un lote), reproduciendo el bloqueo.
+
+Corrección:
+
+- Se retiró la exigencia de palabras literales, siguiendo la decisión de
+  S-006 (`30ad0c3`). Se conserva el rechazo de tuteo explícito.
+- Se mantienen las validaciones estructurales, de tamaño, HTML, duplicados
+  y pertenencia de temas, así como la persistencia atómica del lote.
+- La regresión comprueba que los enunciados formales se guardan con el
+  propietario, curso, tema y procedencia correctos y que se guardan los
+  seis ejercicios de un lote válido.
+- Se sustituyó la expectativa de rechazar una frase inglesa por más casos
+  de tuteo explícito. La lista retirada no era una detección fiable de idioma.
+  La prueba de transporte comprueba ahora que las instrucciones enviadas
+  exigen «en español con trato de usted»; CA-10 conserva revisión humana.
+
+Resultados locales del asistente en Windows, sin clave real en el proceso:
+
+| Ejecución | Configuración externa | Resultado |
+| --- | --- | --- |
+| tutor.test_exercises, verbosity 2 | GEMINI_API_KEY vacía; AI_MODE=real | 21 pruebas, OK, 0.715 s |
+| accounts academics tutor --noinput | GEMINI_API_KEY vacía; AI_MODE=demo | 217 pruebas, OK, 236.405 s |
+| manage.py check | Configuración local | Sin errores |
+| manage.py makemigrations --check --dry-run | Configuración local | Sin cambios pendientes |
+
+Se usaron los mismos comandos con Python/runpy registrados en la corrección
+anterior para fijar la clave vacía antes de cargar Django y dotenv. Los
+proveedores reales se simularon; no se modificó .env ni se instalaron paquetes.
+Consumo del producto en esta corrección: ninguna llamada real a Gemini,
+sin consumo de cuota ni costo del servicio. El consumo de desarrollo no se cuantificó.
+
+No se alteró la evidencia de Brayan ni se declara aprobada la verificación.
+Los resultados anteriores son comprobaciones del autor asistido. Brayan debe
+repetir ambas suites sobre la entrega corregida antes de aprobar el PR.
+No se modificó spec.md porque se corrige el cumplimiento de CA-4 y CA-10,
+sin cambiar los requisitos.
+
 ## S-004 · 10-11-2026 · Integración final con S-005
 
 Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
@@ -1050,3 +1221,16 @@ base temporal con datos sintéticos, sin llamadas a Gemini. La suite
 `accounts academics tutor` se ejecutó después del cambio (202 pruebas, OK) y
 no se modificaron pruebas para hacerlas pasar. La verificación independiente
 de CA-9 por AlexDLG1 está pendiente.
+## S-007 · 11-11-2026 · Cierre documental
+
+Herramienta y modelo: OpenCode · `deepseek-v4.1-flash-free`.
+Usado por: Jeffersson Ramos (`ramosdeleon555`), autor de S-007.
+
+El asistente ayudó a actualizar el estado de la spec, la tabla de
+`docs/plan.md` y la nota del README a partir de la verificación
+independiente de Brayan11Hernandez y su aprobación del PR #56 sobre
+`acf58d0`. Se mantuvieron sin cambios `verificacion.md` y `docs/gasto.md`,
+incluidos los resultados originales, la repetición de CA-4, CA-9 y CA-10
+sobre `acf58d0` (21 y 217 pruebas) y el consumo de Gemini. Este cambio es
+solo documental; no se ejecutaron nuevas consultas a Gemini ni pruebas de
+la aplicación para el cierre. El PR documental queda pendiente de revisión.
