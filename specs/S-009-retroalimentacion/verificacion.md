@@ -1,5 +1,46 @@
 # Verificación S-009
 
+## Cierre vigente · 11-11-2026
+
+Estado: terminada e integrada mediante el PR #60.
+Autor: Jeffersson Daniel Ramos (`ramosdeleon555`).
+Verificador: Brayan Hernández (`Brayan11Hernandez`).
+Equipo de las pruebas registradas: Croczy11, Windows 11, Python 3.12.10.
+Commit técnico probado: `d6e6092e2fd243b1cfb45de15c7cc0d027af9331`.
+Evidencia incorporada: `558c5f9c7aaac951234181389aae866cc67bd61b`.
+
+Brayan aprobó el PR #60 sobre `35e0a5fba03bcdf00201a379f82389a07c133415`
+el 11-11-2026. El merge a main es
+`64e80433bdcd176c74cd0b58536f9566817a8644`.
+
+Después del merge, Jeffersson confirmó en esta conversación su revisión final
+y la finalización de las verificaciones de Brayan: «yo ya terminé y Brayan ya
+realizó las verificaciones que le tocaba hacer». Se registra esa confirmación
+del autor como fuente del cierre humano y de la comprobación posterior al merge;
+no como una ejecución nueva del asistente ni como una declaración textual de
+Brayan de «Ejecuté cada criterio antes de aprobar: sí».
+
+La [matriz independiente CA-1 a CA-10](evidencia/brayan-d6e6092-resultados.md)
+y el [índice de nueve capturas](evidencia/capturas-d6e6092/indice.md) son la
+evidencia vigente. Las 27 pruebas específicas y 244 de regresión pasaron,
+al igual que check, migraciones pendientes y pip check.
+
+### Límites conservados
+
+- CA-3 se comprobó en demo y con transporte simulado sobre `d6e6092`;
+  no hubo una nueva llamada real que demostrara la mejora pedagógica de Gemini.
+- La ausencia de red de CA-7 se instrumentó en pruebas, no desconectando
+  físicamente la red del navegador; los fallos de CA-8 y CA-9 fueron simulados.
+- La observación sobre el aviso de éxito en rojo y la falta de una aceptación
+  escrita específica de la excepción de tamaño permanecen en la evidencia.
+- Tokens/costo continúan sin confirmar; este cierre no los convierte en cero.
+- El issue #13 seguía abierto al consultar GitHub; su cierre administrativo
+  y la publicación de estos documentos no se han efectuado en esta sesión.
+
+Las secciones siguientes y los archivos de evidencia se conservan como registro
+histórico. Sus menciones a aprobaciones pendientes describen el momento de la
+ejecución, anterior a la aprobación y al merge del PR.
+
 ## Actualización asistida del verificador · 2026-11-11
 
 Se ejecutó la verificación técnica en el worktree aislado fijado a
