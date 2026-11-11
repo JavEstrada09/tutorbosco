@@ -77,3 +77,22 @@ en pruebas; no se realizan consultas pagadas ni se instalan dependencias.
 2026-11-10: el autor confirmó el contrato y precisó trabajar en
 s-007-ejercicios. Posteriormente aprobó todo el plan y solicitó comenzar.
 No se atribuye revisión ni evidencia al verificador antes de que la realice.
+
+### Corrección tras el reporte de Brayan sobre a6bd399
+
+Jeffersson trasladó el reporte de 2 fallos y 14 errores y solicitó corregir
+la suite como autor, dejando la evidencia independiente a cargo de Brayan.
+Aprobó modificar test_exercises.py, este plan y docs/registro-ia.md,
+repetir ambas suites sin depender de una clave local y crear un nuevo commit.
+
+- Cada prueba declara AI_MODE explícitamente; la configuración común de
+  PracticeTests no selecciona proveedor y no impone demo a los casos reales.
+- La configuración común usa GEMINI_API_KEY sintética. Es necesaria porque
+  el constructor se ejecuta antes del método generate simulado: sin clave,
+  el servicio activa demo y el mock real no se alcanza.
+- Se conservan los casos existentes y sus aserciones; no se modifica la
+  lógica de producción, la spec ni la evidencia del verificador.
+- Repetir tutor.test_exercises y accounts/academics/tutor con la variable
+  GEMINI_API_KEY explícitamente vacía en el proceso externo. Los casos
+  simulados obtienen únicamente la clave sintética del override de pruebas.
+- Brayan repetirá las suites sobre el nuevo commit antes de aprobar.

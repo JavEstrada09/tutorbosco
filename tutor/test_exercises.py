@@ -17,7 +17,9 @@ from tutor.models import PracticeExercise
 from tutor.providers import InvalidTutorResponseError, TutorUnavailableError
 
 
-@override_settings(AI_MODE="demo", WEAK_TOPIC_THRESHOLD=60)
+# La configuración común no selecciona proveedor: cada prueba declara su modo.
+# La clave sintética permite construir Gemini sin depender del .env del equipo.
+@override_settings(WEAK_TOPIC_THRESHOLD=60, GEMINI_API_KEY="synthetic-test-key")
 class PracticeTests(TestCase):
     def setUp(self):
         User = get_user_model()
@@ -53,17 +55,19 @@ class PracticeTests(TestCase):
         item.update(changes)
         return json.dumps({"exercises": [item]}, ensure_ascii=False)
 
+    @override_settings(AI_MODE="demo")
     def test_strict_threshold_and_missing_grades_ca1_ca3(self):
         exercises, _ = self.generate()
         self.assertEqual({e.topic_id for e in exercises}, {t.pk for t in self.topics[:2]})
         self.assertTrue(all(e.course == self.course and e.student == self.student for e in exercises))
 
-    @override_settings(WEAK_TOPIC_THRESHOLD=70)
+    @override_settings(AI_MODE="demo", WEAK_TOPIC_THRESHOLD=70)
     def test_configurable_threshold_ca2(self):
         self.set_grades([60, 69, 70])
         exercises, _ = self.generate()
         self.assertEqual({e.topic_id for e in exercises}, {t.pk for t in self.topics[:2]})
 
+    @override_settings(AI_MODE="demo")
     def test_no_grades_and_no_weak_topics_skip_providers_ca5(self):
         with patch.object(DemoExerciseProvider, "generate") as demo, patch.object(GeminiExerciseProvider, "generate") as real:
             self.set_grades([60, 85])
@@ -78,6 +82,7 @@ class PracticeTests(TestCase):
             real.assert_not_called()
         self.assertEqual(PracticeExercise.objects.count(), 0)
 
+    @override_settings(AI_MODE="demo")
     def test_next_practice_uses_corrected_grades_ca6(self):
         first, _ = self.generate()
         self.set_grades([60, 80, 40])
@@ -86,6 +91,7 @@ class PracticeTests(TestCase):
         first[0].refresh_from_db()
         self.assertEqual(first[0].topic_id, self.topics[0].pk)
 
+    @override_settings(AI_MODE="demo")
     def test_demo_is_offline_and_profile_specific_ca8(self):
         with patch("tutor.providers._create_gemini_client") as client:
             first, _ = self.generate()
@@ -95,6 +101,7 @@ class PracticeTests(TestCase):
         self.assertEqual({e.topic_id for e in other}, {self.topics[2].pk})
         self.assertTrue(all(e.mode == "demo" and e.demo_key for e in (*first, *other)))
 
+    @override_settings(AI_MODE="demo")
     def test_catalog_covers_all_synthetic_courses_and_topics(self):
         for code, blueprint in COURSE_BLUEPRINTS.items():
             self.assertEqual(set(DEMO_EXERCISES[code]), set(blueprint["topics"]))
@@ -159,7 +166,7 @@ class PracticeTests(TestCase):
         self.assertTrue(all(e.mode == "demo" for e in exercises))
         self.assertIn("modo demo", notice)
 
-    @override_settings(AI_MODE="real", GEMINI_API_KEY="synthetic-test-key")
+    @override_settings(AI_MODE="real")
     def test_quota_uses_shared_transport_and_falls_back_ca9(self):
         with patch("tutor.providers._create_gemini_client") as factory:
             client = factory.return_value.__enter__.return_value
@@ -171,7 +178,7 @@ class PracticeTests(TestCase):
         self.assertEqual(factory.call_args.kwargs["max_attempts"], 1)
         self.assertEqual(factory.call_args.kwargs["total_timeout_ms"], 60000)
 
-    @override_settings(AI_MODE="real", GEMINI_API_KEY="synthetic-test-key")
+    @override_settings(AI_MODE="real")
     def test_real_transport_receives_exercise_instructions(self):
         with patch("tutor.providers._create_gemini_client") as factory:
             client = factory.return_value.__enter__.return_value
@@ -183,6 +190,7 @@ class PracticeTests(TestCase):
         payload = json.loads(generate.call_args.kwargs["contents"])
         self.assertEqual(payload["datos_academicos"]["temas_debiles"][0]["topic_id"], self.topics[0].pk)
 
+    @override_settings(AI_MODE="demo")
     def test_missing_demo_catalog_never_substitutes_other_topics_ca9(self):
         with patch("tutor.exercise_providers.DEMO_EXERCISES", {}):
             with self.assertRaisesMessage(TutorUnavailableError, "no hay ejercicios grabados"):
@@ -199,6 +207,7 @@ class PracticeTests(TestCase):
                 self.generate()
         self.assertFalse(PracticeExercise.objects.exists())
 
+    @override_settings(AI_MODE="demo")
     def test_unauthorized_generation_is_rejected_before_provider_ca7(self):
         teacher = get_user_model().objects.create_user(username="practice_teacher")
         TeacherProfile.objects.create(user=teacher)
@@ -213,6 +222,7 @@ class PracticeTests(TestCase):
         self.client.logout()
         self.assertEqual(self.client.post(self.url).status_code, 302)
 
+    @override_settings(AI_MODE="demo")
     def test_manipulated_post_and_csrf_are_rejected_ca7(self):
         with patch.object(DemoExerciseProvider, "generate") as provider:
             for field in ("student", "student_id", "course", "topic_id", "statement"):
@@ -226,6 +236,7 @@ class PracticeTests(TestCase):
         token = csrf_client.cookies["csrftoken"].value
         self.assertEqual(csrf_client.post(self.url, {"csrfmiddlewaretoken": token}).status_code, 302)
 
+    @override_settings(AI_MODE="demo")
     def test_owned_uuid_is_stable_and_foreign_exercise_is_denied_ca10(self):
         exercises, _ = self.generate()
         exercise = exercises[0]
@@ -239,6 +250,7 @@ class PracticeTests(TestCase):
         exercise.refresh_from_db()
         self.assertEqual(exercise.student, self.student)
 
+    @override_settings(AI_MODE="demo")
     def test_render_escapes_content_and_does_not_modify_official_grades_ca10(self):
         grades = list(Grade.objects.order_by("pk").values_list("pk", "value"))
         response = self.client.post(self.url, follow=True)
@@ -252,6 +264,7 @@ class PracticeTests(TestCase):
         self.assertContains(page, "&lt;script&gt;")
         self.assertEqual(list(Grade.objects.order_by("pk").values_list("pk", "value")), grades)
 
+    @override_settings(AI_MODE="demo")
     def test_get_does_not_generate_and_post_redirect_prevents_refresh_generation(self):
         with patch.object(DemoExerciseProvider, "generate", wraps=DemoExerciseProvider().generate) as provider:
             self.assertEqual(self.client.get(self.url).status_code, 200)

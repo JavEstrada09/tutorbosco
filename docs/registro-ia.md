@@ -978,6 +978,57 @@ Consumo: una solicitud real a Gemini. Tokens y costo monetario pendientes
 de confirmar con el proveedor; no se afirma costo cero para esta llamada.
 No se habilitó facturación ni se modificó su configuración durante la prueba.
 
+## S-007 · Corrección de aislamiento de pruebas tras el reporte de Brayan
+
+Herramienta y modelo: OpenCode · `openai/gpt-6.1-sol`.
+Usado por: Jeffersson Ramos (`ramosdeleon555`), autor de S-007.
+Base de la corrección: `a6bd399`, rama `s-007-ejercicios`.
+
+El autor trasladó el reporte de Brayan: 2 fallos y 14 errores en la suite
+entregada. Solicitó corregir la selección de modo y la configuración de
+Gemini de las pruebas, ejecutar ambas suites y entregar un nuevo commit.
+Confirmó la estructura de tres archivos antes de modificarlos.
+
+Diagnóstico y cambio:
+
+- Se reprodujeron exactamente 2 fallos y 14 errores con GEMINI_API_KEY
+  vacía en el proceso de Python. Las pruebas anteriores habían pasado en
+  el equipo del autor con una clave local disponible: eso ocultó la dependencia.
+- Parchear GeminiExerciseProvider.generate no evita que se ejecute antes
+  su constructor. Sin clave, este lanza un error de configuración y el
+  servicio utiliza demo; los mocks del proveedor real no reciben la llamada.
+- Se eliminó AI_MODE del override común de PracticeTests y se declaró
+  explícitamente demo o real en cada prueba, según corresponda.
+- Se centralizó una clave sintética en la configuración común de pruebas.
+  No es una credencial del proveedor y las llamadas reales siguen simuladas.
+- No se relajaron aserciones ni se cambió el servicio de producción.
+
+Comprobaciones ejecutadas por el asistente en el entorno Windows del autor:
+
+| Ejecución | Configuración externa | Resultado |
+| --- | --- | --- |
+| tutor.test_exercises, verbosity 2 | GEMINI_API_KEY vacía; AI_MODE=real | 19 pruebas, OK, 0.881 s |
+| accounts academics tutor --noinput | GEMINI_API_KEY vacía; AI_MODE=demo | 215 pruebas, OK, 350.511 s |
+
+Comandos utilizados para excluir la clave local antes de cargar Django:
+
+```powershell
+& ".\.venv\Scripts\python.exe" -c "import os, runpy, sys; os.environ['GEMINI_API_KEY'] = ''; os.environ['AI_MODE'] = 'real'; sys.argv = ['manage.py', 'test', 'tutor.test_exercises', '--verbosity', '2', '--noinput']; runpy.run_path('manage.py', run_name='__main__')"
+& ".\.venv\Scripts\python.exe" -c "import os, runpy, sys; os.environ['GEMINI_API_KEY'] = ''; os.environ['AI_MODE'] = 'demo'; sys.argv = ['manage.py', 'test', 'accounts', 'academics', 'tutor', '--noinput']; runpy.run_path('manage.py', run_name='__main__')"
+```
+
+Se usa Python para fijar el valor vacío porque PowerShell 5.1 puede eliminar
+una variable al asignarle una cadena vacía, permitiendo que dotenv vuelva a
+cargar el valor local. No se modificó .env ni se mostraron secretos.
+
+Estos resultados son del autor asistido; no son la repetición independiente
+de Brayan. No se modificaron verificacion.md ni los archivos de evidencia
+del verificador. Brayan debe repetir ambas suites sobre el nuevo commit.
+
+Consumo del producto en esta corrección: ninguna llamada real a Gemini;
+sin consumo de cuota ni costo del servicio. No se instalaron dependencias.
+El consumo de la herramienta de desarrollo no se cuantificó.
+
 ## S-004 · 10-11-2026 · Integración final con S-005
 
 Herramienta y modelo: OpenCode · `openai/gpt-5.6-sol`.
