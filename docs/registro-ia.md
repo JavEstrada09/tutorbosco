@@ -1,5 +1,44 @@
 # Registro de uso de inteligencia artificial
 
+## S-007 · 10 y 11-11-2026 · Verificación independiente asistida de Brayan
+
+- Responsable: Brayan Hernández (`Brayan11Hernandez`), verificador de la
+  implementación de `ramosdeleon555`.
+- Herramienta: OpenCode. El modelo exacto de las sesiones históricas no
+  consta en la evidencia conservada; no se atribuye el modelo del producto
+  Gemini al asistente de desarrollo. Esta entrada se incorpora el 11-11-2026
+  con asistencia de OpenCode / OpenAI `gpt-6-astra`.
+- Fases: pruebas, diagnóstico, repetición de verificación, automatización
+  del navegador y documentación de resultados.
+- Instrucción clave: verificar los diez criterios de S-007 en la computadora
+  del verificador, con datos sintéticos y una base aislada; registrar fallos
+  reales, repetir las comprobaciones tras las correcciones y conservar
+  evidencia sin exponer secretos ni atribuir resultados simulados a Gemini.
+- Uso de IA: asistencia para los casos independientes de
+  `evidencia/brayan-casos.py`, las comprobaciones de permisos, contexto,
+  selección de temas y persistencia; diagnóstico de las suites; recorrido
+  HTTP, capturas reales de Edge mediante DevTools y redacción de evidencia.
+- Qué se aceptó: los resultados respaldados por comandos y archivos de
+  evidencia, y las 13 capturas del recorrido demo sobre `8a7a72c`. Brayan
+  confirmó el recorrido visual y aprobó el PR #56 sobre `acf58d0`, después
+  de repetir las suites, según `verificacion.md`.
+- Qué se corrigió o descartó: no se aceptó la afirmación inicial de suites
+  correctas sobre `a6bd399`; se reprodujeron 2 fallos y 14 errores. Se pidió
+  al autor aislar el modo real y configurar una clave sintética en las
+  pruebas. Sobre `8a7a72c` pasaron 19 pruebas específicas y 215 generales.
+  Tras la corrección de trato formal, sobre `acf58d0` pasaron 21 y 217,
+  además de los controles Django, migraciones y dependencias. El primer
+  intento de captura no produjo archivo; las capturas posteriores conservan
+  su commit de procedencia y no se presentan como nuevas en `acf58d0`.
+- Límites y consumo: Brayan omitió la consulta real independiente de Gemini.
+  Conexión, cuota y proveedor real se comprobaron mediante simulaciones;
+  el recorrido visual fue demo, sin clave. Esta verificación no consumió
+  cuota de Gemini. El costo del asistente no está informado. La llamada
+  real del autor es otra ejecución y su consumo corresponde a `docs/gasto.md`.
+- Evidencia: [verificación de S-007](../specs/S-007-ejercicios/verificacion.md)
+  y su carpeta [evidencia](../specs/S-007-ejercicios/evidencia/).
+  Esta actualización documental no constituye una nueva ejecución de pruebas.
+
 ## S-009 · 2026-11-11 · Verificación asistida de d6e6092
 
 - Herramienta y modelo: OpenCode, OpenAI `gpt-6-astra`.
